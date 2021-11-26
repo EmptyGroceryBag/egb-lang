@@ -7,14 +7,27 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
 add_executable(el ${SOURCES})
 
+set(MSVC_STATIC_CRT 1 CACHE BOOL "Windows executable with CRT baked in")
+set(GCC_DEBUG 0 CACHE BOOL "Use -G with G++ or clang++")
+
 if(MSVC)
 	if(MSVC_STATIC_CRT)
+		#debug
+		message(STATUS "MSVC static runtime")
 		set(CMAKE_CXX_FLAGS /MT) # statically link CRT
 	else()
-		set(MSVC_STATIC_CRT 0)
+		set(MSVC_STATIC_CRT no)
 	endif()
 else()
-	set(CMAKE_CXX_FLAGS -O2) # evidently O2 isn't implied with clang. might want to double check with GCC.
+	#debug
+	message(STATUS "not MSVC")
+	if(GCC_DEBUG)
+		#debug
+		message(STATUS "DEBUG")
+		set(CMAKE_CXX_FLAGS -g)
+	else()
+		#set(CMAKE_CXX_FLAGS -O2) # evidently O2 isn't implied with clang. might want to double check with GCC.
+	endif()
 endif()
 
 # header file to pass project version number to program

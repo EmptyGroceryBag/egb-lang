@@ -29,9 +29,59 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
  */
 
 #include <iostream>
+#include <string>
+#include <cstdio>
 
-// This is probably going to be called in a loop by the parser
-int get_token(){
-	std::cout << "In get_token()" << std::endl;
+enum Token{
+	tok_eof = -1,
+	tok_def = -2,
+	tok_extern = -3,
+	tok_identifier = -4,
+	tok_number = -5
+};
+
+static std::string ident_str;
+static double num_val;
+
+int get_token(std::FILE* file){
+	ident_str = "";
+	static int last_char = ' ';
+
+	while(isspace(last_char)){
+		last_char = fgetc(file);
+		//debug
+		//std::cout << (char)last_char << std::endl;
+	}
+
+	if(isalpha(last_char)){
+		/*
+		identifiers must begin with a letter and can end with any combinations of
+		letters and numbers
+		*/
+		ident_str += last_char;
+		last_char = fgetc(file);
+		//debug
+		//std::cout << (char)last_char << std::endl;
+
+		while(isalnum(last_char)){
+			ident_str += last_char;
+			last_char = fgetc(file);
+			//debug
+			//std::cout << (char)last_char << std::endl;
+		}
+
+		if(ident_str == "def"){
+			return tok_def;
+		}
+		if(ident_str == "extern"){
+			return tok_extern;
+		}
+
+		return tok_identifier;
+	}
+
+	if(last_char == -1)
+		return tok_eof;
+
 	return 0;
 }

@@ -18,38 +18,41 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
-#include <fstream>
+#include <cstdio>
 
 #include "cmake_config.h"
-#include "parser.h"
+#include "lexer.h"
 
 int main(int argc, char* argv[]){
 	std::cout << "egb-lang " 
 		<< el_VERSION_MAJOR << "." 
 		<< el_VERSION_MINOR << std::endl;
 
-	get_token();
-
-	std::ifstream ifs;
+	std::FILE* ifs;
 
 	if(argc < 2){
 		std::cerr << "Error: No input files specified" << std::endl;
 		return 1;
 	}
 
-	std::ios_base::iostate exception_mask = ifs.exceptions() | std::ios::failbit;
-	ifs.exceptions(exception_mask);
-
 	try{
-		ifs.open(argv[1], std::ios_base::in);
-	}catch (std::ios_base::failure& e){
-		std::cerr << "Could not open file " << argv[1] << std::endl
-			<< e.what() << std::endl << e.code().value();
-		return e.code().value();
+		ifs = std::fopen(argv[1], "r");
+		if (!ifs){
+			throw errno;
+		}
+	}catch (...){
+		std::cerr << "Error " << errno;
+		return errno;
 	}
 
 	std::cout << "Opened " << argv[1] << std::endl;
-	ifs.close();
+
+	int next_token;
+	while((next_token = get_token(ifs)) != -1){
+		std::cout << next_token << std::endl;
+		;
+	}
+	std::fclose(ifs);
 	std::cout << "Closed " << argv[1] << std::endl;
 
 	return 0;
