@@ -4,7 +4,8 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # add the executable - must be before target_include_directories
-add_executable(el ${PROJECT_SOURCE_DIR}/parser.cpp)
+file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
+add_executable(el ${SOURCES})
 
 if(MSVC)
 	if(MSVC_STATIC_CRT)
