@@ -32,25 +32,45 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 #include <cstdio>
 
-enum Token{
-	tok_eof = -1,
-	tok_def = -2,
-	tok_extern = -3,
-	tok_identifier = -4,
-	tok_number = -5
-};
+enum class Token{
+		tok_eof = -1,
+		tok_def = -2,
+		tok_extern = -3,
+		tok_identifier = -4,
+		tok_number = -5,
+		tok_undefined = -6
+	};
 
+static std::string num_str = "";
 static std::string ident_str;
-static double num_val;
+static double num_val = 0.0;
+static int last_char = 0;
 
-int get_token(std::FILE* file){
+Token get_token(std::FILE* file){
+
 	ident_str = "";
-	static int last_char = ' ';
+	num_str = "";
 
+	last_char = fgetc(file);
 	while(isspace(last_char)){
 		last_char = fgetc(file);
-		//debug
-		//std::cout << (char)last_char << std::endl;
+	}
+	
+	if(isdigit(last_char)){
+		last_char = fgetc(file);
+		num_str += last_char;
+
+		while(isdigit(last_char)){
+			last_char = fgetc(file);
+			num_str += last_char;
+		}
+
+		/*
+		Note that strtod() doesn't do sufficient error checking: it will
+		incorrectly read “1.23.45.67”
+		*/
+		num_val = strtod(num_str.c_str(), 0);
+		return Token::tok_number;
 	}
 
 	if(isalpha(last_char)){
@@ -60,28 +80,25 @@ int get_token(std::FILE* file){
 		*/
 		ident_str += last_char;
 		last_char = fgetc(file);
-		//debug
-		//std::cout << (char)last_char << std::endl;
 
 		while(isalnum(last_char)){
 			ident_str += last_char;
 			last_char = fgetc(file);
-			//debug
-			//std::cout << (char)last_char << std::endl;
 		}
 
 		if(ident_str == "def"){
-			return tok_def;
+			return Token::tok_def;
 		}
 		if(ident_str == "extern"){
-			return tok_extern;
+			return Token::tok_extern;
 		}
 
-		return tok_identifier;
+		return Token::tok_identifier;
 	}
 
-	if(last_char == -1)
-		return tok_eof;
 
-	return 0;
+	if(last_char == EOF)
+		return Token::tok_eof;
+	
+	return Token::tok_undefined;
 }

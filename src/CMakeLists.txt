@@ -12,18 +12,12 @@ set(GCC_DEBUG 0 CACHE BOOL "Use -G with G++ or clang++")
 
 if(MSVC)
 	if(MSVC_STATIC_CRT)
-		#debug
-		message(STATUS "MSVC static runtime")
 		set(CMAKE_CXX_FLAGS /MT) # statically link CRT
 	else()
 		set(MSVC_STATIC_CRT no)
 	endif()
 else()
-	#debug
-	message(STATUS "not MSVC")
 	if(GCC_DEBUG)
-		#debug
-		message(STATUS "DEBUG")
 		set(CMAKE_CXX_FLAGS -g)
 	else()
 		#set(CMAKE_CXX_FLAGS -O2) # evidently O2 isn't implied with clang. might want to double check with GCC.

@@ -50,7 +50,7 @@ int main(int argc, char* argv[]){
 	int next_token;
 	while((next_token = get_token(ifs)) != -1){
 		std::cout << next_token << std::endl;
-		;
+		//;
 	}
 	std::fclose(ifs);
 	std::cout << "Closed " << argv[1] << std::endl;

@@ -1,4 +1,1 @@
-def
-extern
-def
-def
+1234
