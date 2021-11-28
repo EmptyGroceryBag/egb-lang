@@ -30,7 +30,7 @@ jobs:
     - name: Build
       # Build your program with the given configuration
       #run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
-      run: msbuild.exe ${{github.workspace}}\el.sln /property:Configuration=Release
+      run: C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Msbuild\Current\Bin\MSBuild.exe ${{github.workspace}}\el.sln /property:Configuration=Release
 
     #- name: Test
     #  working-directory: ${{github.workspace}}/build
