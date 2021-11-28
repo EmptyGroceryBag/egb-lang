@@ -47,11 +47,12 @@ int main(int argc, char* argv[]){
 
 	std::cout << "Opened " << argv[1] << std::endl;
 
-	int next_token;
-	while((next_token = get_token(ifs)) != -1){
-		std::cout << next_token << std::endl;
+	Token next_token;
+	while((next_token = get_token(ifs)) != Token::tok_eof){
+		std::cout << (int)next_token << std::endl;
 		//;
 	}
+
 	std::fclose(ifs);
 	std::cout << "Closed " << argv[1] << std::endl;
 
