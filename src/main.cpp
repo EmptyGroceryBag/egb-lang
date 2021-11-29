@@ -31,7 +31,9 @@ int main(int argc, char* argv[]){
 	std::FILE* ifs;
 
 	if(argc < 2){
+		printf("\n\n");
 		std::cerr << "Error: No input files specified" << std::endl;
+		std::cout << "Usage: el FILE [FILE ...]" << std::endl;
 		return 1;
 	}
 
