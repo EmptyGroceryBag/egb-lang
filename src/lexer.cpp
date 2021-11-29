@@ -31,19 +31,12 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <string>
 #include <cstdio>
-
-enum class Token{
-		tok_eof = -1,
-		tok_def = -2,
-		tok_extern = -3,
-		tok_identifier = -4,
-		tok_number = -5,
-		tok_undefined = -6
-	};
+#include "lexer.h"
 
 static std::string num_str = "";
 static std::string ident_str;
-static double num_val = 0.0;
+static int int_num_val = 0;
+static double double_num_val = 0.0;
 static int last_char = 0;
 
 Token get_token(std::FILE* file){
@@ -56,20 +49,23 @@ Token get_token(std::FILE* file){
 		last_char = fgetc(file);
 	}
 	
-	if(isdigit(last_char)){
-		last_char = fgetc(file);
+	if(isdigit(last_char) || last_char == '.'){
 		num_str += last_char;
 
-		while(isdigit(last_char)){
+		while(isdigit(last_char) || last_char == '.'){
 			last_char = fgetc(file);
 			num_str += last_char;
 		}
 
 		/*
-		Note that strtod() doesn't do sufficient error checking: it will
-		incorrectly read “1.23.45.67”
+		Note: We are now doing our own integer parsing. Remember side
+		effects
 		*/
-		num_val = strtod(num_str.c_str(), 0);
+		std::cout << num_str << std::endl;
+		if(string_to_int(num_str, int_num_val))
+			// Later, we'll want to call string_to_double instead
+			return Token::tok_undefined;
+
 		return Token::tok_number;
 	}
 
@@ -101,4 +97,30 @@ Token get_token(std::FILE* file){
 		return Token::tok_eof;
 	
 	return Token::tok_undefined;
+}
+
+int string_to_int(std::string input_num, int& output_num){
+	//check if there's a decimal point
+	int num_value;
+	int ret_value;
+
+	try{
+		if((ret_value = input_num.find('.')) != -1)
+			throw ret_value;				
+		}
+	catch(...){ 
+		std::cout 
+			<< "string_to_int(): expected integer, but found floating point"
+			<< "use string_to_double() instead"
+			<< std::endl;
+		return ret_value;
+	}
+
+	output_num = stoi(input_num);
+	return 0;
+}
+
+//TODO
+double string_to_double(std::string){
+	return 0.0;
 }

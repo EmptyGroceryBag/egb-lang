@@ -12,4 +12,7 @@ enum class Token{
 
 Token get_token(std::FILE*);
 
+int string_to_int(std::string, int&);
+double string_to_double(std::string);
+
 #endif
