@@ -12,9 +12,9 @@ set(GCC_DEBUG 0 CACHE BOOL "Use -G with G++ or clang++")
 
 if(MSVC)
 	if(MSVC_STATIC_CRT)
-		set(CMAKE_CXX_FLAGS /MT) # statically link CRT
+		set(CMAKE_CXX_FLAGS "/EHsc /MT") # statically link CRT
 	else()
-		set(MSVC_STATIC_CRT no)
+		set(CMAKE_CXX_FLAGS "/EHsc")
 	endif()
 else()
 	if(GCC_DEBUG)
