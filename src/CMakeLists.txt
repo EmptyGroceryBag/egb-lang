@@ -8,19 +8,19 @@ file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
 add_executable(el ${SOURCES})
 
 set(MSVC_STATIC_CRT 1 CACHE BOOL "Windows executable with CRT baked in")
-set(GCC_DEBUG 0 CACHE BOOL "Use -G with G++ or clang++")
+set(GCC_DEBUG 0 CACHE BOOL "Tell clang or GCC to produce debug symbols")
 
 if(MSVC)
 	if(MSVC_STATIC_CRT)
-		set(CMAKE_CXX_FLAGS "/EHsc /MT") # statically link CRT
+		set(CMAKE_CXX_FLAGS "/O2 /WX /EHsc /MT") # statically link CRT
 	else()
-		set(CMAKE_CXX_FLAGS "/EHsc")
+		set(CMAKE_CXX_FLAGS "/O2 /WX /EHsc")
 	endif()
 else()
 	if(GCC_DEBUG)
-		set(CMAKE_CXX_FLAGS -g)
+		set(CMAKE_CXX_FLAGS "-O2 -Werror -g")
 	else()
-		#set(CMAKE_CXX_FLAGS -O2) # evidently O2 isn't implied with clang. might want to double check with GCC.
+		set(CMAKE_CXX_FLAGS "-O2 -Werror")
 	endif()
 endif()
 

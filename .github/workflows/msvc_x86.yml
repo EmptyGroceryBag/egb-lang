@@ -1,4 +1,4 @@
-name: cmake-windows-x86
+name: msvc_x86
 
 on:
   push:

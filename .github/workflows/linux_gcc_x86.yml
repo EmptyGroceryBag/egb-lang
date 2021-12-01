@@ -1,4 +1,4 @@
-name: cmake-linux-x86
+name: linux_gcc_x86
 
 on:
   push:
