@@ -10,6 +10,8 @@ add_executable(el ${SOURCES})
 set(MSVC_STATIC_CRT 1 CACHE BOOL "Windows executable with CRT baked in")
 set(GCC_DEBUG 0 CACHE BOOL "Tell clang or GCC to produce debug symbols")
 
+find_package(Boost)
+
 if(MSVC)
 	if(MSVC_STATIC_CRT)
 		set(CMAKE_CXX_FLAGS "/O2 /WX /EHsc /MT") # statically link CRT
