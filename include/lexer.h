@@ -6,8 +6,9 @@ enum class Token{
 	tok_def = -2,
 	tok_extern = -3,
 	tok_identifier = -4,
-	tok_number = -5,
-	tok_undefined = -6
+	tok_integer = -5,
+	tok_floating_point = -6,
+	tok_undefined = -999
 };
 
 Token get_token(std::FILE*);
