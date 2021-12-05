@@ -39,6 +39,7 @@ static int int_num_val = 0;
 static double double_num_val = 0.0;
 static int last_char = 0;
 
+//TODO: make this function take a string
 Token get_token(std::FILE* file){
 
 	ident_str = "";
@@ -61,12 +62,13 @@ Token get_token(std::FILE* file){
 		Note: We are now doing our own integer parsing. Remember side
 		effects
 		*/
-		std::cout << num_str << std::endl;
+		//debug
+		//std::cout << num_str << std::endl;
 		if(string_to_int(num_str, int_num_val))
 			// Later, we'll want to call string_to_double instead
 			return Token::tok_undefined;
 
-		return Token::tok_number;
+		return Token::tok_integer;
 	}
 
 	if(isalpha(last_char)){
@@ -109,10 +111,13 @@ int string_to_int(std::string input_num, int& output_num){
 			throw ret_value;				
 		}
 	catch(...){ 
+		/*
 		std::cout 
 			<< "string_to_int(): expected integer, but found floating point"
+			<< std::endl;
 			<< "use string_to_double() instead"
 			<< std::endl;
+		*/
 		return ret_value;
 	}
 

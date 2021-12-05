@@ -1,11 +1,27 @@
-cmake_minimum_required(VERSION 3.0) # arbitrary version requirement
+cmake_minimum_required(VERSION 3.14.5)
 project(el VERSION 0.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# add the executable - must be before target_include_directories
-file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/*.cpp")
-add_executable(el ${SOURCES})
+set(BUILD_TEST 0 CACHE BOOL "Build test executable")
+if(BUILD_TEST)
+	add_library(
+		el
+		main.cpp
+		lexer.cpp
+	)
+
+	add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
+else()
+	add_executable(
+		el
+		main.cpp
+		lexer.cpp
+	)
+endif()
+
+#include(GoogleTest)
+#gtest_discover_tests(hello_test)
 
 set(MSVC_STATIC_CRT 1 CACHE BOOL "Windows executable with CRT baked in")
 set(GCC_DEBUG 0 CACHE BOOL "Tell clang or GCC to produce debug symbols")
@@ -24,7 +40,6 @@ else()
 	endif()
 endif()
 
-# header file to pass project version number to program
 # needs to come after set()'s
 configure_file(${PROJECT_SOURCE_DIR}/../include/cmake_config.h.in 
 	${PROJECT_SOURCE_DIR}/../include/cmake_config.h)
