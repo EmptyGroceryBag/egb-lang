@@ -11,7 +11,8 @@ if(BUILD_TEST)
 
 	add_executable(
 		test 
-		NumberTest.cpp
+		LexNumberTest.cpp
+		LexCommentTest.cpp
 	)
 
 target_link_libraries(test gtest_main el)

@@ -9,7 +9,10 @@ TEST(TestNumbers, TestPositiveInteger) {
 	fclose(f_out);
 
 	std::FILE* f_in = std::fopen("unsigned_integer_test.txt", "r");
-  EXPECT_EQ(static_cast<int>(get_token(f_in)), static_cast<int>(Token::tok_integer));
+  EXPECT_EQ(
+			static_cast<int>(get_token(f_in)), 
+			static_cast<int>(Token::tok_integer));
+	fclose(f_in);
 }
 
 TEST(TestNumbers, TestNegativeInteger) {
@@ -19,7 +22,10 @@ TEST(TestNumbers, TestNegativeInteger) {
 	fclose(f_out);
 
 	std::FILE* f_in = std::fopen("signed_integer_test.txt", "r");
-  EXPECT_EQ(static_cast<int>(get_token(f_in)), static_cast<int>(Token::tok_undefined));
+  EXPECT_EQ(
+			static_cast<int>(get_token(f_in)), 
+			static_cast<int>(Token::tok_undefined));
+	fclose(f_in);
 }
 
 TEST(TestNumbers, TestUnsignedFloatingPoint) {
@@ -30,5 +36,8 @@ TEST(TestNumbers, TestUnsignedFloatingPoint) {
 
 	std::FILE* f_in = std::fopen("unsigned_floating_point_test.txt", "r");
 	//@@@ eventually get_token should return Token::tok_double
-  EXPECT_EQ(static_cast<int>(get_token(f_in)), static_cast<int>(Token::tok_undefined));
+  EXPECT_EQ(
+			static_cast<int>(get_token(f_in)), 
+			static_cast<int>(Token::tok_floating_point));
+	fclose(f_in);
 }

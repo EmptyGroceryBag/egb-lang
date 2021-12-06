@@ -1,0 +1,4 @@
+# this is a comment
+#		this is a comment with tabs at the beginning of it
+# this is a comment with tabs at the end		
+# this is a comment		with tabs in the middle

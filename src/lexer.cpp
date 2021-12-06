@@ -45,6 +45,7 @@ Token get_token(std::FILE* file){
 	ident_str = "";
 	num_str = "";
 
+	// Numbers
 	last_char = fgetc(file);
 	while(isspace(last_char)){
 		last_char = fgetc(file);
@@ -64,13 +65,18 @@ Token get_token(std::FILE* file){
 		*/
 		//debug
 		//std::cout << num_str << std::endl;
-		if(string_to_int(num_str, int_num_val))
-			// Later, we'll want to call string_to_double instead
-			return Token::tok_undefined;
+		if(string_to_int(num_str, int_num_val)){
+			if(string_to_double(num_str, double_num_val)){
+					return Token::tok_undefined;
+			}else{
+					return Token::tok_floating_point;
+			}
+		}
 
 		return Token::tok_integer;
 	}
 
+	// Identifiers
 	if(isalpha(last_char)){
 		/*
 		identifiers must begin with a letter and can end with any combinations of
@@ -94,6 +100,13 @@ Token get_token(std::FILE* file){
 		return Token::tok_identifier;
 	}
 
+	// Ignore comments
+	if(last_char == '#'){
+		while((last_char = fgetc(file)) != '\n')
+			;
+
+		return Token::tok_undefined;
+	}
 
 	if(last_char == EOF)
 		return Token::tok_eof;
@@ -102,22 +115,21 @@ Token get_token(std::FILE* file){
 }
 
 int string_to_int(std::string input_num, int& output_num){
-	//check if there's a decimal point
 	int num_value;
 	int ret_value;
 
+	//check if there's a decimal point
 	try{
 		if((ret_value = input_num.find('.')) != -1)
 			throw ret_value;				
 		}
 	catch(...){ 
-		/*
-		std::cout 
+		std::cerr 
 			<< "string_to_int(): expected integer, but found floating point"
-			<< std::endl;
+			<< std::endl
 			<< "use string_to_double() instead"
 			<< std::endl;
-		*/
+
 		return ret_value;
 	}
 
@@ -125,7 +137,26 @@ int string_to_int(std::string input_num, int& output_num){
 	return 0;
 }
 
-//TODO
-double string_to_double(std::string){
-	return 0.0;
+int string_to_double(std::string input_num, double& output_num){
+	int num_value;
+	int ret_value;
+	int found_decimal_point = input_num.find('.');
+
+	//check for duplicate decimal points
+	try{
+		for(int i = found_decimal_point + 1; i < input_num.size(); i++)
+			if(input_num[i] == '.'){
+				throw (ret_value = i);
+			}
+		}
+	catch(...){ 
+		std::cerr 
+			<< "string_to_double(): malformed double literal"
+			<< std::endl;
+
+		return ret_value;
+	}
+
+	output_num = stod(input_num);
+	return 0;
 }
