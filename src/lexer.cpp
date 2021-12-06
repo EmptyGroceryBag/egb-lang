@@ -39,23 +39,24 @@ static int int_num_val = 0;
 static double double_num_val = 0.0;
 static int last_char = 0;
 
-//TODO: make this function take a string
-Token get_token(std::FILE* file){
+static int cursor = 0;
+
+Token get_token(std::string input_str){
 
 	ident_str = "";
 	num_str = "";
 
 	// Numbers
-	last_char = fgetc(file);
+	last_char = get_char_in_string(input_str);
 	while(isspace(last_char)){
-		last_char = fgetc(file);
+		last_char = get_char_in_string(input_str);
 	}
 	
-	if(isdigit(last_char) || last_char == '.'){
+	if(isdigit(last_char) || last_char == '.' || last_char == '-'){
 		num_str += last_char;
 
 		while(isdigit(last_char) || last_char == '.'){
-			last_char = fgetc(file);
+			last_char = get_char_in_string(input_str);
 			num_str += last_char;
 		}
 
@@ -83,11 +84,11 @@ Token get_token(std::FILE* file){
 		letters and numbers
 		*/
 		ident_str += last_char;
-		last_char = fgetc(file);
+		last_char = get_char_in_string(input_str);
 
 		while(isalnum(last_char)){
 			ident_str += last_char;
-			last_char = fgetc(file);
+			last_char = get_char_in_string(input_str);
 		}
 
 		if(ident_str == "def"){
@@ -102,7 +103,7 @@ Token get_token(std::FILE* file){
 
 	// Ignore comments
 	if(last_char == '#'){
-		while((last_char = fgetc(file)) != '\n')
+		while((last_char = get_char_in_string(input_str)) != '\n')
 			;
 
 		return Token::tok_undefined;
@@ -124,12 +125,6 @@ int string_to_int(std::string input_num, int& output_num){
 			throw ret_value;				
 		}
 	catch(...){ 
-		std::cerr 
-			<< "string_to_int(): expected integer, but found floating point"
-			<< std::endl
-			<< "use string_to_double() instead"
-			<< std::endl;
-
 		return ret_value;
 	}
 
@@ -150,13 +145,16 @@ int string_to_double(std::string input_num, double& output_num){
 			}
 		}
 	catch(...){ 
-		std::cerr 
-			<< "string_to_double(): malformed double literal"
-			<< std::endl;
-
 		return ret_value;
 	}
 
 	output_num = stod(input_num);
 	return 0;
+}
+
+char get_char_in_string(std::string input_str){
+	while(cursor < input_str.size()){
+		return input_str[cursor++];
+	}
+	return EOF;
 }

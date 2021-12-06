@@ -11,9 +11,10 @@ enum class Token{
 	tok_undefined = -999
 };
 
-Token get_token(std::FILE*);
+Token get_token(std::string);
 
 int string_to_int(std::string, int&);
 int string_to_double(std::string, double&);
+char get_char_in_string(std::string);
 
 #endif

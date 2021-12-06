@@ -29,6 +29,7 @@ int main(int argc, char* argv[]){
 		<< el_VERSION_MINOR << std::endl;
 
 	std::FILE* ifs;
+	std::string buffer;
 
 	if(argc < 2){
 		printf("\n\n");
@@ -49,8 +50,13 @@ int main(int argc, char* argv[]){
 
 	std::cout << "Opened " << argv[1] << std::endl;
 
+	char next_char;
+	while((next_char = fgetc(ifs)) != EOF){
+		buffer += next_char;
+	}
+
 	Token next_token;
-	while((next_token = get_token(ifs)) != Token::tok_eof){
+	while((next_token = get_token(buffer)) != Token::tok_eof){
 		std::cout << (int)next_token << std::endl;
 		//;
 	}
