@@ -3,16 +3,34 @@
 #include "lexer.h"
 
 TEST(TestComments, TestComment) {
-  EXPECT_EQ(
-			static_cast<int>(get_token("# this is a comment\n")), 
-			static_cast<int>(Token::tok_undefined));
-  EXPECT_EQ(
-			static_cast<int>(get_token("#		this is a comment with tabs at the beginning of it\n")), 
-			static_cast<int>(Token::tok_undefined));
-  EXPECT_EQ(
-			static_cast<int>(get_token("# this is a comment with tabs at the end		\n")), 
-			static_cast<int>(Token::tok_undefined));
-  EXPECT_EQ(
-			static_cast<int>(get_token("# this is a comment		with tabs in the middle\n")), 
-			static_cast<int>(Token::tok_undefined));
+	std::string test_string = "# this is a comment\n";
+	char* start = &test_string[0];
+	EXPECT_EQ(
+			get_token(test_string, start),
+			Token::tok_undefined
+	);
+}
+TEST(TestComments, TestCommentBeginningTab) {
+	std::string test_string = "#		this is a comment with tabs at the beginning of it\n";
+	char* start = &test_string[0];
+	EXPECT_EQ(
+			get_token(test_string, start),
+			Token::tok_undefined
+	);
+}
+TEST(TestComments, TestCommentEndingTab) {
+	std::string test_string = "# this is a comment with tabs at the end		\n";
+	char* start = &test_string[0];
+	EXPECT_EQ(
+			get_token(test_string, start),
+			Token::tok_undefined
+	);
+}
+TEST(TestComments, TestCommentMiddleTab) {
+	std::string test_string = "# this is a comment		with tabs in the middle\n";
+	char* start = &test_string[0];
+	EXPECT_EQ(
+			get_token(test_string, start),
+			Token::tok_undefined
+	);
 }

@@ -55,9 +55,13 @@ int main(int argc, char* argv[]){
 		buffer += next_char;
 	}
 
+	//@@@ probably don't need this
+	//auto end = buffer.end();
+	char* iterator = &buffer[0];
+
 	Token next_token;
-	while((next_token = get_token(buffer)) != Token::tok_eof){
-		std::cout << (int)next_token << std::endl;
+	while((next_token = get_token(buffer, iterator)) != Token::tok_eof){
+		std::cout << static_cast<int>(next_token) << std::endl;
 		//;
 	}
 

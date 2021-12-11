@@ -31,6 +31,7 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <string>
 #include <cstdio>
+
 #include "lexer.h"
 
 static std::string num_str = "";
@@ -39,24 +40,25 @@ static int int_num_val = 0;
 static double double_num_val = 0.0;
 static int last_char = 0;
 
+//@@@
 static int cursor = 0;
 
-Token get_token(std::string input_str){
-
+Token get_token(std::string input_str, char*& iterator){
 	ident_str = "";
 	num_str = "";
 
 	// Numbers
-	last_char = get_char_in_string(input_str);
+	last_char = static_cast<char>(*(iterator++));
 	while(isspace(last_char)){
-		last_char = get_char_in_string(input_str);
+		last_char = *(iterator++);
 	}
 	
 	if(isdigit(last_char) || last_char == '.' || last_char == '-'){
 		num_str += last_char;
+		last_char = *iterator;
 
 		while(isdigit(last_char) || last_char == '.'){
-			last_char = get_char_in_string(input_str);
+			last_char = *(iterator++);
 			num_str += last_char;
 		}
 
@@ -64,8 +66,6 @@ Token get_token(std::string input_str){
 		Note: We are now doing our own integer parsing. Remember side
 		effects
 		*/
-		//debug
-		//std::cout << num_str << std::endl;
 		if(string_to_int(num_str, int_num_val)){
 			if(string_to_double(num_str, double_num_val)){
 					return Token::tok_undefined;
@@ -84,11 +84,11 @@ Token get_token(std::string input_str){
 		letters and numbers
 		*/
 		ident_str += last_char;
-		last_char = get_char_in_string(input_str);
+		last_char = *(iterator++);
 
 		while(isalnum(last_char)){
 			ident_str += last_char;
-			last_char = get_char_in_string(input_str);
+			last_char = *(iterator++);
 		}
 
 		if(ident_str == "def"){
@@ -103,13 +103,13 @@ Token get_token(std::string input_str){
 
 	// Ignore comments
 	if(last_char == '#'){
-		while((last_char = get_char_in_string(input_str)) != '\n')
+		while((last_char = *(iterator++)) != '\n')
 			;
 
 		return Token::tok_undefined;
 	}
 
-	if(last_char == EOF)
+	if(last_char == '\0')
 		return Token::tok_eof;
 	
 	return Token::tok_undefined;
@@ -139,22 +139,16 @@ int string_to_double(std::string input_num, double& output_num){
 
 	//check for duplicate decimal points
 	try{
-		for(int i = found_decimal_point + 1; i < input_num.size(); i++)
+		for(int i = found_decimal_point + 1; i < input_num.size(); i++){
 			if(input_num[i] == '.'){
 				throw (ret_value = i);
 			}
 		}
+	}
 	catch(...){ 
 		return ret_value;
 	}
 
 	output_num = stod(input_num);
 	return 0;
-}
-
-char get_char_in_string(std::string input_str){
-	while(cursor < input_str.size()){
-		return input_str[cursor++];
-	}
-	return EOF;
 }
