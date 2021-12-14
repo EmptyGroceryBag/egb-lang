@@ -7,16 +7,20 @@ set(BUILD_TEST 0 CACHE BOOL "Build test executable")
 if(BUILD_TEST)
 	add_library(
 		el
-		main.cpp
+		ast_number.cpp
 		lexer.cpp
+		main.cpp
+		parser.cpp
 	)
 
 	add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
 else()
 	add_executable(
 		el
-		main.cpp
+		ast_number.cpp
 		lexer.cpp
+		main.cpp
+		parser.cpp
 	)
 endif()
 

@@ -19,9 +19,13 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <cstdio>
+#include <vector>
 
 #include "cmake_config.h"
 #include "lexer.h"
+#include "ast_number.h"
+#include "ast_node.h"
+#include "parser.h"
 
 int main(int argc, char* argv[]){
 	std::cout << "egb-lang " 
@@ -55,14 +59,12 @@ int main(int argc, char* argv[]){
 		buffer += next_char;
 	}
 
-	//@@@ probably don't need this
-	//auto end = buffer.end();
 	char* iterator = &buffer[0];
+	Token token;
+	std::vector<ASTNode*> nodes;
 
-	Token next_token;
-	while((next_token = get_token(buffer, iterator)) != Token::tok_eof){
-		std::cout << static_cast<int>(next_token) << std::endl;
-		//;
+	while((token = get_token(buffer, iterator)) != Token::tok_eof){
+		nodes.push_back(parse_expr(static_cast<int>(token)));
 	}
 
 	std::fclose(ifs);
