@@ -30,89 +30,98 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <string>
+//#include <memory>
+#include <utility>
 #include <cstdio>
 
 #include "lexer.h"
 
-static std::string num_str = "";
-static std::string ident_str;
-static int int_num_val = 0;
-static double double_num_val = 0.0;
-static int last_char = 0;
+std::pair<int, TVals*> get_token(std::string input_str, char*& iterator){
+	TVals* vals = new TVals();
+	//@@@
+	//static std::unique_ptr<TVals> vals = std::make_unique<TVals>();
+	vals->ident_str = "";
+	vals->num_str = "";
 
-//@@@
-static int cursor = 0;
-
-Token get_token(std::string input_str, char*& iterator){
-	ident_str = "";
-	num_str = "";
+	std::pair<int, TVals*> ret;
+	ret.second = vals;
 
 	// Numbers
-	last_char = static_cast<char>(*(iterator++));
-	while(isspace(last_char)){
-		last_char = *(iterator++);
+	vals->last_char = *(iterator++);
+	while(isspace(vals->last_char)){
+		vals->last_char = *(iterator++);
 	}
 	
-	if(isdigit(last_char) || last_char == '.' || last_char == '-'){
-		num_str += last_char;
-		last_char = *iterator;
+	if(isdigit(vals->last_char) || vals->last_char == '.' || vals->last_char == '-'){
+		vals->num_str += vals->last_char;
+		vals->last_char = *iterator;
 
-		while(isdigit(last_char) || last_char == '.'){
-			last_char = *(iterator++);
-			num_str += last_char;
+		while(isdigit(vals->last_char) || vals->last_char == '.'){
+			vals->last_char = *(iterator++);
+			vals->num_str += vals->last_char;
 		}
 
 		/*
 		Note: We are now doing our own integer parsing. Remember side
 		effects
 		*/
-		if(string_to_int(num_str, int_num_val)){
-			if(string_to_double(num_str, double_num_val)){
-					return Token::tok_undefined;
-			}else{
-					return Token::tok_floating_point;
+		try{
+			if(string_to_int(vals->num_str, vals->int_num_val)){
+				if(string_to_double(vals->num_str, vals->double_num_val)){
+					int errno_ = 1;
+					throw errno_; 
+				}else{
+					ret.first = static_cast<int>(Token::tok_floating_point);
+					return ret;
+				}
 			}
-		}
-
-		return Token::tok_integer;
+			ret.first = static_cast<int>(Token::tok_integer);
+			return ret;
+		}catch(int e){ fprintf(stderr, "Error %d: Malformed double literal", e); }
 	}
 
 	// Identifiers
-	if(isalpha(last_char)){
+	if(isalpha(vals->last_char)){
 		/*
 		identifiers must begin with a letter and can end with any combinations of
 		letters and numbers
 		*/
-		ident_str += last_char;
-		last_char = *(iterator++);
+		vals->ident_str += vals->last_char;
+		vals->last_char = *(iterator++);
 
-		while(isalnum(last_char)){
-			ident_str += last_char;
-			last_char = *(iterator++);
+		while(isalnum(vals->last_char)){
+			vals->ident_str += vals->last_char;
+			vals->last_char = *(iterator++);
 		}
 
-		if(ident_str == "def"){
-			return Token::tok_def;
+		if(vals->ident_str == "def"){
+			ret.first = static_cast<int>(Token::tok_def);
+			return ret;
 		}
-		if(ident_str == "extern"){
-			return Token::tok_extern;
+		if(vals->ident_str == "extern"){
+			ret.first = static_cast<int>(Token::tok_extern);
+			return ret;
 		}
 
-		return Token::tok_identifier;
+		ret.first = static_cast<int>(Token::tok_identifier);
+		return ret;
 	}
 
 	// Ignore comments
-	if(last_char == '#'){
-		while((last_char = *(iterator++)) != '\n')
+	if(vals->last_char == '#'){
+		while((vals->last_char = *(iterator++)) != '\n')
 			;
-
-		return Token::tok_undefined;
+		ret.first = static_cast<int>(Token::tok_undefined);
+		return ret;
 	}
 
-	if(last_char == '\0')
-		return Token::tok_eof;
+	if (vals->last_char == '\0'){
+		ret.first = static_cast<int>(Token::tok_eof);
+		return ret;
+	}
 	
-	return Token::tok_undefined;
+	ret.first = static_cast<int>(vals->last_char);
+	return ret;
 }
 
 int string_to_int(std::string input_num, int& output_num){

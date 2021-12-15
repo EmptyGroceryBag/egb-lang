@@ -14,6 +14,7 @@ if(BUILD_TEST)
 		LexCommentTest.cpp
 		LexNumberTest.cpp
 		LexStringToDoubleTest.cpp
+		LexParenthesisTest.cpp
 		ParseExpressionTest.cpp
 	)
 

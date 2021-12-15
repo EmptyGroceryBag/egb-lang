@@ -18,12 +18,12 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
+#include <utility>
 #include <cstdio>
 #include <vector>
 
 #include "cmake_config.h"
 #include "lexer.h"
-#include "ast_number.h"
 #include "ast_node.h"
 #include "parser.h"
 
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]){
 		if (!ifs){
 			throw errno;
 		}
-	}catch (...){
+	}catch (int e){
 		std::cerr << "Error " << errno;
 		return errno;
 	}
@@ -60,11 +60,11 @@ int main(int argc, char* argv[]){
 	}
 
 	char* iterator = &buffer[0];
-	Token token;
+	std::pair<int, TVals*> token;
 	std::vector<ASTNode*> nodes;
 
-	while((token = get_token(buffer, iterator)) != Token::tok_eof){
-		nodes.push_back(parse_expr(static_cast<int>(token)));
+	while((token = get_token(buffer, iterator)).first != static_cast<int>(Token::tok_eof)){
+		nodes.push_back(parse_expr(token));
 	}
 
 	std::fclose(ifs);
