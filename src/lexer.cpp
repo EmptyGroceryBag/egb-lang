@@ -25,14 +25,15 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "t_vals.h"
 #include "tok_val_pair.h"
 
-TokValPair get_token(std::string buffer, const char* iterator){
+TokValPair* get_token(std::string buffer, const char* iterator){
 	//@@@ do I need heap allocation here?
 	TVals* vals = new TVals();
 	vals->ident_str = "";
 	vals->num_str = "";
 
-	TokValPair pair;
-	pair.token_value = vals;
+	//@@@ do I need heap allocation here?
+	TokValPair *pair = new TokValPair;
+	pair->token_value = vals;
 
 	// Whitespace
 	while(isspace(*iterator)){
@@ -58,11 +59,11 @@ TokValPair get_token(std::string buffer, const char* iterator){
 					int errno_ = 1;
 					throw errno_; 
 				}else{
-					pair.token_type = static_cast<int>(Token::tok_floating_point);
+					pair->token_type = static_cast<int>(Token::tok_floating_point);
 					return pair;
 				}
 			}
-			pair.token_type = static_cast<int>(Token::tok_integer);
+			pair->token_type = static_cast<int>(Token::tok_integer);
 			return pair;
 		}catch(int e){ fprintf(stderr, "Error %d: Malformed double literal", e); }
 	}
@@ -80,15 +81,15 @@ TokValPair get_token(std::string buffer, const char* iterator){
 		}
 
 		if(vals->ident_str == "def"){
-			pair.token_type = static_cast<int>(Token::tok_def);
+			pair->token_type = static_cast<int>(Token::tok_def);
 			return pair;
 		}
 		if(vals->ident_str == "extern"){
-			pair.token_type = static_cast<int>(Token::tok_extern);
+			pair->token_type = static_cast<int>(Token::tok_extern);
 			return pair;
 		}
 
-		pair.token_type = static_cast<int>(Token::tok_identifier);
+		pair->token_type = static_cast<int>(Token::tok_identifier);
 		return pair;
 	}
 
@@ -96,16 +97,16 @@ TokValPair get_token(std::string buffer, const char* iterator){
 	if(*iterator == '#'){
 		while(*(iterator++) != '\n' || *(iterator++) != '\0')
 			;
-		pair.token_type = static_cast<int>(Token::tok_undefined);
+		pair->token_type = static_cast<int>(Token::tok_undefined);
 		return pair;
 	}
 
 	if (*iterator == '\0'){
-		pair.token_type = static_cast<int>(Token::tok_eof);
+		pair->token_type = static_cast<int>(Token::tok_eof);
 		return pair;
 	}
 	
-	pair.token_type = (*iterator);
+	pair->token_type = (*iterator);
 	return pair;
 }
 
