@@ -1,13 +1,7 @@
+#include "tok_val_pair.h"
+
 #ifndef LEXER_H
 #define LEXER_H
-
-struct TVals {
-	std::string num_str;
-	std::string ident_str;
-	int int_num_val;
-	double double_num_val;
-	//int last_char;
-};
 
 enum class Token {
 	tok_eof = -1,
@@ -20,7 +14,7 @@ enum class Token {
 	tok_undefined = -999
 };
 
-std::pair<int, TVals*> get_token(std::string, const char*);
+TokValPair* get_token(std::string, const char*);
 
 int string_to_int(const std::string, int&);
 int string_to_double(const std::string, double&);

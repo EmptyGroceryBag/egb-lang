@@ -14,11 +14,8 @@ returned, as well as the token's value.
 */
 TEST(TestNumberExpression, TestInteger){
 	std::string buffer = "1234";
-	char *iterator = &buffer[0];
-	std::pair<int, TVals*> t = get_token(buffer, iterator);
-
 	//should return an ASTInteger
-	ASTNode* n = parse_expr(t);
+	ASTNode* n = parse_expr(get_token(buffer, &buffer[0]));
 
 	ASTInteger* check = dynamic_cast<ASTInteger*>(n);
 	if(check){
@@ -31,11 +28,8 @@ TEST(TestNumberExpression, TestInteger){
 
 TEST(TestNumberExpression, TestFloatingPoint) {
 	std::string buffer = "12.34";
-	char* iterator = &buffer[0];
-	std::pair<int, TVals*> t = get_token(buffer, iterator);
-
 	//should return an ASTDouble
-	ASTNode* n = parse_expr(t);
+	ASTNode* n = parse_expr(get_token(buffer, &buffer[0]));
 
 	ASTDouble* check = dynamic_cast<ASTDouble*>(n);
 	if (check) {
