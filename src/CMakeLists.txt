@@ -7,16 +7,34 @@ set(BUILD_TEST 0 CACHE BOOL "Build test executable")
 if(BUILD_TEST)
 	add_library(
 		el
-		main.cpp
 		lexer.cpp
+		main.cpp
+		parser.cpp
+		ast_integer.cpp
+		ast_double.cpp
+
+		${PROJECT_SOURCE_DIR}/../include/lexer.h
+		${PROJECT_SOURCE_DIR}/../include/parser.h
+		${PROJECT_SOURCE_DIR}/../include/ast_node.h
+		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
+		${PROJECT_SOURCE_DIR}/../include/ast_double.h
 	)
 
 	add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
 else()
 	add_executable(
 		el
-		main.cpp
 		lexer.cpp
+		main.cpp
+		parser.cpp
+		ast_integer.cpp
+		ast_double.cpp
+
+		${PROJECT_SOURCE_DIR}/../include/lexer.h
+		${PROJECT_SOURCE_DIR}/../include/parser.h
+		${PROJECT_SOURCE_DIR}/../include/ast_node.h
+		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
+		${PROJECT_SOURCE_DIR}/../include/ast_double.h
 	)
 endif()
 
