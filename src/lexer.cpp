@@ -19,19 +19,20 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <iostream>
 #include <string>
-#include <utility>
 #include <cstdio>
 
 #include "lexer.h"
+#include "t_vals.h"
+#include "tok_val_pair.h"
 
-//@@@ use more meaningful struct for return type
-std::pair<int, TVals*> get_token(std::string buffer, const char* iterator){
+TokValPair get_token(std::string buffer, const char* iterator){
+	//@@@ do I need heap allocation here?
 	TVals* vals = new TVals();
 	vals->ident_str = "";
 	vals->num_str = "";
 
-	std::pair<int, TVals*> ret;
-	ret.second = vals;
+	TokValPair pair;
+	pair.token_value = vals;
 
 	// Whitespace
 	while(isspace(*iterator)){
@@ -57,12 +58,12 @@ std::pair<int, TVals*> get_token(std::string buffer, const char* iterator){
 					int errno_ = 1;
 					throw errno_; 
 				}else{
-					ret.first = static_cast<int>(Token::tok_floating_point);
-					return ret;
+					pair.token_type = static_cast<int>(Token::tok_floating_point);
+					return pair;
 				}
 			}
-			ret.first = static_cast<int>(Token::tok_integer);
-			return ret;
+			pair.token_type = static_cast<int>(Token::tok_integer);
+			return pair;
 		}catch(int e){ fprintf(stderr, "Error %d: Malformed double literal", e); }
 	}
 
@@ -79,33 +80,33 @@ std::pair<int, TVals*> get_token(std::string buffer, const char* iterator){
 		}
 
 		if(vals->ident_str == "def"){
-			ret.first = static_cast<int>(Token::tok_def);
-			return ret;
+			pair.token_type = static_cast<int>(Token::tok_def);
+			return pair;
 		}
 		if(vals->ident_str == "extern"){
-			ret.first = static_cast<int>(Token::tok_extern);
-			return ret;
+			pair.token_type = static_cast<int>(Token::tok_extern);
+			return pair;
 		}
 
-		ret.first = static_cast<int>(Token::tok_identifier);
-		return ret;
+		pair.token_type = static_cast<int>(Token::tok_identifier);
+		return pair;
 	}
 
 	// Ignore comments - @@@ we probably don't need to return an undefined token
 	if(*iterator == '#'){
 		while(*(iterator++) != '\n' || *(iterator++) != '\0')
 			;
-		ret.first = static_cast<int>(Token::tok_undefined);
-		return ret;
+		pair.token_type = static_cast<int>(Token::tok_undefined);
+		return pair;
 	}
 
 	if (*iterator == '\0'){
-		ret.first = static_cast<int>(Token::tok_eof);
-		return ret;
+		pair.token_type = static_cast<int>(Token::tok_eof);
+		return pair;
 	}
 	
-	ret.first = (*iterator);
-	return ret;
+	pair.token_type = (*iterator);
+	return pair;
 }
 
 int string_to_int(const std::string input_num, int& output_num){

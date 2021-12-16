@@ -19,7 +19,6 @@ if(BUILD_TEST)
 		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
 		${PROJECT_SOURCE_DIR}/../include/ast_double.h
 		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
-		${PROJECT_SOURCE_DIR}/../include/t_vals.h
 	)
 
 	add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
@@ -38,7 +37,6 @@ else()
 		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
 		${PROJECT_SOURCE_DIR}/../include/ast_double.h
 		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
-		${PROJECT_SOURCE_DIR}/../include/t_vals.h
 	)
 endif()
 

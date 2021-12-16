@@ -18,7 +18,6 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <iostream>
-#include <utility>
 #include <cstdio>
 #include <vector>
 
@@ -26,6 +25,7 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "lexer.h"
 #include "ast_node.h"
 #include "parser.h"
+#include "tok_val_pair.h"
 
 int main(int argc, char* argv[]){
 	std::cout << "egb-lang " 
@@ -60,10 +60,10 @@ int main(int argc, char* argv[]){
 	}
 
 	char* iterator = &buffer[0];
-	std::pair<int, TVals*> token;
+	TokValPair token;
 	std::vector<ASTNode*> nodes;
 
-	while((token = get_token(buffer, iterator)).first != static_cast<int>(Token::tok_eof)){
+	while((token = get_token(buffer, iterator)).token_type != static_cast<int>(Token::tok_eof)){
 		nodes.push_back(parse_expr(token));
 	}
 
