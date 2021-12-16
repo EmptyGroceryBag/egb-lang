@@ -13,7 +13,7 @@ if(BUILD_TEST)
 		test 
 		LexCommentTest.cpp
 		LexNumberTest.cpp
-		LexStringToDoubleTest.cpp
+		LexStringToNumberTest.cpp
 		LexParenthesisTest.cpp
 		ParseExpressionTest.cpp
 	)

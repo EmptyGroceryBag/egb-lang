@@ -6,7 +6,7 @@ struct TVals {
 	std::string ident_str;
 	int int_num_val;
 	double double_num_val;
-	int last_char;
+	//int last_char;
 };
 
 enum class Token {
@@ -20,10 +20,9 @@ enum class Token {
 	tok_undefined = -999
 };
 
-std::pair<int, TVals*> get_token(std::string, char*&);
+std::pair<int, TVals*> get_token(std::string, const char*);
 
-int string_to_int(std::string, int&);
-int string_to_double(std::string, double&);
-char next_char_in_string(std::string);
+int string_to_int(const std::string, int&);
+int string_to_double(const std::string, double&);
 
 #endif

@@ -17,48 +17,33 @@ You should have received a copy of the GNU General Public License along
 with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-/*
- * Lexer algorithm:
- * - Get next character, discard if whitespace
- * - If char is number, enter numeric loop
- * - If char is letter, enter identifier loop
- * - If char is #, keep getting characters until end of line
- *   - At the next line, call get_token() and return
- * - If char is EOF, return token_EOF
- * - If char is not one of these, simply return its ASCII value
- */
-
 #include <iostream>
 #include <string>
-//#include <memory>
 #include <utility>
 #include <cstdio>
 
 #include "lexer.h"
 
-std::pair<int, TVals*> get_token(std::string input_str, char*& iterator){
+//@@@ use more meaningful struct for return type
+std::pair<int, TVals*> get_token(std::string buffer, const char* iterator){
 	TVals* vals = new TVals();
-	//@@@
-	//static std::unique_ptr<TVals> vals = std::make_unique<TVals>();
 	vals->ident_str = "";
 	vals->num_str = "";
 
 	std::pair<int, TVals*> ret;
 	ret.second = vals;
 
-	// Numbers
-	vals->last_char = *(iterator++);
-	while(isspace(vals->last_char)){
-		vals->last_char = *(iterator++);
+	// Whitespace
+	while(isspace(*iterator)){
+		iterator++; //eat
 	}
 	
-	if(isdigit(vals->last_char) || vals->last_char == '.' || vals->last_char == '-'){
-		vals->num_str += vals->last_char;
-		vals->last_char = *iterator;
-
-		while(isdigit(vals->last_char) || vals->last_char == '.'){
-			vals->last_char = *(iterator++);
-			vals->num_str += vals->last_char;
+	// Numbers
+	if(isdigit(*iterator) || *iterator == '.' || *iterator == '-'){
+		vals->num_str += *(iterator++);
+		
+		while(isdigit(*iterator) || *iterator == '.'){
+			vals->num_str += *(iterator++);
 		}
 
 		/*
@@ -68,6 +53,7 @@ std::pair<int, TVals*> get_token(std::string input_str, char*& iterator){
 		try{
 			if(string_to_int(vals->num_str, vals->int_num_val)){
 				if(string_to_double(vals->num_str, vals->double_num_val)){
+					//@@@ this is stupid
 					int errno_ = 1;
 					throw errno_; 
 				}else{
@@ -81,17 +67,15 @@ std::pair<int, TVals*> get_token(std::string input_str, char*& iterator){
 	}
 
 	// Identifiers
-	if(isalpha(vals->last_char)){
+	if(isalpha(*iterator)){
 		/*
 		identifiers must begin with a letter and can end with any combinations of
 		letters and numbers
 		*/
-		vals->ident_str += vals->last_char;
-		vals->last_char = *(iterator++);
+		vals->ident_str += *(iterator++);
 
-		while(isalnum(vals->last_char)){
-			vals->ident_str += vals->last_char;
-			vals->last_char = *(iterator++);
+		while(isalnum(*iterator)){
+			vals->ident_str += *(iterator++);
 		}
 
 		if(vals->ident_str == "def"){
@@ -107,55 +91,40 @@ std::pair<int, TVals*> get_token(std::string input_str, char*& iterator){
 		return ret;
 	}
 
-	// Ignore comments
-	if(vals->last_char == '#'){
-		while((vals->last_char = *(iterator++)) != '\n')
+	// Ignore comments - @@@ we probably don't need to return an undefined token
+	if(*iterator == '#'){
+		while(*(iterator++) != '\n' || *(iterator++) != '\0')
 			;
 		ret.first = static_cast<int>(Token::tok_undefined);
 		return ret;
 	}
 
-	if (vals->last_char == '\0'){
+	if (*iterator == '\0'){
 		ret.first = static_cast<int>(Token::tok_eof);
 		return ret;
 	}
 	
-	ret.first = static_cast<int>(vals->last_char);
+	ret.first = (*iterator);
 	return ret;
 }
 
-int string_to_int(std::string input_num, int& output_num){
-	int num_value;
-	int ret_value;
+int string_to_int(const std::string input_num, int& output_num){
+	int decimal_point = input_num.find('.');
 
-	//check if there's a decimal point
-	try{
-		if((ret_value = input_num.find('.')) != -1)
-			throw ret_value;				
-		}
-	catch(...){ 
-		return ret_value;
+	if (decimal_point != -1) {
+		return decimal_point;
 	}
 
 	output_num = stoi(input_num);
 	return 0;
 }
 
-int string_to_double(std::string input_num, double& output_num){
-	int num_value;
-	int ret_value;
-	int found_decimal_point = input_num.find('.');
+int string_to_double(const std::string input_num, double& output_num){
+	int first_decimal_point = input_num.find('.');
+	int duplicate_decimal_point = 0;
 
-	//check for duplicate decimal points
-	try{
-		for(int i = found_decimal_point + 1; i < input_num.size(); i++){
-			if(input_num[i] == '.'){
-				throw (ret_value = i);
-			}
-		}
-	}
-	catch(...){ 
-		return ret_value;
+	if((duplicate_decimal_point = input_num.find('.', first_decimal_point+1)) != -1){
+		return duplicate_decimal_point;
 	}
 
 	output_num = stod(input_num);

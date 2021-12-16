@@ -13,7 +13,7 @@ TEST(TestNumbers, TestPositiveInteger) {
 	);
 }
 
-TEST(TestNumbers, TestNegativeInteger) {
+TEST(TestNumbers, TestSignedInteger) {
 	std::string test_string = "-1234";
 	char* start = &test_string[0];
 	int token = get_token(test_string, start).first;
