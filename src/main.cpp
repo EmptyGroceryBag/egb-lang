@@ -59,12 +59,13 @@ int main(int argc, char* argv[]){
 		buffer += next_char;
 	}
 
-	char* iterator = &buffer[0];
 	TokValPair* token;
 	std::vector<ASTNode*> nodes;
+	char* iterator = &buffer[0];
 
 	while((token = get_token(buffer, iterator))->token_type != static_cast<int>(Token::tok_eof)){
-		nodes.push_back(parse_expr(token));
+		std::cout << static_cast<int>(token->token_type) << std::endl;
+		//nodes.push_back(parse_expr(token));
 	}
 
 	std::fclose(ifs);

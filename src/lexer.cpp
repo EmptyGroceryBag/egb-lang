@@ -25,7 +25,7 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "t_vals.h"
 #include "tok_val_pair.h"
 
-TokValPair* get_token(std::string buffer, const char* iterator){
+TokValPair* get_token(std::string buffer, char*& iterator){
 	//@@@ do I need heap allocation here?
 	TVals* vals = new TVals();
 	vals->ident_str = "";
@@ -94,19 +94,24 @@ TokValPair* get_token(std::string buffer, const char* iterator){
 	}
 
 	// Ignore comments - @@@ we probably don't need to return an undefined token
+	// @@@ we can't parse comments that come directly before EOF
 	if(*iterator == '#'){
-		while(*(iterator++) != '\n' || *(iterator++) != '\0')
-			;
+
+		while(*iterator != '\n'){
+			iterator++;
+		}
+
 		pair->token_type = static_cast<int>(Token::tok_undefined);
 		return pair;
 	}
 
-	if (*iterator == '\0'){
+	if(*iterator == '\0'){
 		pair->token_type = static_cast<int>(Token::tok_eof);
 		return pair;
 	}
 	
 	pair->token_type = (*iterator);
+	iterator++;
 	return pair;
 }
 
