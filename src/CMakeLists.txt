@@ -12,12 +12,14 @@ if(BUILD_TEST)
 		parser.cpp
 		ast_integer.cpp
 		ast_double.cpp
+		ast_bin_expr.cpp
 
 		${PROJECT_SOURCE_DIR}/../include/lexer.h
 		${PROJECT_SOURCE_DIR}/../include/parser.h
 		${PROJECT_SOURCE_DIR}/../include/ast_node.h
 		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
 		${PROJECT_SOURCE_DIR}/../include/ast_double.h
+		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
 		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
 		${PROJECT_SOURCE_DIR}/../include/t_vals.h
 	)
@@ -31,12 +33,14 @@ else()
 		parser.cpp
 		ast_integer.cpp
 		ast_double.cpp
+		ast_bin_expr.cpp
 
 		${PROJECT_SOURCE_DIR}/../include/lexer.h
 		${PROJECT_SOURCE_DIR}/../include/parser.h
 		${PROJECT_SOURCE_DIR}/../include/ast_node.h
 		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
 		${PROJECT_SOURCE_DIR}/../include/ast_double.h
+		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
 		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
 		${PROJECT_SOURCE_DIR}/../include/t_vals.h
 	)

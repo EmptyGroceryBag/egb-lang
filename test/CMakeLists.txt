@@ -11,11 +11,11 @@ if(BUILD_TEST)
 
 	add_executable(
 		test 
-		LexCommentTest.cpp
-		LexNumberTest.cpp
-		LexStringToNumberTest.cpp
-		LexParenthesisTest.cpp
-		ParseExpressionTest.cpp
+		#LexCommentTest.cpp
+		#LexNumberTest.cpp
+		#LexStringToNumberTest.cpp
+		#LexParenthesisTest.cpp
+		test_parse_expression.cpp
 	)
 
 target_link_libraries(test gtest_main el)

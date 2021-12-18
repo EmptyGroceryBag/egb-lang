@@ -23,9 +23,16 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "cmake_config.h"
 #include "lexer.h"
-#include "ast_node.h"
+#include "ast_integer.h"
 #include "parser.h"
 #include "tok_val_pair.h"
+#include "ast_bin_expr.h"
+
+void print_node(ASTNode* node){
+	if(dynamic_cast<ASTBinExpr*>(node) != nullptr){
+		std::cout << dynamic_cast<ASTBinExpr*>(node)->to_string(0) << std::endl;
+	}
+}
 
 int main(int argc, char* argv[]){
 	std::cout << "egb-lang " 
@@ -59,13 +66,18 @@ int main(int argc, char* argv[]){
 		buffer += next_char;
 	}
 
-	TokValPair* token;
 	std::vector<ASTNode*> nodes;
-	const char* iterator = &buffer[0];
+	ASTNode* node;
 
-	while((token = get_token(buffer, iterator))->token_type != static_cast<int>(Token::tok_eof)){
-		std::cout << static_cast<int>(token->token_type) << std::endl;
-		//nodes.push_back(parse_expr(token));
+	const char* iterator = &buffer[0];
+	Parser p(iterator);
+
+	while((node = p.parse_top_level_expr()) != nullptr){
+		nodes.push_back(node);
+	}
+
+	for(ASTNode* n : nodes){
+		print_node(n);
 	}
 
 	std::fclose(ifs);

@@ -5,9 +5,13 @@
 
 class ASTDouble : public ASTNode{
 	public:
-		double double_val;
+		double value;
 
 		ASTDouble(double);
+
+		virtual std::string to_string();
+		//@@@ return nullptr?
+		virtual std::string to_string(int) { return nullptr; };
 };
 
 #endif

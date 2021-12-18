@@ -1,11 +1,22 @@
-#include "ast_node.h"
 #include "lexer.h"
+#include "ast_node.h"
 
 #ifndef PARSER_H
 #define PARSER_H
 
-ASTNode* parse_expr(TokValPair*);
-ASTNode* parse_int_expr(TVals*);
-ASTNode* parse_double_expr(TVals*);
+class Parser {
+public:
+	const char* iterator;
+	Parser(const char*& iterator) : iterator(iterator) {};
+	Parser() = default;
+
+	ASTNode* parse_binop_rhs(int, ASTNode*);
+	ASTNode* parse_primary_expr();
+	ASTNode* parse_top_level_expr();
+	ASTNode* parse_paren_expr();
+
+	//@@@
+	void UNIMPLEMENTED();
+};
 
 #endif

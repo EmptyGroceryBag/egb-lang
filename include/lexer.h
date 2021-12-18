@@ -14,7 +14,8 @@ enum class Token {
 	tok_undefined = -999
 };
 
-TokValPair* get_token(std::string, const char*&);
+TokValPair* get_token(const char*&);
+TokValPair* peek(const char* iterator);
 
 int string_to_int(const std::string, int&);
 int string_to_double(const std::string, double&);

@@ -12,7 +12,6 @@
 #include "lexer.h"
 
 std::unordered_map<int, int> op_prec = {
-	{'\\', 0},
 	{'+', 10},
 	{'-', 20},
 	{'*', 30}
@@ -30,7 +29,7 @@ void Parser::UNIMPLEMENTED(){
 	std::cout << "Not implemented yet" << std::endl;
 }
 
-ASTNode* Parser::parse_primary_expr() {
+ASTNode* Parser::parse_bin_expr() {
 	ASTNode* lhs;
 
 	switch (token->token_type){ // primary expressions
@@ -54,48 +53,36 @@ ASTNode* Parser::parse_primary_expr() {
 }
 
 ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs){
-	for (;;) {
-		// check to see if next token is a binary operator
-		TokValPair* peeked_token = peek(iterator);
-		if (peeked_token->token_type == ')') {
-			iterator++;
-		}
-		char token_prec = op_prec[peeked_token->token_type];
-		if (token_prec == 0) {
-			token_prec = -1;
-		}
-
-		if (token_prec < expr_prec) {
-			return lhs;
-		}
-
-		// if we got this far, we have a binary operator
+	ASTNode* rhs;
+	// check to see if next token is a binary operator
+	TokValPair* peeked_token = peek(iterator);
+	char token_prec = op_prec[(peeked_token->token_type)];
+	
+	if (token_prec > expr_prec) {
+		// we have a binary operator
 		iterator++;
 		token = get_token(iterator);
-		ASTNode* rhs = parse_primary_expr();
 
-		int next_prec = op_prec[token->token_type];
-		if (next_prec == 0) {
-			next_prec = -1;
-		}
-		if (token_prec < next_prec) {
-			rhs = parse_binop_rhs(token_prec + 1, rhs);
+		if(token->token_type == static_cast<int>(Token::tok_integer)){
+			rhs = new ASTInteger(token->token_value->int_num_val);
+		}else if(token->token_type == '('){
+			rhs = parse_paren_expr();
+			//token = get_token(iterator);
 		}
 
-		lhs = new ASTBinExpr(peeked_token->token_type, lhs, rhs);
+		return new ASTBinExpr(peeked_token->token_type, lhs, rhs);
 	}
+	return lhs;
 }
 
 ASTNode* Parser::parse_paren_expr(){
 	token = get_token(iterator); // eat '('
-	ASTNode* n = parse_primary_expr();
+	ASTNode* n = parse_bin_expr();
 
-	/*
 	if(get_token(iterator)->token_type != ')'){
-		//std::cerr << "Expected closing parenthesis" << std::endl;
+		std::cerr << "Expected closing parenthesis" << std::endl;
 		return nullptr;
 	}
-	*/
 
 	return n;
 }
@@ -103,22 +90,25 @@ ASTNode* Parser::parse_paren_expr(){
 ASTNode* Parser::parse_top_level_expr(){
 	token = get_token(iterator);
 
-	ASTNode* lhs = nullptr;
+	switch(token->token_type){
+		case static_cast<int>(Token::tok_def):
+			UNIMPLEMENTED();
+			return nullptr;
 
-	switch (token->token_type) {
-	case static_cast<int>(Token::tok_def):
-		UNIMPLEMENTED();
-		return nullptr;
+		case static_cast<int>(Token::tok_extern):
+			UNIMPLEMENTED();
+			return nullptr;
 
-	case static_cast<int>(Token::tok_extern):
-		UNIMPLEMENTED();
-		return nullptr;
+		case static_cast<int>(Token::tok_eof):
+			return nullptr;
 
-	case static_cast<int>(Token::tok_eof):
-		return nullptr;
-
-	default: // number or identifier
-		lhs = parse_primary_expr(); // lhs
-		return lhs;
+		default: // number or identifier
+			ASTNode* n = nullptr;
+			
+			int peeked_token = peek(iterator)->token_type;
+			switch (peeked_token) {
+			case '+':
+				n = parse_bin_expr();
+			}
 	}
 }

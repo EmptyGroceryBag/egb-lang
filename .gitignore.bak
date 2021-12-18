@@ -49,7 +49,6 @@ include/divisible/*
 
 build/
 build_release/
-parser.cpp.old
 
 ## include/*
 lib/*

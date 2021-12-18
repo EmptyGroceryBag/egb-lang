@@ -5,9 +5,13 @@
 
 class ASTInteger : public ASTNode{
 	public:
-		int int_val;
+		int value;
 
 		ASTInteger(int);
+
+		virtual std::string to_string();
+		//@@@ return nullptr?
+		virtual std::string to_string(int) { return nullptr; }
 };
 
 #endif

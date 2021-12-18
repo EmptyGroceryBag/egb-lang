@@ -25,7 +25,7 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "t_vals.h"
 #include "tok_val_pair.h"
 
-TokValPair* get_token(std::string buffer, const char*& iterator){
+TokValPair* get_token(const char*& iterator){
 	//@@@ do I need heap allocation here?
 	TVals* vals = new TVals();
 	vals->ident_str = "";
@@ -41,7 +41,8 @@ TokValPair* get_token(std::string buffer, const char*& iterator){
 	}
 	
 	// Numbers
-	if(isdigit(*iterator) || *iterator == '.' || *iterator == '-'){
+	// Differentiate between unary (negate) and binary '-' (subtract) operator
+	if(isdigit(*iterator) || *iterator == '.'){
 		vals->num_str += *(iterator++);
 		
 		while(isdigit(*iterator) || *iterator == '.'){
@@ -136,4 +137,12 @@ int string_to_double(const std::string input_num, double& output_num){
 
 	output_num = stod(input_num);
 	return 0;
+}
+
+TokValPair* peek(const char* iterator){
+	const char* base_ptr = iterator; // hopefully this makes a copy
+	return get_token(base_ptr);
+	//std::ptrdiff_t offset = iterator - base_ptr;
+	//iterator = iterator - offset;
+	//return peeked_token;
 }
