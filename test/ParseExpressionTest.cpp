@@ -14,8 +14,9 @@ returned, as well as the token's value.
 */
 TEST(TestNumberExpression, TestInteger){
 	std::string buffer = "1234";
+	const char* start = &buffer[0];
 	//should return an ASTInteger
-	ASTNode* n = parse_expr(get_token(buffer, &buffer[0]));
+	ASTNode* n = parse_expr(get_token(buffer, start));
 
 	ASTInteger* check = dynamic_cast<ASTInteger*>(n);
 	if(check){
@@ -28,8 +29,9 @@ TEST(TestNumberExpression, TestInteger){
 
 TEST(TestNumberExpression, TestFloatingPoint) {
 	std::string buffer = "12.34";
+	const char* start = &buffer[0];
 	//should return an ASTDouble
-	ASTNode* n = parse_expr(get_token(buffer, &buffer[0]));
+	ASTNode* n = parse_expr(get_token(buffer, start));
 
 	ASTDouble* check = dynamic_cast<ASTDouble*>(n);
 	if (check) {

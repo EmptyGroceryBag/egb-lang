@@ -61,7 +61,7 @@ int main(int argc, char* argv[]){
 
 	TokValPair* token;
 	std::vector<ASTNode*> nodes;
-	char* iterator = &buffer[0];
+	const char* iterator = &buffer[0];
 
 	while((token = get_token(buffer, iterator))->token_type != static_cast<int>(Token::tok_eof)){
 		std::cout << static_cast<int>(token->token_type) << std::endl;

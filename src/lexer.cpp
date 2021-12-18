@@ -25,7 +25,7 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "t_vals.h"
 #include "tok_val_pair.h"
 
-TokValPair* get_token(std::string buffer, char*& iterator){
+TokValPair* get_token(std::string buffer, const char*& iterator){
 	//@@@ do I need heap allocation here?
 	TVals* vals = new TVals();
 	vals->ident_str = "";
