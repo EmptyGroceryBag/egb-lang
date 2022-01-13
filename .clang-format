@@ -1,0 +1,12 @@
+BasedOnStyle: Google
+
+IncludeCategories: [
+	{Regex: '<.+', Priority: 0},
+	{Regex: '".+', Priority: 1}
+]
+
+IndentWidth: 2
+ColumnLimit: 80
+
+DerivePointerAlignment: false
+PointerAlignment: Left
