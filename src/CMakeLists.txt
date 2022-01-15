@@ -3,6 +3,12 @@ project(el VERSION 0.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+	set(LLVM_DIR /opt/homebrew/opt/llvm/lib/cmake/llvm/)
+endif()
+	
+find_package(LLVM REQUIRED CONFIG)
+
 set(BUILD_TEST 0 CACHE BOOL "Build test executable")
 if(BUILD_TEST)
 	add_library(
