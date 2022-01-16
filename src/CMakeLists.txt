@@ -4,9 +4,20 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-	set(LLVM_DIR /opt/homebrew/opt/llvm/lib/cmake/llvm/)
+	if(LLVM_DIR STREQUAL "LLVM_DIR-NOTFOUND")
+		execute_process(
+			COMMAND brew --prefix llvm
+			OUTPUT_VARIABLE raw_prefix
+			)
+		string(STRIP ${raw_prefix} prefix)
+		set(LLVM_DIR ${prefix}/lib/cmake/llvm/)
+	endif()
 endif()
-	
+
+if(WIN32)
+
+endif()
+
 find_package(LLVM REQUIRED CONFIG)
 
 set(BUILD_TEST 0 CACHE BOOL "Build test executable")
