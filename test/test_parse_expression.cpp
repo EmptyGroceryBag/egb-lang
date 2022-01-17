@@ -32,7 +32,7 @@ TEST(test_parse_expression, test_unsigned_floating_point) {
   check_node_type_and_value<ASTDouble>("12.34", 12.34);
 }
 
-TEST(test_parse_expression, test_bin_expr_two_operands) {
+TEST(test_parse_expression, test_bin_expr_addition_two_operands) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4");
   ASSERT_TRUE(check);
   ASSERT_EQ(check->op, '+');
@@ -48,7 +48,23 @@ TEST(test_parse_expression, test_bin_expr_two_operands) {
   std::cout << check->to_string(0) << std::endl;
 }
 
-TEST(test_parse_expression, test_bin_expr_three_operands) {
+TEST(test_parse_expression, test_bin_expr_multiplication_two_operands) {
+  ASTBinExpr* check = check_node_type<ASTBinExpr>("2*4");
+  ASSERT_TRUE(check);
+  ASSERT_EQ(check->op, '*');
+
+  ASTInteger* lhs = dynamic_cast<ASTInteger*>(check->lhs);
+  ASSERT_TRUE(lhs);
+  ASSERT_EQ(lhs->value, 2);
+
+  ASTInteger* rhs = dynamic_cast<ASTInteger*>(check->rhs);
+  ASSERT_TRUE(rhs);
+  ASSERT_EQ(rhs->value, 4);
+
+  std::cout << check->to_string(0) << std::endl;
+}
+
+TEST(test_parse_expression, test_bin_expr_addition_three_operands) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4+5");
   ASSERT_TRUE(check);
   ASSERT_EQ(check->op, '+');
@@ -60,6 +76,54 @@ TEST(test_parse_expression, test_bin_expr_three_operands) {
   ASTBinExpr* rhs = dynamic_cast<ASTBinExpr*>(check->rhs);
   ASSERT_TRUE(rhs);
   ASSERT_EQ(rhs->op, '+');
+
+  ASTInteger* nested_lhs = dynamic_cast<ASTInteger*>(rhs->lhs);
+  ASSERT_TRUE(nested_lhs);
+  ASSERT_EQ(nested_lhs->value, 4);
+
+  ASTInteger* nested_rhs = dynamic_cast<ASTInteger*>(rhs->rhs);
+  ASSERT_TRUE(nested_rhs);
+  ASSERT_EQ(nested_rhs->value, 5);
+
+  std::cout << check->to_string(0) << std::endl;
+}
+
+TEST(test_parse_expression, test_bin_expr_left_multiplication_three_operands) {
+  ASTBinExpr* check = check_node_type<ASTBinExpr>("2*4+5");
+  ASSERT_TRUE(check);
+  ASSERT_EQ(check->op, '*');
+
+  ASTInteger* lhs = dynamic_cast<ASTInteger*>(check->lhs);
+  ASSERT_TRUE(lhs);
+  ASSERT_EQ(lhs->value, 2);
+
+  ASTBinExpr* rhs = dynamic_cast<ASTBinExpr*>(check->rhs);
+  ASSERT_TRUE(rhs);
+  ASSERT_EQ(rhs->op, '+');
+
+  ASTInteger* nested_lhs = dynamic_cast<ASTInteger*>(rhs->lhs);
+  ASSERT_TRUE(nested_lhs);
+  ASSERT_EQ(nested_lhs->value, 4);
+
+  ASTInteger* nested_rhs = dynamic_cast<ASTInteger*>(rhs->rhs);
+  ASSERT_TRUE(nested_rhs);
+  ASSERT_EQ(nested_rhs->value, 5);
+
+  std::cout << check->to_string(0) << std::endl;
+}
+
+TEST(test_parse_expression, test_bin_expr_right_multiplication_three_operands) {
+  ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4*5");
+  ASSERT_TRUE(check);
+  ASSERT_EQ(check->op, '+');
+
+  ASTInteger* lhs = dynamic_cast<ASTInteger*>(check->lhs);
+  ASSERT_TRUE(lhs);
+  ASSERT_EQ(lhs->value, 2);
+
+  ASTBinExpr* rhs = dynamic_cast<ASTBinExpr*>(check->rhs);
+  ASSERT_TRUE(rhs);
+  ASSERT_EQ(rhs->op, '*');
 
   ASTInteger* nested_lhs = dynamic_cast<ASTInteger*>(rhs->lhs);
   ASSERT_TRUE(nested_lhs);

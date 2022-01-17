@@ -1,24 +1,30 @@
 cmake_minimum_required(VERSION 3.14.5)
 project(el VERSION 0.1)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-	if(LLVM_DIR STREQUAL "LLVM_DIR-NOTFOUND")
+	# @@@ TEMPORARY HACK
+	#if(LLVM_DIR STREQUAL "LLVM_DIR-NOTFOUND" OR LLVM_DIR STREQUAL "")
 		execute_process(
 			COMMAND brew --prefix llvm
 			OUTPUT_VARIABLE raw_prefix
 			)
+		message(${raw_prefix})
 		string(STRIP ${raw_prefix} prefix)
+		message(${prefix})
 		set(LLVM_DIR ${prefix}/lib/cmake/llvm/)
-	endif()
+		message(${LLVM_DIR})
+		#endif()
 endif()
 
-if(WIN32)
-
-endif()
-
+# LLVM
 find_package(LLVM REQUIRED CONFIG)
+
+include_directories(${LLVM_INCLUDE_DIRS})
+separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
+add_definitions(${LLVM_DEFINITIONS_LIST})
+llvm_map_components_to_libnames(llvm_libs support core irreader)
 
 set(BUILD_TEST 0 CACHE BOOL "Build test executable")
 if(BUILD_TEST)
@@ -62,9 +68,6 @@ else()
 		${PROJECT_SOURCE_DIR}/../include/t_vals.h
 	)
 endif()
-
-#include(GoogleTest)
-#gtest_discover_tests(hello_test)
 
 set(MSVC_STATIC_CRT 1 CACHE BOOL "Windows executable with CRT baked in")
 set(GCC_DEBUG 0 CACHE BOOL "Tell clang or GCC to produce debug symbols")

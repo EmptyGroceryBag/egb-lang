@@ -18,8 +18,12 @@ if(BUILD_TEST)
 		test_parse_expression.cpp
 	)
 
-target_link_libraries(test gtest_main el)
-	add_test(NAME hello_test COMMAND hello_test)
+target_link_libraries(
+	test 
+	gtest_main 
+	${llvm_libs}
+	el)
+	#add_test(NAME hello_test COMMAND hello_test)
 
 	target_include_directories(test PUBLIC ${PROJECT_SOURCE_DIR}/../include)
 
