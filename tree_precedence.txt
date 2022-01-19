@@ -1,0 +1,21 @@
+This is how we parse a binexpr now:
+2*(4+5)
+
+	*
+ / \
+2   +
+   / \
+	4	  5
+
+This is how we want to parse it:
+(2*4)+5
+
+			+
+		 / \
+		*   5
+	 / \
+	2   4
+
+
+We have two options: Parse it correctly the first pass, or parse it incorrectly
+the first pass and rotate the tree the second pass.

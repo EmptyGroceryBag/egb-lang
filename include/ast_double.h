@@ -1,4 +1,5 @@
 #include "ast_node.h"
+#include "llvm/IR/LLVMContext.h"
 
 #ifndef AST_DOUBLE_H
 #define AST_DOUBLE_H
@@ -8,6 +9,8 @@ class ASTDouble : public ASTNode {
   double value;
 
   ASTDouble(double);
+
+  virtual llvm::Value* code_gen(llvm::LLVMContext&);
 
   virtual std::string to_string();
   //@@@ return nullptr?

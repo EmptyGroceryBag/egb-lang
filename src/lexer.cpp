@@ -27,12 +27,12 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 TokValPair* get_token(const char*& iterator) {
   //@@@ do I need heap allocation here?
-  TVals* vals = new TVals();
+  TVals* vals     = new TVals();
   vals->ident_str = "";
-  vals->num_str = "";
+  vals->num_str   = "";
 
   //@@@ do I need heap allocation here?
-  TokValPair* pair = new TokValPair;
+  TokValPair* pair  = new TokValPair;
   pair->token_value = vals;
 
   // Whitespace
@@ -130,7 +130,7 @@ int string_to_int(const std::string input_num, int& output_num) {
 }
 
 int string_to_double(const std::string input_num, double& output_num) {
-  int first_decimal_point = input_num.find('.');
+  int first_decimal_point     = input_num.find('.');
   int duplicate_decimal_point = 0;
 
   if ((duplicate_decimal_point =

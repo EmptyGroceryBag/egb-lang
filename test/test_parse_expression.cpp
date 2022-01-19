@@ -7,19 +7,21 @@
 #include "ast_integer.h"
 #include "parser.h"
 
-//@@@ maybe we should make these members static?
-Parser p;
-
 template <class T>
 T* check_node_type(std::string buffer) {
-  p.iterator = &buffer[0];
-  return dynamic_cast<T*>(p.parse_top_level_expr());
+  //@@@ maybe we should make these members static?
+  Parser parser;
+
+  parser.iterator = &buffer[0];
+  return dynamic_cast<T*>(parser.parse_top_level_expr());
 }
 
 template <class T, typename N>
 void check_node_type_and_value(std::string buffer, N value) {
-  p.iterator = &buffer[0];
-  T* node = dynamic_cast<T*>(p.parse_top_level_expr());
+  Parser parser;
+
+  parser.iterator = &buffer[0];
+  T* node         = dynamic_cast<T*>(parser.parse_top_level_expr());
   ASSERT_TRUE(node);
   EXPECT_EQ(node->value, value);
 }
@@ -88,6 +90,8 @@ TEST(test_parse_expression, test_bin_expr_addition_three_operands) {
   std::cout << check->to_string(0) << std::endl;
 }
 
+//@@@ this does not parse with the correct precedence
+// intended precedence: (2*4)+5
 TEST(test_parse_expression, test_bin_expr_left_multiplication_three_operands) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2*4+5");
   ASSERT_TRUE(check);
@@ -112,6 +116,7 @@ TEST(test_parse_expression, test_bin_expr_left_multiplication_three_operands) {
   std::cout << check->to_string(0) << std::endl;
 }
 
+// this already parses with the correct precedence 2+(4*5)
 TEST(test_parse_expression, test_bin_expr_right_multiplication_three_operands) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4*5");
   ASSERT_TRUE(check);

@@ -3,28 +3,31 @@ project(el VERSION 0.1)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+if(WIN32)
+	add_compile_definitions(NOMINMAX)
+endif()
+
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
-	# @@@ TEMPORARY HACK
 	#if(LLVM_DIR STREQUAL "LLVM_DIR-NOTFOUND" OR LLVM_DIR STREQUAL "")
+	if(NOT LLVM_DIR)
 		execute_process(
+			# on homebrew, "llvm" points to 13 (or whatever the latest version is),
+			# so we must append "@12" to the prefix in order to enforce LLVM 12.0.0
 			COMMAND brew --prefix llvm
 			OUTPUT_VARIABLE raw_prefix
 			)
-		message(${raw_prefix})
 		string(STRIP ${raw_prefix} prefix)
-		message(${prefix})
 		set(LLVM_DIR ${prefix}/lib/cmake/llvm/)
-		message(${LLVM_DIR})
-		#endif()
+	endif()
 endif()
 
 # LLVM
 find_package(LLVM REQUIRED CONFIG)
-
+message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
+message(STATUS "Using ${LLVM_DIR}")
 include_directories(${LLVM_INCLUDE_DIRS})
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
-llvm_map_components_to_libnames(llvm_libs support core irreader)
 
 set(BUILD_TEST 0 CACHE BOOL "Build test executable")
 if(BUILD_TEST)
@@ -37,14 +40,14 @@ if(BUILD_TEST)
 		ast_double.cpp
 		ast_bin_expr.cpp
 
+		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
+		${PROJECT_SOURCE_DIR}/../include/ast_double.h
+		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
+		${PROJECT_SOURCE_DIR}/../include/ast_node.h
 		${PROJECT_SOURCE_DIR}/../include/lexer.h
 		${PROJECT_SOURCE_DIR}/../include/parser.h
-		${PROJECT_SOURCE_DIR}/../include/ast_node.h
-		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
-		${PROJECT_SOURCE_DIR}/../include/ast_double.h
-		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
-		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
 		${PROJECT_SOURCE_DIR}/../include/t_vals.h
+		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
 	)
 
 	add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
@@ -58,30 +61,30 @@ else()
 		ast_double.cpp
 		ast_bin_expr.cpp
 
+		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
+		${PROJECT_SOURCE_DIR}/../include/ast_double.h
+		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
+		${PROJECT_SOURCE_DIR}/../include/ast_node.h
 		${PROJECT_SOURCE_DIR}/../include/lexer.h
 		${PROJECT_SOURCE_DIR}/../include/parser.h
-		${PROJECT_SOURCE_DIR}/../include/ast_node.h
-		${PROJECT_SOURCE_DIR}/../include/ast_integer.h
-		${PROJECT_SOURCE_DIR}/../include/ast_double.h
-		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
-		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
 		${PROJECT_SOURCE_DIR}/../include/t_vals.h
+		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
 	)
+
+llvm_map_components_to_libnames(llvm_libs support core irreader)
+target_link_libraries(el ${llvm_libs})
 endif()
 
 set(MSVC_STATIC_CRT 1 CACHE BOOL "Windows executable with CRT baked in")
-set(GCC_DEBUG 0 CACHE BOOL "Tell clang or GCC to produce debug symbols")
 
-if(MSVC)
+if(WIN32)
 	if(MSVC_STATIC_CRT)
-		set(CMAKE_CXX_FLAGS "/O2 /WX /EHsc /MT") # statically link CRT
+		set(CMAKE_CXX_FLAGS "/O2 /EHsc /MT") # statically link CRT
 	else()
-		set(CMAKE_CXX_FLAGS "/O2 /WX /EHsc")
+		set(CMAKE_CXX_FLAGS "/O2 /EHsc")
 	endif()
 else()
-	if(GCC_DEBUG)
-		set(CMAKE_CXX_FLAGS "-Werror -g")
-	else()
+	if(NOT CMAKE_BUILD_TYPE)
 		set(CMAKE_CXX_FLAGS "-O2 -Werror")
 	endif()
 endif()

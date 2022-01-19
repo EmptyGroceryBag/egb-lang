@@ -1,13 +1,22 @@
 #include <iostream>
 #include <string>
-#ifdef _MSC_VER
-#include <Windows.h>
-#endif
 
 #include "ast_bin_expr.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
 
 ASTBinExpr::ASTBinExpr(int op, ASTNode* lhs, ASTNode* rhs)
     : op(op), lhs(lhs), rhs(rhs){};
+
+llvm::Value* ASTBinExpr::code_gen(llvm::LLVMContext& context) {
+  llvm::IRBuilder<> builder(context);
+
+  llvm::Value* lhs_value = lhs->code_gen(context);
+  llvm::Value* rhs_value = rhs->code_gen(context);
+
+  return builder.CreateAdd(lhs_value, rhs_value);
+}
 
 std::string ASTBinExpr::to_string(int indentation) {
 #ifdef _MSC_VER
@@ -36,9 +45,9 @@ std::string ASTBinExpr::to_string(int indentation) {
   if (indentation) {
     for (int i = 0; i < indentation; i++) {
       type_str = "  " + type_str;
-      lhs_str = "  " + lhs_str;
-      rhs_str = "  " + rhs_str;
-      op_str = "  " + op_str;
+      lhs_str  = "  " + lhs_str;
+      rhs_str  = "  " + rhs_str;
+      op_str   = "  " + op_str;
     }
 
     type_str = "\n" + type_str;
