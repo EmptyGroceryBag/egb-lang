@@ -67,7 +67,7 @@ ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs) {
 
     // if we got this far, we have a binary operator
     iterator++;
-    token        = get_token(iterator);
+    token = get_token(iterator);
     ASTNode* rhs = parse_primary_expr();
 
     int next_prec = op_prec[token->token_type];
@@ -83,7 +83,7 @@ ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs) {
 }
 
 ASTNode* Parser::parse_paren_expr() {
-  token      = get_token(iterator);  // eat '('
+  token = get_token(iterator);  // eat '('
   ASTNode* n = parse_primary_expr();
 
   /*

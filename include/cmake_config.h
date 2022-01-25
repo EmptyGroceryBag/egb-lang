@@ -3,3 +3,5 @@
 #define el_VERSION_MINOR 1
 
 #define MSVC_STATIC_CRT 1
+#define WIN32 
+#define UNIX 1

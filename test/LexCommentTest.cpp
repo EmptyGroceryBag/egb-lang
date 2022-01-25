@@ -6,7 +6,7 @@
 
 TEST(TestComments, TestComment) {
   std::string test_string = "# this is a comment\n";
-  const char* start       = &test_string[0];
+  const char* start = &test_string[0];
   EXPECT_EQ(get_token(test_string, start)->token_type,
             static_cast<int>(Token::tok_undefined));
 }

@@ -4,14 +4,14 @@
 #define LEXER_H
 
 enum class Token {
-  tok_eof            = -1,
-  tok_def            = -2,
-  tok_extern         = -3,
-  tok_identifier     = -4,
-  tok_integer        = -5,
+  tok_eof = -1,
+  tok_def = -2,
+  tok_extern = -3,
+  tok_identifier = -4,
+  tok_integer = -5,
   tok_floating_point = -6,
-  tok_generic        = -7,
-  tok_undefined      = -999
+  tok_generic = -7,
+  tok_undefined = -999
 };
 
 TokValPair* get_token(const char*&);

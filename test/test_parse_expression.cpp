@@ -7,6 +7,8 @@
 #include "ast_integer.h"
 #include "parser.h"
 
+#define DIAGRAM_DEBUG 0
+
 template <class T>
 T* check_node_type(std::string buffer) {
   //@@@ maybe we should make these members static?
@@ -21,7 +23,7 @@ void check_node_type_and_value(std::string buffer, N value) {
   Parser parser;
 
   parser.iterator = &buffer[0];
-  T* node         = dynamic_cast<T*>(parser.parse_top_level_expr());
+  T* node = dynamic_cast<T*>(parser.parse_top_level_expr());
   ASSERT_TRUE(node);
   EXPECT_EQ(node->value, value);
 }
@@ -47,7 +49,9 @@ TEST(test_parse_expression, test_bin_expr_addition_two_operands) {
   ASSERT_TRUE(rhs);
   ASSERT_EQ(rhs->value, 4);
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }
 
 TEST(test_parse_expression, test_bin_expr_multiplication_two_operands) {
@@ -63,7 +67,9 @@ TEST(test_parse_expression, test_bin_expr_multiplication_two_operands) {
   ASSERT_TRUE(rhs);
   ASSERT_EQ(rhs->value, 4);
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }
 
 TEST(test_parse_expression, test_bin_expr_addition_three_operands) {
@@ -87,7 +93,9 @@ TEST(test_parse_expression, test_bin_expr_addition_three_operands) {
   ASSERT_TRUE(nested_rhs);
   ASSERT_EQ(nested_rhs->value, 5);
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }
 
 //@@@ this does not parse with the correct precedence
@@ -113,7 +121,9 @@ TEST(test_parse_expression, test_bin_expr_left_multiplication_three_operands) {
   ASSERT_TRUE(nested_rhs);
   ASSERT_EQ(nested_rhs->value, 5);
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }
 
 // this already parses with the correct precedence 2+(4*5)
@@ -138,7 +148,9 @@ TEST(test_parse_expression, test_bin_expr_right_multiplication_three_operands) {
   ASSERT_TRUE(nested_rhs);
   ASSERT_EQ(nested_rhs->value, 5);
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }
 
 TEST(test_parse_expression, test_bin_expr_three_operands_left_parens) {
@@ -163,7 +175,9 @@ TEST(test_parse_expression, test_bin_expr_three_operands_left_parens) {
   ASSERT_TRUE(rhs);
   ASSERT_EQ(rhs->value, 5);
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }
 
 TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
@@ -178,7 +192,7 @@ TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
   ASTBinExpr* rhs = dynamic_cast<ASTBinExpr*>(check->rhs);
   ASSERT_TRUE(rhs);
   ASSERT_EQ(rhs->op, '+');
-
+  std::cout << check->to_string(0) << std::endl;
   ASTInteger* nested_lhs = dynamic_cast<ASTInteger*>(rhs->lhs);
   ASSERT_TRUE(nested_lhs);
   ASSERT_EQ(nested_lhs->value, 4);
@@ -187,7 +201,9 @@ TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
   ASSERT_TRUE(nested_rhs);
   ASSERT_EQ(nested_rhs->value, 5);
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }
 
 //@@@ too lazy to fill the following two tests out properly
@@ -196,7 +212,9 @@ TEST(test_parse_expression, test_bin_expr_nested) {
   ASSERT_TRUE(check);
   ASSERT_EQ(check->op, '+');
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }
 
 TEST(test_parse_expression, test_bin_expr_nested_with_parens) {
@@ -205,5 +223,7 @@ TEST(test_parse_expression, test_bin_expr_nested_with_parens) {
   ASSERT_TRUE(check);
   ASSERT_EQ(check->op, '+');
 
+#if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
+#endif
 }

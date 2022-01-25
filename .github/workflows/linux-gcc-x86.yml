@@ -12,24 +12,21 @@ on:
 
 jobs:
   linux-gcc-x86:
-    runs-on: ubuntu-latest
+    runs-on: esxi-debian
 
     steps:
     - uses: actions/checkout@v2
 
-    - name: Install Ninja
-      run: sudo apt install ninja-build
-
     - name: Configure CMake
       #run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-      run: cmake -G Ninja -B ${{github.workspace}}/build -S ${{github.workspace}}/src -DGCC_DEBUG=1
+      run: cmake -G Ninja -B ${{github.workspace}}/build -S ${{github.workspace}}/src -DCMAKE_BUILD_TYPE=Debug -DLLVM_DIR=/home/joey/bin/llvm/lib/cmake/llvm
 
     - name: Build
       #run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
       run: cmake --build ${{github.workspace}}/build
         
     - name: Configure Test
-      run: cmake -G Ninja -B ${{github.workspace}}/build -S ${{github.workspace}}/src -DGCC_DEBUG=1 -DBUILD_TEST=1
+      run: cmake -G Ninja -B ${{github.workspace}}/build -S ${{github.workspace}}/src -DBUILD_TEST=1 -DCMAKE_BUILD_TYPE=Debug -DLLVM_DIR=/home/joey/bin/llvm/lib/cmake/llvm
 
     - name: Build Test
       run: cmake --build ${{github.workspace}}/build

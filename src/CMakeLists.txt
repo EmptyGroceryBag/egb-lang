@@ -39,6 +39,7 @@ if(BUILD_TEST)
 		ast_integer.cpp
 		ast_double.cpp
 		ast_bin_expr.cpp
+		dummy_codegen.cpp
 
 		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
 		${PROJECT_SOURCE_DIR}/../include/ast_double.h
@@ -60,6 +61,7 @@ else()
 		ast_integer.cpp
 		ast_double.cpp
 		ast_bin_expr.cpp
+		dummy_codegen.cpp
 
 		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
 		${PROJECT_SOURCE_DIR}/../include/ast_double.h

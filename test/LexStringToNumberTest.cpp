@@ -4,7 +4,7 @@
 #include "lexer.h"
 
 TEST(TestStringToInteger, TestUnsignedInteger) {
-  int output        = 0;
+  int output = 0;
   std::string input = "1234";
   string_to_int(input, output);
   EXPECT_EQ(output, 1234);
@@ -13,14 +13,14 @@ TEST(TestStringToInteger, TestUnsignedInteger) {
 // TODO: Write other integer tests
 
 TEST(TestStringToDouble, TestUnsignedDouble) {
-  double output     = 0.0;
+  double output = 0.0;
   std::string input = "1234.0";
   string_to_double(input, output);
   EXPECT_EQ(output, 1234.0);
 }
 
 TEST(TestStringToDouble, TestUnsignedDoubleNoIntegral) {
-  double output     = 0.0;
+  double output = 0.0;
   std::string input = ".5";
   string_to_double(input, output);
   EXPECT_EQ(output, 0.5);
@@ -28,11 +28,11 @@ TEST(TestStringToDouble, TestUnsignedDoubleNoIntegral) {
 }
 
 TEST(TestStringToDouble, TestMalformedUnsignedDouble) {
-  double output     = 0.0;
+  double output = 0.0;
   std::string input = "1234.0.1";
-  int index         = string_to_double(
-              input, output);  // index of first duplicate decimal point
-  EXPECT_EQ(output, 0.0);      // we're expecting the output to be unchanged
+  int index = string_to_double(
+      input, output);      // index of first duplicate decimal point
+  EXPECT_EQ(output, 0.0);  // we're expecting the output to be unchanged
   EXPECT_EQ(index, 6);
 
   input = "1.1.1.1.1.1";
@@ -41,7 +41,7 @@ TEST(TestStringToDouble, TestMalformedUnsignedDouble) {
 }
 
 TEST(TestStringToDouble, TestMalformedSignedDouble) {
-  double output     = 0.0;
+  double output = 0.0;
   std::string input = "-1234.0.1";
 
   int index = string_to_double(input, output);

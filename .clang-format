@@ -10,4 +10,5 @@ ColumnLimit: 80
 
 DerivePointerAlignment: false
 PointerAlignment: Left
-AlignConsecutiveAssignments: Consecutive
+#AlignConsecutiveAssignments: Consecutive
+#AlignAfterOpenBracket: AlwaysBreak
