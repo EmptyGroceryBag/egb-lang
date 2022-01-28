@@ -73,14 +73,14 @@ TokValPair* get_token(const char*& iterator) {
   }
 
   // Identifiers
-  if (isalpha(*iterator)) {
+  if (isalpha(*iterator) || *iterator == '_') {
     /*
     identifiers must begin with a letter and can end with any combinations of
     letters and numbers
     */
     vals->ident_str += *(iterator++);
 
-    while (isalnum(*iterator)) {
+    while (isalnum(*iterator) || *iterator == '_') {
       vals->ident_str += *(iterator++);
     }
 
@@ -90,6 +90,10 @@ TokValPair* get_token(const char*& iterator) {
     }
     if (vals->ident_str == "extern") {
       pair->token_type = static_cast<int>(Token::tok_extern);
+      return pair;
+    }
+    if (vals->ident_str == "uint32") {
+      pair->token_type = static_cast<int>(Token::tok_uint32_type);
       return pair;
     }
 
@@ -145,7 +149,4 @@ int string_to_double(const std::string input_num, double& output_num) {
 TokValPair* peek(const char* iterator) {
   const char* base_ptr = iterator;  // hopefully this makes a copy
   return get_token(base_ptr);
-  // std::ptrdiff_t offset = iterator - base_ptr;
-  // iterator = iterator - offset;
-  // return peeked_token;
 }

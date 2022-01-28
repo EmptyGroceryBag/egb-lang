@@ -39,6 +39,8 @@ if(BUILD_TEST)
 		ast_integer.cpp
 		ast_double.cpp
 		ast_bin_expr.cpp
+    ast_variable.cpp
+    ast_function.cpp
 		dummy_codegen.cpp
 
 		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
@@ -47,8 +49,9 @@ if(BUILD_TEST)
 		${PROJECT_SOURCE_DIR}/../include/ast_node.h
 		${PROJECT_SOURCE_DIR}/../include/lexer.h
 		${PROJECT_SOURCE_DIR}/../include/parser.h
-		${PROJECT_SOURCE_DIR}/../include/t_vals.h
-		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
+		${PROJECT_SOURCE_DIR}/../include/ast_function.h
+    ${PROJECT_SOURCE_DIR}/../include/ast_variable.h
+    ${PROJECT_SOURCE_DIR}/../include/data_type.h
 	)
 
 	add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
@@ -61,6 +64,8 @@ else()
 		ast_integer.cpp
 		ast_double.cpp
 		ast_bin_expr.cpp
+    ast_variable.cpp
+    ast_function.cpp
 		dummy_codegen.cpp
 
 		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
@@ -71,6 +76,9 @@ else()
 		${PROJECT_SOURCE_DIR}/../include/parser.h
 		${PROJECT_SOURCE_DIR}/../include/t_vals.h
 		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
+    ${PROJECT_SOURCE_DIR}/../include/ast_function.h
+    ${PROJECT_SOURCE_DIR}/../include/ast_variable.h
+    ${PROJECT_SOURCE_DIR}/../include/data_type.h
 	)
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)

@@ -6,13 +6,15 @@
 #ifndef AST_INTEGER_H
 #define AST_INTEGER_H
 
+using namespace llvm;
+
 class ASTInteger : public ASTNode {
  public:
   int value;
 
   ASTInteger(int);
 
-  virtual llvm::Value* code_gen(llvm::LLVMContext&, llvm::IRBuilder<>&);
+  virtual Value* code_gen(LLVMContext&, IRBuilder<>&);
 
   virtual std::string to_string();
   //@@@ return nullptr?

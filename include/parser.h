@@ -1,4 +1,5 @@
 #include "ast_node.h"
+#include "ast_variable.h"
 #include "lexer.h"
 
 #ifndef PARSER_H
@@ -14,6 +15,8 @@ class Parser {
   ASTNode* parse_primary_expr();
   ASTNode* parse_top_level_expr();
   ASTNode* parse_paren_expr();
+  ASTNode* parse_variable_expr(bool);
+	ASTNode* parse_function_prototype(ASTVariable* prototype);
 
   //@@@
   void UNIMPLEMENTED();
