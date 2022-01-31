@@ -104,23 +104,23 @@ ASTNode* Parser::parse_paren_expr() {
 // uint32 ident()
 
 ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
-	token = get_token(iterator);
-	std::vector<ASTNode*> params;
-	while (token->token_type == static_cast<int>(Token::tok_uint32_type)) {
-			params.push_back(parse_variable_expr(false));
-			if (token->token_type == ',') {
-				iterator++;
-				token = get_token(iterator);
-				continue;
-			}
-			break;
-	}
+  token = get_token(iterator);
+  std::vector<ASTNode*> params;
+  while (token->token_type == static_cast<int>(Token::tok_uint32_type)) {
+    params.push_back(parse_variable_expr(false));
+    if (token->token_type == ',') {
+      iterator++;
+      token = get_token(iterator);
+      continue;
+    }
+    break;
+  }
 
-	if (token->token_type == ')') {
-		return new ASTFunction(prototype, params);
-	}
+  if (token->token_type == ')') {
+    return new ASTFunction(prototype, params);
+  }
 
-	return nullptr;
+  return nullptr;
 }
 
 ASTNode* Parser::parse_variable_expr(bool is_definition) {
@@ -159,23 +159,23 @@ ASTNode* Parser::parse_variable_expr(bool is_definition) {
     name = token->token_value->ident_str;
   }
 
-	// function prototype
-	token = peek(iterator);
-	if (token->token_type == '(') {
-		iterator++;
-		return parse_function_prototype(new ASTVariable(name, attributes));
-	}
+  // function prototype
+  token = peek(iterator);
+  if (token->token_type == '(') {
+    iterator++;
+    return parse_function_prototype(new ASTVariable(name, attributes));
+  }
 
   // number literal
-	if (is_definition) {
-		ASTInteger* value;
-		token = get_token(iterator);
-		switch (token->token_type) {
-			case static_cast<int>(Token::tok_integer):
-				value = new ASTInteger(token->token_value->int_num_val);
-				return new ASTVariable(name, attributes, value);
-		}
-	}
+  if (is_definition) {
+    ASTInteger* value;
+    token = get_token(iterator);
+    switch (token->token_type) {
+      case static_cast<int>(Token::tok_integer):
+        value = new ASTInteger(token->token_value->int_num_val);
+        return new ASTVariable(name, attributes, value);
+    }
+  }
 
   return new ASTVariable(name, attributes);
 }

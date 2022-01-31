@@ -12,14 +12,15 @@ ASTVariable::ASTVariable(std::string name, Attributes attributes,
                          ASTNode* value)
     : name(name), attributes(attributes), value(value) {}
 
-ASTVariable::ASTVariable(std::string name, Attributes attributes) 
+ASTVariable::ASTVariable(std::string name, Attributes attributes)
     : name(name), attributes(attributes) {}
 
 Value* ASTVariable::code_gen(LLVMContext& context, IRBuilder<>& builder) {
-	if(!value) {
-		return value->code_gen(context, builder);
-	}
-  return builder.CreateAlloca(Type::getInt32Ty(context), value->code_gen(context, builder), name);
+  if (!value) {
+    return value->code_gen(context, builder);
+  }
+  return builder.CreateAlloca(Type::getInt32Ty(context),
+                              value->code_gen(context, builder), name);
 }
 
 //@@@

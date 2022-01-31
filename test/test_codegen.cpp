@@ -5,8 +5,8 @@
 
 #include "ast_bin_expr.h"
 #include "ast_double.h"
-#include "ast_integer.h"
 #include "ast_function.h"
+#include "ast_integer.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
@@ -81,18 +81,19 @@ TEST(test_ir_codegen, test_function_dump) {
   parser.iterator = &buffer[0];
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
-	ASSERT_TRUE(prototype_expr);
+  ASSERT_TRUE(prototype_expr);
 
   LLVMContext context;
   Module llvm_module("main_mod", context);
   IRBuilder<> builder(context);
-	Value* check_function = prototype_expr->code_gen(context, builder, llvm_module);
+  Value* check_function =
+      prototype_expr->code_gen(context, builder, llvm_module);
 
   std::ostringstream test_output;
   llvm::raw_os_ostream output_stream(test_output);
-	check_function->print(output_stream);
-	std::cout << test_output.str() << std::endl;
-	//EXPECT_EQ(test_output.str(), "declare i32 @name_name()\n");
+  check_function->print(output_stream);
+  std::cout << test_output.str() << std::endl;
+  // EXPECT_EQ(test_output.str(), "declare i32 @name_name()\n");
 }
 
 TEST(test_ir_codegen, test_function_dump_single_parameter) {
@@ -100,42 +101,45 @@ TEST(test_ir_codegen, test_function_dump_single_parameter) {
   parser.iterator = &buffer[0];
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
-	ASSERT_TRUE(prototype_expr);
+  ASSERT_TRUE(prototype_expr);
 
   LLVMContext context;
   Module llvm_module("main_mod", context);
   IRBuilder<> builder(context);
-	Value* check_function = prototype_expr->code_gen(context, builder, llvm_module);
+  Value* check_function =
+      prototype_expr->code_gen(context, builder, llvm_module);
 
   std::ostringstream test_output;
   llvm::raw_os_ostream output_stream(test_output);
-	check_function->print(output_stream);
-	std::cout << test_output.str() << std::endl;	
-	//EXPECT_EQ(test_output.str(), "declare i32 @name_name()\n");
+  check_function->print(output_stream);
+  std::cout << test_output.str() << std::endl;
+  // EXPECT_EQ(test_output.str(), "declare i32 @name_name()\n");
 }
 
 TEST(test_ir_codegen, test_function_dump_mulitple_parameters) {
-  std::string buffer = "uint32 name_name(uint32 x1, uint32 x2, uint32 y1, uint32 y2)";
+  std::string buffer =
+      "uint32 name_name(uint32 x1, uint32 x2, uint32 y1, uint32 y2)";
   parser.iterator = &buffer[0];
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
-	ASSERT_TRUE(prototype_expr);
+  ASSERT_TRUE(prototype_expr);
 
   LLVMContext context;
   Module llvm_module("main_mod", context);
   IRBuilder<> builder(context);
-	Value* check_function = prototype_expr->code_gen(context, builder, llvm_module);
+  Value* check_function =
+      prototype_expr->code_gen(context, builder, llvm_module);
 
   std::ostringstream test_output;
   llvm::raw_os_ostream output_stream(test_output);
-	check_function->print(output_stream);
-	std::cout << test_output.str() << std::endl;	
-	//EXPECT_EQ(test_output.str(), "declare i32 @name_name()\n");
+  check_function->print(output_stream);
+  std::cout << test_output.str() << std::endl;
+  // EXPECT_EQ(test_output.str(), "declare i32 @name_name()\n");
 }
 
 /*
 void dummy();
 TEST(TEST, TESTY){
-	dummy();
+        dummy();
 }
 */

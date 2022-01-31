@@ -4,9 +4,9 @@
 
 #include "ast_bin_expr.h"
 #include "ast_double.h"
+#include "ast_function.h"
 #include "ast_integer.h"
 #include "ast_variable.h"
-#include "ast_function.h"
 #include "parser.h"
 //@@@
 #include "data_type.h"
@@ -266,13 +266,13 @@ TEST(test_parse_expression, test_parse_function_prototype) {
   parser.iterator = &buffer[0];
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
-	ASSERT_TRUE(prototype_expr);
-	EXPECT_EQ(prototype_expr->params.size(), 0);
+  ASSERT_TRUE(prototype_expr);
+  EXPECT_EQ(prototype_expr->params.size(), 0);
 
-	ASSERT_TRUE(prototype_expr->prototype);
-	EXPECT_EQ(prototype_expr->prototype->name, "name_name");
-	EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
-	EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
+  ASSERT_TRUE(prototype_expr->prototype);
+  EXPECT_EQ(prototype_expr->prototype->name, "name_name");
+  EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
+  EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
 }
 
 TEST(test_parse_expression, test_parse_function_prototype_single_parameter) {
@@ -282,21 +282,21 @@ TEST(test_parse_expression, test_parse_function_prototype_single_parameter) {
   parser.iterator = &buffer[0];
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
-	ASSERT_TRUE(prototype_expr);
-	EXPECT_EQ(prototype_expr->params.size(), 1);
+  ASSERT_TRUE(prototype_expr);
+  EXPECT_EQ(prototype_expr->params.size(), 1);
 
-	ASSERT_TRUE(prototype_expr->prototype);
-	EXPECT_EQ(prototype_expr->prototype->name, "name_name");
-	EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
-	EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
-	
-	ASTVariable* param = dynamic_cast<ASTVariable*>(prototype_expr->params.at(0));
-	ASTVariable::Attributes test_attributes{false, 32};
-	ASSERT_TRUE(param);
-	bool check_attributes = (test_attributes == param->attributes);
-	EXPECT_TRUE(check_attributes);
-	EXPECT_EQ(param->name, "another_name");
-	EXPECT_FALSE(param->value);
+  ASSERT_TRUE(prototype_expr->prototype);
+  EXPECT_EQ(prototype_expr->prototype->name, "name_name");
+  EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
+  EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
+
+  ASTVariable* param = dynamic_cast<ASTVariable*>(prototype_expr->params.at(0));
+  ASTVariable::Attributes test_attributes{false, 32};
+  ASSERT_TRUE(param);
+  bool check_attributes = (test_attributes == param->attributes);
+  EXPECT_TRUE(check_attributes);
+  EXPECT_EQ(param->name, "another_name");
+  EXPECT_FALSE(param->value);
 }
 
 TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
@@ -306,30 +306,32 @@ TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
   parser.iterator = &buffer[0];
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
-	ASSERT_TRUE(prototype_expr);
-	EXPECT_EQ(prototype_expr->params.size(), 2);
+  ASSERT_TRUE(prototype_expr);
+  EXPECT_EQ(prototype_expr->params.size(), 2);
 
-	ASSERT_TRUE(prototype_expr->prototype);
-	EXPECT_EQ(prototype_expr->prototype->name, "name_name");
-	EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
-	EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
+  ASSERT_TRUE(prototype_expr->prototype);
+  EXPECT_EQ(prototype_expr->prototype->name, "name_name");
+  EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
+  EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
 
-	int i = 0;
+  int i = 0;
 
-	ASTVariable* param1 = dynamic_cast<ASTVariable*>(prototype_expr->params.at(i));
-	ASTVariable::Attributes test_attributes{false, 32};
-	ASSERT_TRUE(param1);
-	bool check_first_param_attributes = (test_attributes == param1->attributes);
-	EXPECT_TRUE(check_first_param_attributes);
-	EXPECT_EQ(param1->name, "x1");
-	EXPECT_FALSE(param1->value);
+  ASTVariable* param1 =
+      dynamic_cast<ASTVariable*>(prototype_expr->params.at(i));
+  ASTVariable::Attributes test_attributes{false, 32};
+  ASSERT_TRUE(param1);
+  bool check_first_param_attributes = (test_attributes == param1->attributes);
+  EXPECT_TRUE(check_first_param_attributes);
+  EXPECT_EQ(param1->name, "x1");
+  EXPECT_FALSE(param1->value);
 
-	i++;
+  i++;
 
-	ASTVariable* param2 = dynamic_cast<ASTVariable*>(prototype_expr->params.at(i));
-	ASSERT_TRUE(param2);
-	bool check_second_param_attributes = (test_attributes == param2->attributes);
-	EXPECT_TRUE(check_second_param_attributes);
-	EXPECT_EQ(param2->name, "x2");
-	EXPECT_FALSE(param2->value);
+  ASTVariable* param2 =
+      dynamic_cast<ASTVariable*>(prototype_expr->params.at(i));
+  ASSERT_TRUE(param2);
+  bool check_second_param_attributes = (test_attributes == param2->attributes);
+  EXPECT_TRUE(check_second_param_attributes);
+  EXPECT_EQ(param2->name, "x2");
+  EXPECT_FALSE(param2->value);
 }

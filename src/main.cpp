@@ -21,18 +21,9 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <vector>
 
-#include "ast_bin_expr.h"
-#include "ast_integer.h"
+#include "ast_node.h"
 #include "cmake_config.h"
-#include "lexer.h"
 #include "parser.h"
-#include "tok_val_pair.h"
-
-void print_node(ASTNode* node) {
-  if (dynamic_cast<ASTBinExpr*>(node) != nullptr) {
-    std::cout << dynamic_cast<ASTBinExpr*>(node)->to_string(0) << std::endl;
-  }
-}
 
 int main(int argc, char* argv[]) {
   std::cout << "egb-lang " << el_VERSION_MAJOR << "." << el_VERSION_MINOR
@@ -48,36 +39,23 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  try {
-    ifs = std::fopen(argv[1], "r");
-    if (!ifs) {
-      throw errno;
-    }
-  } catch (int e) {
-    std::cerr << "Error " << errno;
-    return errno;
-  }
+  ifs = std::fopen(argv[1], "r");
+  if (!ifs) return errno;
 
   std::cout << "Opened " << argv[1] << std::endl;
 
   char next_char;
-  while ((next_char = fgetc(ifs)) != EOF) {
-    buffer += next_char;
-  }
+  while ((next_char = fgetc(ifs)) != EOF) buffer += next_char;
 
-  std::vector<ASTNode*> nodes;
+  std::vector<ASTNode*> tree;
   ASTNode* node;
 
   const char* iterator = &buffer[0];
   Parser p(iterator);
 
-  while ((node = p.parse_top_level_expr()) != nullptr) {
-    nodes.push_back(node);
-  }
+  while ((node = p.parse_top_level_expr()) != nullptr) tree.push_back(node);
 
-  for (ASTNode* n : nodes) {
-    print_node(n);
-  }
+  //@@@ Do codegen somewhere here
 
   std::fclose(ifs);
   std::cout << "Closed " << argv[1] << std::endl;

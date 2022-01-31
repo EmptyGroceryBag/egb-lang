@@ -14,13 +14,13 @@ using namespace llvm;
 
 class ASTFunction : public ASTNode {
  public:
-	ASTVariable* prototype;
+  ASTVariable* prototype;
   std::vector<ASTNode*> params;
 
-	ASTFunction(ASTVariable* prototype, std::vector<ASTNode*> params);
+  ASTFunction(ASTVariable* prototype, std::vector<ASTNode*> params);
 
   virtual Value* code_gen(LLVMContext&, IRBuilder<>&);
-	Value* code_gen(LLVMContext&, IRBuilder<>&, Module&);
+  Value* code_gen(LLVMContext&, IRBuilder<>&, Module&);
 
   virtual std::string to_string();
   //@@@ return nullptr?
