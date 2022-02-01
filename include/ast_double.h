@@ -5,13 +5,15 @@
 #ifndef AST_DOUBLE_H
 #define AST_DOUBLE_H
 
+using namespace llvm;
+
 class ASTDouble : public ASTNode {
  public:
   double value;
 
   ASTDouble(double);
 
-  virtual llvm::Value* code_gen(llvm::LLVMContext&, llvm::IRBuilder<>&);
+  virtual Value* code_gen(LLVMContext&, IRBuilder<>&);
 
   virtual std::string to_string();
   //@@@ return nullptr?

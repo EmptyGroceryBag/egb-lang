@@ -12,7 +12,7 @@ ASTInteger::ASTInteger(int value) : value(value) {}
 
 std::string ASTInteger::to_string() { return std::to_string(value); }
 
-llvm::Value* ASTInteger::code_gen(llvm::LLVMContext& context,
-                                  llvm::IRBuilder<>&) {
-  return llvm::ConstantInt::get(llvm::Type::getInt32Ty(context), value);
+Value* ASTInteger::code_gen(LLVMContext& context,
+                                  IRBuilder<>&) {
+  return ConstantInt::get(Type::getInt32Ty(context), value);
 }

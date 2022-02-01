@@ -11,7 +11,7 @@ ASTDouble::ASTDouble(double value) : value(value) {}
 
 std::string ASTDouble::to_string() { return std::to_string(value); }
 
-llvm::Value* ASTDouble::code_gen(llvm::LLVMContext& context,
-                                 llvm::IRBuilder<>&) {
-  return llvm::ConstantFP::get(context, llvm::APFloat(value));
+Value* ASTDouble::code_gen(LLVMContext& context,
+                                 IRBuilder<>&) {
+  return ConstantFP::get(context, APFloat(value));
 }

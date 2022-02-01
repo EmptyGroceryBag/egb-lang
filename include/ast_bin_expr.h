@@ -16,7 +16,7 @@ class ASTBinExpr : public ASTNode {
 
   ASTBinExpr(int op, ASTNode* lhs, ASTNode* rhs);
 
-  llvm::Value* code_gen(llvm::LLVMContext&, llvm::IRBuilder<>&);
+  Value* code_gen(LLVMContext&, IRBuilder<>&);
 
   virtual std::string to_string(int);
   virtual std::string to_string();

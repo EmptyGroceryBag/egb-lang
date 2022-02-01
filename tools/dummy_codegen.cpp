@@ -15,36 +15,38 @@
 #include "parser.h"
 #include "dummy_codegen.h"
 
+using namespace llvm;
+
 void dummy() {
 	Parser parser;
 
   std::ostringstream test_output;
-  llvm::raw_os_ostream output_stream(test_output);
+  raw_os_ostream output_stream(test_output);
 
   std::string buffer = "2+4";
   parser.iterator    = &buffer[0];
   ASTBinExpr* node   = dynamic_cast<ASTBinExpr*>(parser.parse_top_level_expr());
 
-	std::unique_ptr<llvm::LLVMContext> context = std::make_unique<llvm::LLVMContext>();
-	std::unique_ptr<llvm::Module> llvm_module = std::make_unique<llvm::Module>("main_mod", *context);
-	std::unique_ptr<llvm::IRBuilder<>> builder = std::make_unique<llvm::IRBuilder<>>(*context);
+	std::unique_ptr<LLVMContext> context = std::make_unique<LLVMContext>();
+	std::unique_ptr<Module> llvm_module = std::make_unique<Module>("main_mod", *context);
+	std::unique_ptr<IRBuilder<>> builder = std::make_unique<IRBuilder<>>(*context);
 
-	llvm::Function* entry_point = llvm::Function::Create (
-		llvm::FunctionType::get(llvm::Type::getVoidTy(*context), false),
-		llvm::GlobalValue::LinkageTypes::ExternalLinkage,
+	Function* entry_point = Function::Create (
+		FunctionType::get(Type::getVoidTy(*context), false),
+		GlobalValue::LinkageTypes::ExternalLinkage,
 		"main",
 		*llvm_module
 	);
 
-	llvm::BasicBlock* entry_point_block = llvm::BasicBlock::Create(*context, "entry", entry_point);
+	BasicBlock* entry_point_block = BasicBlock::Create(*context, "entry", entry_point);
     builder->SetInsertPoint(entry_point_block);
-	//llvm::Value* add = node->code_gen(*context, *builder);
+	//Value* add = node->code_gen(*context, *builder);
 	//add->print(output_stream);
 
-	llvm::Value* lhs = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), 2);
-	llvm::Value* rhs = llvm::ConstantInt::get(llvm::Type::getInt32Ty(*context), 4);
-    llvm::Value* add = builder->CreateAdd(lhs, rhs);
-    llvm::Value* var = builder->CreateAlloca(llvm::Type::getInt32Ty(*context), add, "temp_add");
+	Value* lhs = ConstantInt::get(Type::getInt32Ty(*context), 2);
+	Value* rhs = ConstantInt::get(Type::getInt32Ty(*context), 4);
+    Value* add = builder->CreateAdd(lhs, rhs);
+    Value* var = builder->CreateAlloca(Type::getInt32Ty(*context), add, "temp_add");
 
     builder->CreateRetVoid();
 	//node->code_gen(context, builder);
