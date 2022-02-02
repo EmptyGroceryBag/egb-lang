@@ -8,7 +8,7 @@
 class Parser {
  public:
   const char* iterator;
-  Parser(const char*& iterator) : iterator(iterator){};
+  Parser(const char* iterator) : iterator(iterator){};
   Parser() = default;
 
   ASTNode* parse_binop_rhs(int, ASTNode*);

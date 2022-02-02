@@ -16,18 +16,14 @@
 
 template <class T>
 T* check_node_type(std::string buffer) {
-  //@@@ maybe we should make these members static?
-  Parser parser;
-
-  parser.iterator = &buffer[0];
-  return dynamic_cast<T*>(parser.parse_top_level_expr());
+  Parser parser(&buffer[0]);
+	T* node = dynamic_cast<T*>(parser.parse_top_level_expr()); 
+  return node;
 }
 
 template <class T, typename N>
 void check_node_type_and_value(std::string buffer, N value) {
-  Parser parser;
-
-  parser.iterator = &buffer[0];
+  Parser parser(&buffer[0]);
   T* node = dynamic_cast<T*>(parser.parse_top_level_expr());
   ASSERT_TRUE(node);
   EXPECT_EQ(node->value, value);
@@ -43,16 +39,16 @@ TEST(test_parse_expression, test_unsigned_floating_point) {
 
 TEST(test_parse_expression, test_bin_expr_addition_two_operands) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4");
-  ASSERT_TRUE(check);
-  ASSERT_EQ(check->op, '+');
+	ASSERT_TRUE(check);
+  EXPECT_EQ(check->op, '+');
 
   ASTInteger* lhs = dynamic_cast<ASTInteger*>(check->lhs);
   ASSERT_TRUE(lhs);
-  ASSERT_EQ(lhs->value, 2);
+  EXPECT_EQ(lhs->value, 2);
 
   ASTInteger* rhs = dynamic_cast<ASTInteger*>(check->rhs);
   ASSERT_TRUE(rhs);
-  ASSERT_EQ(rhs->value, 4);
+  EXPECT_EQ(rhs->value, 4);
 
 #if (DIAGRAM_DEBUG)
   std::cout << check->to_string(0) << std::endl;
@@ -234,8 +230,6 @@ TEST(test_parse_expression, test_bin_expr_nested_with_parens) {
 }
 
 TEST(test_parse_expression, test_parse_variable) {
-  //@@@ temporary
-
   std::string lex_buffer = "uint32";
   const char* iterator = &lex_buffer[0];
   TokValPair* variable_token = get_token(iterator);
@@ -258,80 +252,67 @@ TEST(test_parse_expression, test_parse_variable) {
   EXPECT_TRUE(check_attributes);
 }
 
-//@@@ the following tests require DRYing
-TEST(test_parse_expression, test_parse_function_prototype) {
-  Parser parser;
+ASTFunction* check_function_prototype(std::string buffer) {
+  Parser parser(&buffer[0]);
 
-  std::string buffer = "uint32 name_name()";
-  parser.iterator = &buffer[0];
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
-  ASSERT_TRUE(prototype_expr);
-  EXPECT_EQ(prototype_expr->params.size(), 0);
+	return prototype_expr;
+}
 
+TEST(test_parse_expression, test_parse_function_prototype) {
+	ASTFunction* prototype_expr = check_function_prototype("uint32 funcy()");
+  ASSERT_TRUE(prototype_expr);
+	
+  EXPECT_EQ(prototype_expr->params.size(), 0);
   ASSERT_TRUE(prototype_expr->prototype);
-  EXPECT_EQ(prototype_expr->prototype->name, "name_name");
+  EXPECT_EQ(prototype_expr->prototype->name, "funcy");
   EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
   EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
 }
 
 TEST(test_parse_expression, test_parse_function_prototype_single_parameter) {
-  Parser parser;
-
-  std::string buffer = "uint32 name_name(uint32 another_name)";
-  parser.iterator = &buffer[0];
-  ASTFunction* prototype_expr =
-      dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
+	ASTFunction* prototype_expr = check_function_prototype("uint32 name_name(uint32 another_name)");
   ASSERT_TRUE(prototype_expr);
-  EXPECT_EQ(prototype_expr->params.size(), 1);
 
+  EXPECT_EQ(prototype_expr->params.size(), 1);
   ASSERT_TRUE(prototype_expr->prototype);
   EXPECT_EQ(prototype_expr->prototype->name, "name_name");
-  EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
-  EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
+  ASTVariable::Attributes prototype_attributes{false, 32};
+  EXPECT_TRUE(prototype_attributes == prototype_expr->prototype->attributes);
 
   ASTVariable* param = dynamic_cast<ASTVariable*>(prototype_expr->params.at(0));
-  ASTVariable::Attributes test_attributes{false, 32};
   ASSERT_TRUE(param);
-  bool check_attributes = (test_attributes == param->attributes);
-  EXPECT_TRUE(check_attributes);
   EXPECT_EQ(param->name, "another_name");
+  ASTVariable::Attributes test_attributes{false, 32};
+  EXPECT_TRUE(test_attributes == param->attributes);
   EXPECT_FALSE(param->value);
 }
 
 TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
-  Parser parser;
-
-  std::string buffer = "uint32 name_name(uint32 x1, uint32 x2)";
-  parser.iterator = &buffer[0];
-  ASTFunction* prototype_expr =
-      dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
+	ASTFunction* prototype_expr = check_function_prototype("uint32 name_name(uint32 x1, uint32 x2)");
   ASSERT_TRUE(prototype_expr);
-  EXPECT_EQ(prototype_expr->params.size(), 2);
 
   ASSERT_TRUE(prototype_expr->prototype);
+  EXPECT_EQ(prototype_expr->params.size(), 2);
   EXPECT_EQ(prototype_expr->prototype->name, "name_name");
-  EXPECT_FALSE(prototype_expr->prototype->attributes.sign);
-  EXPECT_EQ(prototype_expr->prototype->attributes.width, 32);
+  ASTVariable::Attributes prototype_attributes{false, 32};
+  EXPECT_TRUE(prototype_attributes == prototype_expr->prototype->attributes);
 
-  int i = 0;
+	int i = 0;
+	for(ASTNode* param : prototype_expr->params) {
+		ASTVariable* param_expr = dynamic_cast<ASTVariable*>(param);
+		ASSERT_TRUE(param_expr);
 
-  ASTVariable* param1 =
-      dynamic_cast<ASTVariable*>(prototype_expr->params.at(i));
-  ASTVariable::Attributes test_attributes{false, 32};
-  ASSERT_TRUE(param1);
-  bool check_first_param_attributes = (test_attributes == param1->attributes);
-  EXPECT_TRUE(check_first_param_attributes);
-  EXPECT_EQ(param1->name, "x1");
-  EXPECT_FALSE(param1->value);
+		ASTVariable::Attributes test_attributes{false, 32};
+		EXPECT_TRUE(test_attributes == param_expr->attributes);
 
-  i++;
+		std::string param_name = "x";
+		param_name += std::to_string(i + 1);
+		EXPECT_EQ(param_expr->name, param_name);
 
-  ASTVariable* param2 =
-      dynamic_cast<ASTVariable*>(prototype_expr->params.at(i));
-  ASSERT_TRUE(param2);
-  bool check_second_param_attributes = (test_attributes == param2->attributes);
-  EXPECT_TRUE(check_second_param_attributes);
-  EXPECT_EQ(param2->name, "x2");
-  EXPECT_FALSE(param2->value);
+		EXPECT_FALSE(param_expr->value);
+
+		i++;
+	}
 }
