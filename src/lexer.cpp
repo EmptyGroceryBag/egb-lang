@@ -88,12 +88,9 @@ TokValPair* get_token(const char*& iterator) {
       pair->token_type = static_cast<int>(Token::tok_def);
       return pair;
     }
+
     if (vals->ident_str == "extern") {
       pair->token_type = static_cast<int>(Token::tok_extern);
-      return pair;
-    }
-    if (vals->ident_str == "uint32") {
-      pair->token_type = static_cast<int>(Token::tok_uint32_type);
       return pair;
     }
 

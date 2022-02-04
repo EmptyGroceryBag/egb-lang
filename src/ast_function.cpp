@@ -3,7 +3,6 @@
 #include "ast_function.h"
 #include "ast_node.h"
 #include "ast_variable.h"
-#include "data_type.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"

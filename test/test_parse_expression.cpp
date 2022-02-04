@@ -8,8 +8,6 @@
 #include "ast_integer.h"
 #include "ast_variable.h"
 #include "parser.h"
-//@@@
-#include "data_type.h"
 #include "lexer.h"
 
 #define DIAGRAM_DEBUG 0
@@ -236,7 +234,7 @@ TEST(test_parse_expression, test_parse_variable) {
 
   ASSERT_TRUE(variable_token);
   EXPECT_EQ(variable_token->token_type,
-            static_cast<int>(Token::tok_uint32_type));
+            static_cast<int>(Token::tok_identifier));
   EXPECT_EQ(variable_token->token_value->ident_str, "uint32");
 
   Parser parser;

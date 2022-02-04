@@ -136,7 +136,8 @@ TEST(test_ir_codegen, test_function_dump_mulitple_parameters) {
   raw_os_ostream output_stream(test_output);
   check_function->print(output_stream);
   std::cout << test_output.str() << std::endl;
-  // EXPECT_EQ(test_output.str(), "declare i32 @name_name()\n");
+  // @@@
+  //EXPECT_EQ(test_output.str(), "declare i32 @name_name()\n");
 }
 
 /*

@@ -1,7 +1,6 @@
 #include "ast_variable.h"
 
 #include "ast_node.h"
-#include "data_type.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"

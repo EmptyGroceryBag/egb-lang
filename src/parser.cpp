@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -17,6 +18,9 @@
 
 std::unordered_map<int, int> op_prec = {
     {'\\', 0}, {'+', 10}, {'-', 20}, {'*', 30}};
+
+std::vector<std::string> function_symbol_table;
+std::vector<std::string> variable_symbol_table;
 
 static TokValPair* token;
 
@@ -100,42 +104,61 @@ ASTNode* Parser::parse_paren_expr() {
   return n;
 }
 
-// function signature
-// uint32 ident()
+// Function Prototype:
+// [type_name] ident(); - single return type
+// [type_name, ...] ident(); - multiple return types
+//
+// [type_name] ident(ident);
+// [type_name, ...] ident(ident, ...);
+//
+// Function Signature:
+// [type_name] ident(type_name ident { *body* }
+// [type_name, ...] ident(type_name ident, ...) { *body* }
 
 ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   token = get_token(iterator);
   std::vector<ASTNode*> params;
-  while (token->token_type == static_cast<int>(Token::tok_uint32_type)) {
-    params.push_back(parse_variable_expr(false));
-    if (token->token_type == ',') {
-      iterator++;
+
+  while (token->token_type == static_cast<int>(Token::tok_identifier)) {
+    if (std::find(
+          DataTypes::type_strings.begin(),
+          DataTypes::type_strings.end(),
+          token->token_value->ident_str) != std::end(DataTypes::type_strings)) {
+      params.push_back(parse_variable_expr());
       token = get_token(iterator);
-      continue;
+      if (token->token_type == ',') {
+        iterator++;
+        token = get_token(iterator);
+      } else if (token->token_type == ')') {
+        return new ASTFunction(prototype, params);
+      }
     }
-    break;
   }
 
   if (token->token_type == ')') {
     return new ASTFunction(prototype, params);
-  }
+}
 
+
+  std::cout << "Error: Expected closing parenthesis for parameter list" 
+    << std::endl;
   return nullptr;
 }
 
-ASTNode* Parser::parse_variable_expr(bool is_definition) {
-  // get bit width suffix. there's probably a better way to do this...
-  // we could also map type strings to the DataType enum and switch DataType
-  // values
-  bool sign = false;
-  int width = 0;
-  std::string type_str = token->token_value->ident_str;
-  std::string raw_width_str;
+// Variable:
+// typename ident = value;
 
+ASTNode* Parser::parse_variable_expr() {
+  std::string type_str = token->token_value->ident_str;
+  bool sign = false;
   if (type_str[0] != 'u') {
     sign = true;
   }
 
+  // Get bit width suffix. there's probably a better way to do this...
+  // we could also map type strings to the DataType enum and switch DataType
+  // values
+  std::string raw_width_str;
   int i = type_str.size() - 1;
   while (isdigit(type_str[i])) {
     raw_width_str += type_str[i];
@@ -148,6 +171,7 @@ ASTNode* Parser::parse_variable_expr(bool is_definition) {
     width_str[i] = raw_width_str[j];
   }
 
+  int width = 0;
   width = stoi(width_str);
 
   ASTVariable::Attributes attributes{sign, width};
@@ -157,23 +181,39 @@ ASTNode* Parser::parse_variable_expr(bool is_definition) {
   token = get_token(iterator);
   if (token->token_type == static_cast<int>(Token::tok_identifier)) {
     name = token->token_value->ident_str;
+  } else {
+    std::cerr << "Error: Expected identifier" << std::endl;
   }
 
   // function prototype
-  token = peek(iterator);
-  if (token->token_type == '(') {
+  if (peek(iterator)->token_type == '(') {
     iterator++;
     return parse_function_prototype(new ASTVariable(name, attributes));
   }
 
-  // number literal
-  if (is_definition) {
-    ASTInteger* value;
+  // variable assignment 
+  if (peek(iterator)->token_type == '=') {
+    // number literal
+    ASTNode* value;
     token = get_token(iterator);
     switch (token->token_type) {
       case static_cast<int>(Token::tok_integer):
+        if (!(token->token_value->int_num_val > (1 >> width) - 1)) {
+          value = new ASTInteger(token->token_value->int_num_val);
+          return new ASTVariable(name, attributes, value);
+        }
+
+        std::cout << "Error: Integer too big for specified type \"" 
+          << type_str << "\"." << std::endl;
+        return nullptr;
+
+      // @@@ Research FP number precision
+      case static_cast<int>(Token::tok_floating_point):
         value = new ASTInteger(token->token_value->int_num_val);
         return new ASTVariable(name, attributes, value);
+       
+      default:
+        std::cout << "Error: Invalid numer literal" << std::endl;
     }
   }
 
@@ -194,8 +234,21 @@ ASTNode* Parser::parse_top_level_expr() {
       UNIMPLEMENTED();
       return nullptr;
 
-    case static_cast<int>(Token::tok_uint32_type):
-      return parse_variable_expr(true);
+    // Type list for:
+    // Function Prototype
+    // Function Signature
+    case '[':
+      return parse_variable_expr();
+
+    // Variable declaration
+    // Variable definition
+    case static_cast<int>(Token::tok_identifier):
+      if (std::find(
+            DataTypes::type_strings.begin(),
+            DataTypes::type_strings.end(),
+            token->token_value->ident_str) != std::end(DataTypes::type_strings))
+        return parse_variable_expr();
+      std::cout << "Error: Unknown identifier" << std::endl;
 
     case static_cast<int>(Token::tok_eof):
       return nullptr;

@@ -1,20 +1,26 @@
+#include <vector>
+
 #ifndef AST_TYPES_H
 #define AST_TYPES_H
 
-enum class DataType {
-  BOOLEAN,
-  UNSIGNED_8,
-  UNSIGNED_16,
-  UNSIGNED_32,
-  UNSIGNED_64,
+namespace DataTypes {
+  std::vector<std::string> type_strings = {
+    "bool", 
+    "uint8", 
+    "uint16",
+    "uint32",
+    "uint64",
 
-  SIGNED_1,
-  SIGNED_8,
-  SIGNED_16,
-  SIGNED_32,
-  SIGNED_64,
+    // Signed integers
+    "int8",
+    "int16",
+    "int32",
+    "int64",
 
-  VOID
+    "double"
+
+    "void"
+  };
 };
 
 #endif
