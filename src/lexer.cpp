@@ -41,7 +41,7 @@ TokValPair* get_token(const char*& iterator) {
   }
 
   // Numbers
-  // Differentiate between unary (negate) and binary '-' (subtract) operator
+  // @@@ Differentiate between unary (negate) and binary '-' (subtract) operator
   if (isdigit(*iterator) || *iterator == '.') {
     vals->num_str += *(iterator++);
 
@@ -49,27 +49,16 @@ TokValPair* get_token(const char*& iterator) {
       vals->num_str += *(iterator++);
     }
 
-    //@@@ don't use exception handling
-    /*
-    Note: We are now doing our own integer parsing. Remember side
-    effects
-    */
-    try {
-      if (string_to_int(vals->num_str, vals->int_num_val)) {
-        if (string_to_double(vals->num_str, vals->double_num_val)) {
-          //@@@ this is stupid
-          int errno_ = 1;
-          throw errno_;
-        } else {
-          pair->token_type = static_cast<int>(Token::tok_floating_point);
-          return pair;
-        }
+    if (string_to_int(vals->num_str, vals->int_num_val)) {
+      if (string_to_double(vals->num_str, vals->double_num_val)) {
+        pair->token_type = static_cast<int>(Token::tok_undefined);
+      } else {
+        pair->token_type = static_cast<int>(Token::tok_floating_point);
+        return pair;
       }
-      pair->token_type = static_cast<int>(Token::tok_integer);
-      return pair;
-    } catch (int e) {
-      fprintf(stderr, "Error %d: Malformed double literal", e);
     }
+    pair->token_type = static_cast<int>(Token::tok_integer);
+    return pair;
   }
 
   // Identifiers
