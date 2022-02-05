@@ -112,3 +112,8 @@ TEST(test_ir_codegen, test_function_dump_mulitple_parameters) {
   EXPECT_EQ(test_output.str(), "define i32 @monke(i32 \%x1, i32 \%x2, i32 \%y1, i32 \%y2) {\nentry:\n}\n");
   test_output.str("");
 }
+
+void dummy();
+TEST(dummy_test, dummy_test_1) {
+  dummy();
+}

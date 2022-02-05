@@ -108,7 +108,7 @@ TokValPair* get_token(const char*& iterator) {
   return pair;
 }
 
-int string_to_int(const std::string input_num, int& output_num) {
+int string_to_int(const std::string input_num, long& output_num) {
   int decimal_point = input_num.find('.');
 
   if (decimal_point != -1) {

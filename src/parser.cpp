@@ -125,7 +125,6 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
           DataTypes::type_strings.end(),
           token->token_value->ident_str) != std::end(DataTypes::type_strings)) {
       params.push_back(parse_variable_expr());
-      token = get_token(iterator);
       if (token->token_type == ',') {
         iterator++;
         token = get_token(iterator);
@@ -185,20 +184,21 @@ ASTNode* Parser::parse_variable_expr() {
     std::cerr << "Error: Expected identifier" << std::endl;
   }
 
+  token = get_token(iterator);
+
   // function prototype
-  if (peek(iterator)->token_type == '(') {
-    iterator++;
+  if (token->token_type == '(') {
     return parse_function_prototype(new ASTVariable(name, attributes));
   }
 
-  // variable assignment 
-  if (peek(iterator)->token_type == '=') {
+  // variable assignment, probably going to be an alloca
+  if (token->token_type == '=') {
     // number literal
     ASTNode* value;
     token = get_token(iterator);
     switch (token->token_type) {
       case static_cast<int>(Token::tok_integer):
-        if (!(token->token_value->int_num_val > (1 >> width) - 1)) {
+        if (!(token->token_value->int_num_val > (2l << width) - 1)) {
           value = new ASTInteger(token->token_value->int_num_val);
           return new ASTVariable(name, attributes, value);
         }
@@ -241,7 +241,10 @@ ASTNode* Parser::parse_top_level_expr() {
       return parse_variable_expr();
 
     // Variable declaration
+    // type_name ident;
+    
     // Variable definition
+    // type_name ident = number_literal;
     case static_cast<int>(Token::tok_identifier):
       if (std::find(
             DataTypes::type_strings.begin(),
