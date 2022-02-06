@@ -94,7 +94,8 @@ TEST(test_ir_codegen, test_function_dump_single_parameter) {
 
   check_function->print(output_stream);
   std::cout << test_output.str() << std::endl;
-  EXPECT_EQ(test_output.str(), "define i32 @doofus(i32 \%param) {\nentry:\n}\n");
+  EXPECT_EQ(test_output.str(),
+            "define i32 @doofus(i32 \%param) {\nentry:\n}\n");
   test_output.str("");
 }
 
@@ -109,11 +110,11 @@ TEST(test_ir_codegen, test_function_dump_mulitple_parameters) {
 
   check_function->print(output_stream);
   std::cout << test_output.str() << std::endl;
-  EXPECT_EQ(test_output.str(), "define i32 @monke(i32 \%x1, i32 \%x2, i32 \%y1, i32 \%y2) {\nentry:\n}\n");
+  EXPECT_EQ(test_output.str(),
+            "define i32 @monke(i32 \%x1, i32 \%x2, i32 \%y1, i32 \%y2) "
+            "{\nentry:\n}\n");
   test_output.str("");
 }
 
 void dummy();
-TEST(dummy_test, dummy_test_1) {
-  dummy();
-}
+TEST(dummy_test, dummy_test_1) { dummy(); }

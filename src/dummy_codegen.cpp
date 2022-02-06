@@ -65,7 +65,8 @@ void dummy() {
       builder.CreateBinOp(Instruction::BinaryOps::Add, lhs, rhs, "temp");
   Value* var1 = builder.CreateAlloca(Type::getInt32Ty(context), binop, "x");
 
-  Value* test_load = builder.CreateLoad(Type::getInt32Ty(context), var1, "test_load");
+  Value* test_load =
+      builder.CreateLoad(Type::getInt32Ty(context), var1, "test_load");
 
   builder.CreateRetVoid();
   // node->code_gen(context, builder);

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <iostream>
+#include <stdint.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -17,18 +18,20 @@
 #include "tok_val_pair.h"
 
 std::unordered_map<int, int> op_prec = {
-    {'\\', 0}, {'+', 10}, {'-', 20}, {'*', 30}};
+    {'\\', 0}, {'+', 20}, {'-', 20}, {'*', 40}};
 
 std::vector<std::string> function_symbol_table;
 std::vector<std::string> variable_symbol_table;
 
 static TokValPair* token;
 
-/*
-int get_token_prec(Token token) {
+int get_token_prec(const TokValPair* token) {
+  if (op_prec[token->token_type] == 0) {
+    return -1;
+  }
 
+  return op_prec[token->token_type];
 }
-*/
 
 void Parser::UNIMPLEMENTED() {
   std::cout << "Not implemented yet" << std::endl;
@@ -39,12 +42,13 @@ ASTNode* Parser::parse_primary_expr() {
 
   switch (token->token_type) {
     case static_cast<int>(Token::tok_integer):
-      //@@@ check to see if nullptr
       lhs = new ASTInteger(token->token_value->int_num_val);
+      if (!lhs) return nullptr;
       return parse_binop_rhs(0, lhs);
 
     case static_cast<int>(Token::tok_floating_point):
       lhs = new ASTDouble(token->token_value->double_num_val);
+      if (!lhs) return nullptr;
       return parse_binop_rhs(0, lhs);
 
     case '(':
@@ -59,34 +63,31 @@ ASTNode* Parser::parse_primary_expr() {
 
 ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs) {
   for (;;) {
-    // check to see if next token is a binary operator
-    TokValPair* peeked_token = peek(iterator);
-    if (peeked_token->token_type == ')') {
-      iterator++;
-    }
-    char token_prec = op_prec[peeked_token->token_type];
-    if (token_prec == 0) {
-      token_prec = -1;
-    }
-
-    if (token_prec < expr_prec) {
-      return lhs;
-    }
-
-    // if we got this far, we have a binary operator
-    iterator++;
     token = get_token(iterator);
-    ASTNode* rhs = parse_primary_expr();
+    int token_prec = get_token_prec(token);
 
-    int next_prec = op_prec[token->token_type];
-    if (next_prec == 0) {
-      next_prec = -1;
-    }
+    // If this is a binop that binds at least as tightly as the current binop,
+    // consume it, otherwise we are done.
+    if (token_prec < expr_prec) return lhs;
+
+    // Okay, we know this is a binop.
+    int binop = token->token_type;
+    token = get_token(iterator);  // eat binop
+
+    // Parse the primary expression after the binary operator.
+    auto rhs = parse_primary_expr();
+    if (!rhs) return nullptr;
+
+    // If BinOp binds less tightly with RHS than the operator after RHS, let
+    // the pending operator take RHS as its LHS.
+    int next_prec = get_token_prec(token);
     if (token_prec < next_prec) {
       rhs = parse_binop_rhs(token_prec + 1, rhs);
+      if (!rhs) return nullptr;
     }
 
-    lhs = new ASTBinExpr(peeked_token->token_type, lhs, rhs);
+    // Merge LHS/RHS.
+    lhs = new ASTBinExpr(binop, lhs, rhs);
   }
 }
 
@@ -120,10 +121,10 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   std::vector<ASTNode*> params;
 
   while (token->token_type == static_cast<int>(Token::tok_identifier)) {
-    if (std::find(
-          DataTypes::type_strings.begin(),
-          DataTypes::type_strings.end(),
-          token->token_value->ident_str) != std::end(DataTypes::type_strings)) {
+    if (std::find(DataTypes::type_strings.begin(),
+                  DataTypes::type_strings.end(),
+                  token->token_value->ident_str) !=
+        std::end(DataTypes::type_strings)) {
       params.push_back(parse_variable_expr());
       if (token->token_type == ',') {
         iterator++;
@@ -136,11 +137,10 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
 
   if (token->token_type == ')') {
     return new ASTFunction(prototype, params);
-}
+  }
 
-
-  std::cout << "Error: Expected closing parenthesis for parameter list" 
-    << std::endl;
+  std::cout << "Error: Expected closing parenthesis for parameter list"
+            << std::endl;
   return nullptr;
 }
 
@@ -170,8 +170,7 @@ ASTNode* Parser::parse_variable_expr() {
     width_str[i] = raw_width_str[j];
   }
 
-  int width = 0;
-  width = stoi(width_str);
+  uint64_t width = stoull(width_str);
 
   ASTVariable::Attributes attributes{sign, width};
 
@@ -197,23 +196,20 @@ ASTNode* Parser::parse_variable_expr() {
     ASTNode* value;
     token = get_token(iterator);
     switch (token->token_type) {
+      // @@@ Eventually we'll want to detect and throw a warning for type
+      // narrowing
       case static_cast<int>(Token::tok_integer):
-        if (!(token->token_value->int_num_val > (2l << width) - 1)) {
-          value = new ASTInteger(token->token_value->int_num_val);
-          return new ASTVariable(name, attributes, value);
-        }
-
-        std::cout << "Error: Integer too big for specified type \"" 
-          << type_str << "\"." << std::endl;
-        return nullptr;
+        // @@@ This assignment might not be needed
+        value = new ASTInteger(token->token_value->int_num_val);
+        return new ASTVariable(name, attributes, value);
 
       // @@@ Research FP number precision
       case static_cast<int>(Token::tok_floating_point):
         value = new ASTInteger(token->token_value->int_num_val);
         return new ASTVariable(name, attributes, value);
-       
+
       default:
-        std::cout << "Error: Invalid numer literal" << std::endl;
+        std::cout << "Error: Invalid number literal" << std::endl;
     }
   }
 
@@ -222,6 +218,8 @@ ASTNode* Parser::parse_variable_expr() {
 
 ASTNode* Parser::parse_top_level_expr() {
   token = get_token(iterator);
+
+  if (!token) return nullptr;
 
   ASTNode* lhs = nullptr;
 
@@ -242,14 +240,14 @@ ASTNode* Parser::parse_top_level_expr() {
 
     // Variable declaration
     // type_name ident;
-    
+
     // Variable definition
     // type_name ident = number_literal;
     case static_cast<int>(Token::tok_identifier):
-      if (std::find(
-            DataTypes::type_strings.begin(),
-            DataTypes::type_strings.end(),
-            token->token_value->ident_str) != std::end(DataTypes::type_strings))
+      if (std::find(DataTypes::type_strings.begin(),
+                    DataTypes::type_strings.end(),
+                    token->token_value->ident_str) !=
+          std::end(DataTypes::type_strings))
         return parse_variable_expr();
       std::cout << "Error: Unknown identifier" << std::endl;
 

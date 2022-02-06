@@ -10,8 +10,7 @@
 ASTBinExpr::ASTBinExpr(int op, ASTNode* lhs, ASTNode* rhs)
     : op(op), lhs(lhs), rhs(rhs){};
 
-Value* ASTBinExpr::code_gen(LLVMContext& context,
-                                  IRBuilder<>& builder) {
+Value* ASTBinExpr::code_gen(LLVMContext& context, IRBuilder<>& builder) {
   Value* lhs_value = lhs->code_gen(context, builder);
   Value* rhs_value = rhs->code_gen(context, builder);
 

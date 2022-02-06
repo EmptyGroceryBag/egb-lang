@@ -10,8 +10,7 @@ enum class Token {
   tok_identifier = -4,
   tok_integer = -5,
   tok_floating_point = -6,
-  tok_generic = -7,
-  tok_undefined = -999
+  tok_generic = -7
 };
 
 TokValPair* get_token(const char*&);

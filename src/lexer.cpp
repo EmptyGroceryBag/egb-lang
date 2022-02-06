@@ -51,7 +51,7 @@ TokValPair* get_token(const char*& iterator) {
 
     if (string_to_int(vals->num_str, vals->int_num_val)) {
       if (string_to_double(vals->num_str, vals->double_num_val)) {
-        pair->token_type = static_cast<int>(Token::tok_undefined);
+        return nullptr;
       } else {
         pair->token_type = static_cast<int>(Token::tok_floating_point);
         return pair;
@@ -90,12 +90,9 @@ TokValPair* get_token(const char*& iterator) {
   // Ignore comments - @@@ we probably don't need to return an undefined token
   // @@@ we can't parse comments that come directly before EOF
   if (*iterator == '#') {
-    while (*iterator != '\n') {
+    while (*iterator != '\n' || *iterator != EOF) {
       iterator++;
     }
-
-    pair->token_type = static_cast<int>(Token::tok_undefined);
-    return pair;
   }
 
   if (*iterator == '\0') {

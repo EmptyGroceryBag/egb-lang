@@ -7,17 +7,17 @@
 #include "ast_function.h"
 #include "ast_integer.h"
 #include "ast_variable.h"
-#include "parser.h"
 #include "lexer.h"
+#include "parser.h"
 
-#define DIAGRAM_DEBUG 0
+#define DIAGRAM_DEBUG 1
 
 static Parser parser;
 
 template <class T>
 T* check_node_type(std::string buffer) {
   parser.iterator = &buffer[0];
-	T* node = dynamic_cast<T*>(parser.parse_top_level_expr()); 
+  T* node = dynamic_cast<T*>(parser.parse_top_level_expr());
   return node;
 }
 
@@ -39,7 +39,7 @@ TEST(test_parse_expression, test_unsigned_floating_point) {
 
 TEST(test_parse_expression, test_bin_expr_addition_two_operands) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4");
-	ASSERT_TRUE(check);
+  ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '+');
 
   ASTInteger* lhs = dynamic_cast<ASTInteger*>(check->lhs);
@@ -181,6 +181,8 @@ TEST(test_parse_expression, test_bin_expr_three_operands_left_parens) {
 #endif
 }
 
+// @@@ Fix this... I don't think it knows what to do with the closing
+// parenthesis
 TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2+(4+5)");
   ASSERT_TRUE(check);
@@ -193,7 +195,6 @@ TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
   ASTBinExpr* rhs = dynamic_cast<ASTBinExpr*>(check->rhs);
   ASSERT_TRUE(rhs);
   EXPECT_EQ(rhs->op, '+');
-  std::cout << check->to_string(0) << std::endl;
   ASTInteger* nested_lhs = dynamic_cast<ASTInteger*>(rhs->lhs);
   ASSERT_TRUE(nested_lhs);
   EXPECT_EQ(nested_lhs->value, 4);
@@ -246,13 +247,13 @@ ASTFunction* check_function_prototype(std::string buffer) {
 
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
-	return prototype_expr;
+  return prototype_expr;
 }
 
 TEST(test_parse_expression, test_parse_function_prototype) {
-	ASTFunction* prototype_expr = check_function_prototype("uint32 funcy()");
+  ASTFunction* prototype_expr = check_function_prototype("uint32 funcy()");
   ASSERT_TRUE(prototype_expr);
-	
+
   EXPECT_EQ(prototype_expr->params.size(), 0);
   ASSERT_TRUE(prototype_expr->prototype);
   EXPECT_EQ(prototype_expr->prototype->name, "funcy");
@@ -261,7 +262,8 @@ TEST(test_parse_expression, test_parse_function_prototype) {
 }
 
 TEST(test_parse_expression, test_parse_function_prototype_single_parameter) {
-	ASTFunction* prototype_expr = check_function_prototype("uint32 name_name(uint32 another_name)");
+  ASTFunction* prototype_expr =
+      check_function_prototype("uint32 name_name(uint32 another_name)");
   ASSERT_TRUE(prototype_expr);
 
   EXPECT_EQ(prototype_expr->params.size(), 1);
@@ -279,7 +281,8 @@ TEST(test_parse_expression, test_parse_function_prototype_single_parameter) {
 }
 
 TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
-	ASTFunction* prototype_expr = check_function_prototype("uint32 name_name(uint32 x1, uint32 x2)");
+  ASTFunction* prototype_expr =
+      check_function_prototype("uint32 name_name(uint32 x1, uint32 x2)");
   ASSERT_TRUE(prototype_expr);
 
   ASSERT_TRUE(prototype_expr->prototype);
@@ -288,20 +291,20 @@ TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
   ASTVariable::Attributes prototype_attributes{false, 32};
   EXPECT_TRUE(prototype_attributes == prototype_expr->prototype->attributes);
 
-	int i = 0;
-	for(ASTNode* param : prototype_expr->params) {
-		ASTVariable* param_expr = dynamic_cast<ASTVariable*>(param);
-		ASSERT_TRUE(param_expr);
+  int i = 0;
+  for (ASTNode* param : prototype_expr->params) {
+    ASTVariable* param_expr = dynamic_cast<ASTVariable*>(param);
+    ASSERT_TRUE(param_expr);
 
-		ASTVariable::Attributes test_attributes{false, 32};
-		EXPECT_TRUE(test_attributes == param_expr->attributes);
+    ASTVariable::Attributes test_attributes{false, 32};
+    EXPECT_TRUE(test_attributes == param_expr->attributes);
 
-		std::string param_name = "x";
-		param_name += std::to_string(i + 1);
-		EXPECT_EQ(param_expr->name, param_name);
+    std::string param_name = "x";
+    param_name += std::to_string(i + 1);
+    EXPECT_EQ(param_expr->name, param_name);
 
-		EXPECT_FALSE(param_expr->value);
+    EXPECT_FALSE(param_expr->value);
 
-		i++;
-	}
+    i++;
+  }
 }
