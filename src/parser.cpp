@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <iostream>
-#include <stdint.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -55,7 +54,6 @@ ASTNode* Parser::parse_primary_expr() {
       return parse_paren_expr();
 
     default:
-      //@@@
       UNIMPLEMENTED();
       return nullptr;
   }
@@ -170,7 +168,7 @@ ASTNode* Parser::parse_variable_expr() {
     width_str[i] = raw_width_str[j];
   }
 
-  uint64_t width = stoull(width_str);
+  int width = stoi(width_str);
 
   ASTVariable::Attributes attributes{sign, width};
 

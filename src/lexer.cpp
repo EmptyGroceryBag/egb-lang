@@ -87,8 +87,7 @@ TokValPair* get_token(const char*& iterator) {
     return pair;
   }
 
-  // Ignore comments - @@@ we probably don't need to return an undefined token
-  // @@@ we can't parse comments that come directly before EOF
+  // Ignore comments
   if (*iterator == '#') {
     while (*iterator != '\n' || *iterator != EOF) {
       iterator++;

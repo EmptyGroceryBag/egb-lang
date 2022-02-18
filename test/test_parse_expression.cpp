@@ -99,8 +99,6 @@ TEST(test_parse_expression, test_bin_expr_addition_three_operands) {
 #endif
 }
 
-//@@@ this does not parse with the correct precedence
-// intended precedence: (2*4)+5
 TEST(test_parse_expression, test_bin_expr_left_multiplication_three_operands) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2*4+5");
   ASSERT_TRUE(check);
@@ -181,8 +179,6 @@ TEST(test_parse_expression, test_bin_expr_three_operands_left_parens) {
 #endif
 }
 
-// @@@ Fix this... I don't think it knows what to do with the closing
-// parenthesis
 TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2+(4+5)");
   ASSERT_TRUE(check);
@@ -208,7 +204,7 @@ TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
 #endif
 }
 
-//@@@ too lazy to fill the following two tests out properly
+// @@@ too lazy to fill the following two tests out properly
 TEST(test_parse_expression, test_bin_expr_nested) {
   ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4+5+6");
   ASSERT_TRUE(check);

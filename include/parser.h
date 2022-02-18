@@ -18,7 +18,6 @@ class Parser {
   ASTNode* parse_variable_expr();
   ASTNode* parse_function_prototype(ASTVariable* prototype);
 
-  //@@@
   void UNIMPLEMENTED();
 };
 

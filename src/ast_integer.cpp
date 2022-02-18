@@ -1,8 +1,6 @@
 #include "ast_integer.h"
 #include <string>
 
-//@@@ don't need this anymore
-//#include "llvm/ADT/APInt.h"
 #include "llvm/IR/Constants.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
