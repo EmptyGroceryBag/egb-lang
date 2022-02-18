@@ -1,6 +1,5 @@
-# egb-lang 
-## Toy language based on "Kaleidescope" from the [LLVM quick start tutorial](https://llvm.org/docs/tutorial)
+# `egb-lang`
+## Toy Language
 
-Basic tutorial features will be implemented first. Once that is finished, it
-will be expanded with more useful features. The essence of the tutorial is used
-as a guide for my own implementation.
+`egb-lang` is a simple, procedural language that targets LLVM. In the future,
+`egb-lang` will include codegen for AVR assembly.
