@@ -7,6 +7,7 @@
 #include "ast_bin_expr.h"
 #include "ast_double.h"
 #include "ast_function.h"
+#include "ast_global_block.h"
 #include "ast_integer.h"
 #include "ast_node.h"
 #include "ast_variable.h"
@@ -119,31 +120,48 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   std::vector<ASTNode*> params;
 
   while (token->token_type == static_cast<int>(Token::tok_identifier)) {
+    // @@@Duplication
     if (std::find(DataTypes::type_strings.begin(),
-                  DataTypes::type_strings.end(),
-                  token->token_value->ident_str) !=
-        std::end(DataTypes::type_strings)) {
+      DataTypes::type_strings.end(),
+      token->token_value->ident_str) !=
+      std::end(DataTypes::type_strings)) {
+
       params.push_back(parse_variable_expr());
+      token = get_token(iterator);
       if (token->token_type == ',') {
         iterator++;
         token = get_token(iterator);
-      } else if (token->token_type == ')') {
+      }
+      else if (token->token_type == ')') {
         return new ASTFunction(prototype, params);
       }
+      else {
+        std::cout << "Error: Expected closing parenthesis for parameter list"
+          << std::endl;
+        error = true;
+        return nullptr;
+      }
+    } else {
+      std::cout << "Error: Expected type name to begin parameter list"
+        << std::endl;
+      error = true;
+      return nullptr;
     }
   }
 
   if (token->token_type == ')') {
-    return new ASTFunction(prototype, params);
+    return new ASTFunction(prototype);
   }
 
   std::cout << "Error: Expected closing parenthesis for parameter list"
             << std::endl;
+  error = true;
   return nullptr;
 }
 
 // Variable:
-// typename ident = value;
+// typename ident = value;  definition
+// typename ident;          declaration      
 
 ASTNode* Parser::parse_variable_expr() {
   std::string type_str = token->token_value->ident_str;
@@ -179,19 +197,23 @@ ASTNode* Parser::parse_variable_expr() {
     name = token->token_value->ident_str;
   } else {
     std::cerr << "Error: Expected identifier" << std::endl;
+    error = true;
+    return nullptr;
   }
 
-  token = get_token(iterator);
+  TokValPair* peeked_token = peek(iterator);
 
   // function prototype
-  if (token->token_type == '(') {
+  if (peeked_token->token_type == '(') {
+    get_token(iterator);
     return parse_function_prototype(new ASTVariable(name, attributes));
   }
 
   // variable assignment, probably going to be an alloca
-  if (token->token_type == '=') {
+  if (peeked_token->token_type == '=') {
     // number literal
     ASTNode* value;
+    get_token(iterator);
     token = get_token(iterator);
     switch (token->token_type) {
       // @@@ Eventually we'll want to detect and throw a warning for type
@@ -208,6 +230,19 @@ ASTNode* Parser::parse_variable_expr() {
 
       default:
         std::cout << "Error: Invalid number literal" << std::endl;
+        error = true;
+        return nullptr;
+    }
+  }
+
+  // Check for redeclaration
+  std::vector<std::string>& global_symbols = ASTGlobalBlock::get_global_block().symbols;
+  for (std::string ident : global_symbols) {
+    if (name == ident) {
+      std::cout << "Error: Redeclaration of variable/function " << name << "."
+                << std::endl;
+      error = true;
+      return nullptr;
     }
   }
 
@@ -247,7 +282,10 @@ ASTNode* Parser::parse_top_level_expr() {
                     token->token_value->ident_str) !=
           std::end(DataTypes::type_strings))
         return parse_variable_expr();
+      // @@@Duplication: Make a function out of the following two lines
       std::cout << "Error: Unknown identifier" << std::endl;
+      error = true;
+      return nullptr;
 
     case static_cast<int>(Token::tok_eof):
       return nullptr;

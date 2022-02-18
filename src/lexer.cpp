@@ -35,6 +35,7 @@ TokValPair* get_token(const char*& iterator) {
   TokValPair* pair = new TokValPair;
   pair->token_value = vals;
 
+next_token:
   // Whitespace
   while (isspace(*iterator)) {
     iterator++;  // eat
@@ -73,11 +74,13 @@ TokValPair* get_token(const char*& iterator) {
       vals->ident_str += *(iterator++);
     }
 
+    // @@@Dead
     if (vals->ident_str == "def") {
       pair->token_type = static_cast<int>(Token::tok_def);
       return pair;
     }
 
+    // @@@Dead
     if (vals->ident_str == "extern") {
       pair->token_type = static_cast<int>(Token::tok_extern);
       return pair;
@@ -88,9 +91,12 @@ TokValPair* get_token(const char*& iterator) {
   }
 
   // Ignore comments
+  // @@@Cleanup: New formatting rules for single-line loops and conditionals
   if (*iterator == '#') {
-    while (*iterator != '\n' || *iterator != EOF) {
+    while (*iterator != '\n' && *iterator != EOF) iterator++;
+    if (*iterator == '\n') {
       iterator++;
+      goto next_token;
     }
   }
 
@@ -129,6 +135,6 @@ int string_to_double(const std::string input_num, double& output_num) {
 }
 
 TokValPair* peek(const char* iterator) {
-  const char* base_ptr = iterator;  // hopefully this makes a copy
+  const char* base_ptr = iterator;
   return get_token(base_ptr);
 }
