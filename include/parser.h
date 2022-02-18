@@ -8,6 +8,11 @@
 class Parser {
  public:
   const char* iterator;
+  
+  bool error = false;
+
+  // @@@Incomplete: An enum with different error types would be more helpful
+  
   Parser(const char* iterator) : iterator(iterator){};
   Parser() = default;
 

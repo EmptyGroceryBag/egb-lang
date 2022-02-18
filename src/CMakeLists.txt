@@ -41,7 +41,6 @@ if(BUILD_TEST)
 		ast_bin_expr.cpp
     ast_variable.cpp
     ast_function.cpp
-		dummy_codegen.cpp
 
 		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
 		${PROJECT_SOURCE_DIR}/../include/ast_double.h
@@ -50,6 +49,7 @@ if(BUILD_TEST)
 		${PROJECT_SOURCE_DIR}/../include/lexer.h
 		${PROJECT_SOURCE_DIR}/../include/parser.h
 		${PROJECT_SOURCE_DIR}/../include/ast_function.h
+		${PROJECT_SOURCE_DIR}/../include/ast_global_block.h
     ${PROJECT_SOURCE_DIR}/../include/ast_variable.h
     ${PROJECT_SOURCE_DIR}/../include/data_type.h
 	)
@@ -66,7 +66,6 @@ else()
 		ast_bin_expr.cpp
     ast_variable.cpp
     ast_function.cpp
-		dummy_codegen.cpp
 
 		${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
 		${PROJECT_SOURCE_DIR}/../include/ast_double.h
@@ -77,6 +76,7 @@ else()
 		${PROJECT_SOURCE_DIR}/../include/t_vals.h
 		${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
     ${PROJECT_SOURCE_DIR}/../include/ast_function.h
+		${PROJECT_SOURCE_DIR}/../include/ast_global_block.h
     ${PROJECT_SOURCE_DIR}/../include/ast_variable.h
     ${PROJECT_SOURCE_DIR}/../include/data_type.h
 	)

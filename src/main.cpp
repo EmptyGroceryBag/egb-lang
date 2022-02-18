@@ -19,18 +19,30 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstdio>
 #include <iostream>
+#include <sstream>
+#include <string>
 #include <vector>
 
+#include "ast_function.h"
 #include "ast_node.h"
+#include "ast_global_block.h"
 #include "cmake_config.h"
 #include "parser.h"
+
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+#include "llvm/IR/Type.h"
+#include "llvm/Support/raw_os_ostream.h"
+
+using namespace llvm;
 
 int main(int argc, char* argv[]) {
   std::cout << "egb-lang " << el_VERSION_MAJOR << "." << el_VERSION_MINOR
             << std::endl;
 
   std::FILE* ifs;
-  std::string buffer;
 
   if (argc < 2) {
     printf("\n\n");
@@ -40,25 +52,51 @@ int main(int argc, char* argv[]) {
   }
 
   ifs = std::fopen(argv[1], "r");
-  if (!ifs) return errno;
+  if (!ifs) {
+    std::cout << "Error: Could not open file \"" << argv[1] << "\"" << std::endl;
+    return errno;
+  }
 
   std::cout << "Opened " << argv[1] << std::endl;
 
   char next_char;
+  std::string buffer;
   while ((next_char = fgetc(ifs)) != EOF) buffer += next_char;
 
-  std::vector<ASTNode*> tree;
-  ASTNode* node;
+  std::fclose(ifs);
+  std::cout << "Closed " << argv[1] << std::endl;
 
   const char* iterator = &buffer[0];
   Parser p(iterator);
 
-  while ((node = p.parse_top_level_expr()) != nullptr) tree.push_back(node);
+  std::vector<ASTNode*>& syntax_tree = ASTGlobalBlock::get_global_block().syntax_tree;
+  ASTNode* current_node;
+  while ((current_node = p.parse_top_level_expr()) != nullptr) 
+    syntax_tree.push_back(current_node);
+  std::cout << "parsed " << syntax_tree.size() << " node(s)" << std::endl;
 
-  //@@@ Do codegen somewhere here
+  if (p.error) return 1;
 
-  std::fclose(ifs);
-  std::cout << "Closed " << argv[1] << std::endl;
+  LLVMContext context;
+  Module llvm_module("main_mod", context);
+  IRBuilder<> builder(context);
+
+  for (ASTNode* n : syntax_tree) {
+    if (!n) return 1;
+
+    ASTFunction* entry_point = dynamic_cast<ASTFunction*>(n);
+    if (entry_point) entry_point->code_gen(context, builder, llvm_module);
+    else n->code_gen(context, builder);
+  }
+
+//#define DEBUG_PRINT_IR
+//#ifdef DEBUG_PRINT_IR
+    std::ostringstream test_output;
+    raw_os_ostream output_stream(test_output);
+
+    llvm_module.print(output_stream, nullptr);
+    std::cout << test_output.str() << std::endl;
+//#endif
 
   return 0;
 }

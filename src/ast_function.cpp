@@ -14,6 +14,9 @@ using namespace llvm;
 ASTFunction::ASTFunction(ASTVariable* prototype, std::vector<ASTNode*> params)
     : prototype(prototype), params(params) {}
 
+ASTFunction::ASTFunction(ASTVariable* prototype)
+    : prototype(prototype) {}
+
 Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder) {
   return nullptr;
 }
@@ -21,8 +24,10 @@ Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder) {
 Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder,
                              Module& llvm_module) {
   std::vector<Type*> generated_params;
-  for (int i = 0; i < params.size(); i++) {
-    generated_params.push_back(Type::getInt32Ty(context));
+  if (params.size() != 0) {
+    for (int i = 0; i < params.size(); i++) {
+      generated_params.push_back(Type::getInt32Ty(context));
+    }
   }
 
   Function* entry_point = Function::Create(
