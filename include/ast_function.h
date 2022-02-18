@@ -19,12 +19,12 @@ class ASTFunction : public ASTNode {
 
   ASTFunction(ASTVariable* prototype, std::vector<ASTNode*> params);
 
-  virtual Value* code_gen(LLVMContext&, IRBuilder<>&);
+  Value* code_gen(LLVMContext&, IRBuilder<>&);
   Value* code_gen(LLVMContext&, IRBuilder<>&, Module&);
 
-  virtual std::string to_string();
-  //@@@ return nullptr?
-  virtual std::string to_string(int);
+  // @@@ This is just to satiate the base class
+  std::string to_string() { return to_string(0); }
+  std::string to_string(int n) { return ""; }
 };
 
 #endif

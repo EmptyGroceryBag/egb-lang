@@ -14,11 +14,10 @@ class ASTInteger : public ASTNode {
 
   ASTInteger(int);
 
-  virtual Value* code_gen(LLVMContext&, IRBuilder<>&);
+  Value* code_gen(LLVMContext&, IRBuilder<>&);
 
-  virtual std::string to_string();
-  //@@@ return nullptr?
-  virtual std::string to_string(int) { return nullptr; }
+  // @@@ This is just to satiate the base class
+  std::string to_string();
+  std::string to_string(int n) { return ""; }
 };
-
 #endif

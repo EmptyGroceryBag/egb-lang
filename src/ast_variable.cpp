@@ -21,7 +21,3 @@ Value* ASTVariable::code_gen(LLVMContext& context, IRBuilder<>& builder) {
   return builder.CreateAlloca(Type::getInt32Ty(context),
                               value->code_gen(context, builder), name);
 }
-
-//@@@
-std::string ASTVariable::to_string(int indentation) { return nullptr; }
-std::string ASTVariable::to_string() { return nullptr; }

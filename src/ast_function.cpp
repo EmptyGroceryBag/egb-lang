@@ -41,6 +41,3 @@ Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder,
 
   return entry_point;
 }
-
-std::string ASTFunction::to_string(int indentation) { return nullptr; }
-std::string ASTFunction::to_string() { return nullptr; }

@@ -18,8 +18,8 @@ class ASTBinExpr : public ASTNode {
 
   Value* code_gen(LLVMContext&, IRBuilder<>&);
 
-  virtual std::string to_string(int);
-  virtual std::string to_string();
+  std::string to_string();
+  std::string to_string(int);
 };
 
 #endif

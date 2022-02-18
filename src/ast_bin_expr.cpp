@@ -55,4 +55,4 @@ std::string ASTBinExpr::to_string(int indentation) {
   return type_str + lhs_str + rhs_str + op_str;
 }
 
-std::string ASTBinExpr::to_string() { return nullptr; }
+std::string ASTBinExpr::to_string() { return to_string(0); }

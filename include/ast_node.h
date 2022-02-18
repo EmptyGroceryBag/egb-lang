@@ -15,7 +15,7 @@ class ASTNode {
 
   virtual Value* code_gen(LLVMContext&, IRBuilder<>&) = 0;
 
-  virtual std::string to_string(int indentation) = 0;
+  virtual std::string to_string(int) = 0;
   virtual std::string to_string() = 0;
 };
 

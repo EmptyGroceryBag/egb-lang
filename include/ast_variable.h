@@ -31,11 +31,11 @@ class ASTVariable : public ASTNode {
   std::string name;
   ASTNode* value = nullptr;
 
-  virtual Value* code_gen(LLVMContext&, IRBuilder<>&);
+  Value* code_gen(LLVMContext&, IRBuilder<>&);
 
-  //@@@ TODO
-  virtual std::string to_string(int indentation);
-  virtual std::string to_string();
+  // @@@ This is just to satiate the base class
+  std::string to_string() { return to_string(0); }
+  std::string to_string(int n) { return ""; }
 };
 
 #endif

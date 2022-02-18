@@ -51,7 +51,7 @@ TEST(test_parse_expression, test_bin_expr_addition_two_operands) {
   EXPECT_EQ(rhs->value, 4);
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
@@ -69,7 +69,7 @@ TEST(test_parse_expression, test_bin_expr_multiplication_two_operands) {
   EXPECT_EQ(rhs->value, 4);
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
@@ -95,7 +95,7 @@ TEST(test_parse_expression, test_bin_expr_addition_three_operands) {
   EXPECT_EQ(nested_rhs->value, 5);
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
@@ -123,7 +123,7 @@ TEST(test_parse_expression, test_bin_expr_left_multiplication_three_operands) {
   EXPECT_EQ(nested_rhs->value, 5);
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
@@ -150,7 +150,7 @@ TEST(test_parse_expression, test_bin_expr_right_multiplication_three_operands) {
   EXPECT_EQ(nested_rhs->value, 5);
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
@@ -177,7 +177,7 @@ TEST(test_parse_expression, test_bin_expr_three_operands_left_parens) {
   EXPECT_EQ(rhs->value, 5);
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
@@ -204,7 +204,7 @@ TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
   EXPECT_EQ(nested_rhs->value, 5);
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
@@ -215,7 +215,7 @@ TEST(test_parse_expression, test_bin_expr_nested) {
   EXPECT_EQ(check->op, '+');
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
@@ -226,7 +226,7 @@ TEST(test_parse_expression, test_bin_expr_nested_with_parens) {
   EXPECT_EQ(check->op, '+');
 
 #if (DIAGRAM_DEBUG)
-  std::cout << check->to_string(0) << std::endl;
+  std::cout << check->to_string() << std::endl;
 #endif
 }
 
