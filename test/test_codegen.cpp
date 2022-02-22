@@ -115,6 +115,3 @@ TEST(test_ir_codegen, test_function_dump_mulitple_parameters) {
             "{\nentry:\n}\n");
   test_output.str("");
 }
-
-void dummy();
-TEST(dummy_test, dummy_test_1) { dummy(); }

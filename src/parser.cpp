@@ -24,6 +24,9 @@ std::vector<std::string> function_symbol_table;
 std::vector<std::string> variable_symbol_table;
 
 static TokValPair* token;
+static TokValPair* peeked_token;
+
+std::vector<std::string>& types = DataTypes::type_strings;
 
 int get_token_prec(const TokValPair* token) {
   if (op_prec[token->token_type] == 0) {
@@ -121,18 +124,21 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
 
   while (token->token_type == static_cast<int>(Token::tok_identifier)) {
     // @@@Duplication
-    if (std::find(DataTypes::type_strings.begin(),
-      DataTypes::type_strings.end(),
-      token->token_value->ident_str) !=
-      std::end(DataTypes::type_strings)) {
+    if (std::find(
+      types.begin(), 
+      types.end(), 
+      token->token_value->ident_str
+    ) != types.end()) {
 
       params.push_back(parse_variable_expr());
-      token = get_token(iterator);
+      peeked_token = peek(iterator);
+
       if (token->token_type == ',') {
-        iterator++;
+        get_token(iterator);
         token = get_token(iterator);
       }
-      else if (token->token_type == ')') {
+      else if (peeked_token->token_type == ')') {
+        get_token(iterator);
         return new ASTFunction(prototype, params);
       }
       else {
@@ -173,35 +179,51 @@ ASTNode* Parser::parse_variable_expr() {
   // Get bit width suffix. there's probably a better way to do this...
   // we could also map type strings to the DataType enum and switch DataType
   // values
-  std::string raw_width_str;
-  int i = type_str.size() - 1;
-  while (isdigit(type_str[i])) {
-    raw_width_str += type_str[i];
-    i--;
-  }
+  int width;
+  if (type_str != "void") {
+    std::string raw_width_str;
+    int i = type_str.size() - 1;
+    while (isdigit(type_str[i])) {
+      raw_width_str += type_str[i];
+      i--;
+    }
 
-  std::string width_str = raw_width_str;
+    std::string width_str = raw_width_str;
 
-  for (int i = 0, j = width_str.size() - 1; i < width_str.size(); i++, j--) {
-    width_str[i] = raw_width_str[j];
-  }
+    for (int i = 0, j = width_str.size() - 1; i < width_str.size(); i++, j--) {
+      width_str[i] = raw_width_str[j];
+    }
 
-  int width = stoi(width_str);
+    width = stoi(width_str);
+  } else if (type_str == "void") width = -1;
 
   ASTVariable::Attributes attributes{sign, width};
 
   // expecting identifier after type
   std::string name;
-  token = get_token(iterator);
-  if (token->token_type == static_cast<int>(Token::tok_identifier)) {
+  peeked_token = peek(iterator);
+
+  if (peeked_token->token_type == static_cast<int>(Token::tok_identifier)) {
+    if (std::find(
+      types.begin(),
+      types.end(),
+      peeked_token->token_value->ident_str
+    ) != types.end()) {
+      std::cerr << "Error: Names of variables cannot be a type name"
+        << std::endl;
+      error = true;
+      return nullptr;
+    }
+
+    token = get_token(iterator);
     name = token->token_value->ident_str;
   } else {
-    std::cerr << "Error: Expected identifier" << std::endl;
+    std::cerr << "Error: Expected identifier for variable name" << std::endl;
     error = true;
     return nullptr;
   }
 
-  TokValPair* peeked_token = peek(iterator);
+  peeked_token = peek(iterator);
 
   // function prototype
   if (peeked_token->token_type == '(') {
@@ -216,8 +238,8 @@ ASTNode* Parser::parse_variable_expr() {
     get_token(iterator);
     token = get_token(iterator);
     switch (token->token_type) {
-      // @@@ Eventually we'll want to detect and throw a warning for type
-      // narrowing
+      // @@@Incomplete: Eventually we'll want to detect and throw a
+      // warning for type narrowing
       case static_cast<int>(Token::tok_integer):
         // @@@ This assignment might not be needed
         value = new ASTInteger(token->token_value->int_num_val);
@@ -250,11 +272,11 @@ ASTNode* Parser::parse_variable_expr() {
 }
 
 ASTNode* Parser::parse_top_level_expr() {
-  token = get_token(iterator);
-
-  if (!token) return nullptr;
-
   ASTNode* lhs = nullptr;
+
+parse:
+  token = get_token(iterator);
+  if (!token) return nullptr; // @@@What is this?
 
   switch (token->token_type) {
     case static_cast<int>(Token::tok_def):
@@ -287,11 +309,18 @@ ASTNode* Parser::parse_top_level_expr() {
       error = true;
       return nullptr;
 
-    case static_cast<int>(Token::tok_eof):
-      return nullptr;
-
-    default:                       // number or identifier
+    // Number literal
+    case static_cast<int>(Token::tok_integer):
       lhs = parse_primary_expr();  // lhs
       return lhs;
+
+    case static_cast<int>(Token::tok_eof):
+      std::cout << "EOF reached" << std::endl;
+      return nullptr;
+    
+    default:
+      std::cout << "Unexpected token" << std::endl;
+      error = true;
+      goto parse;
   }
 }

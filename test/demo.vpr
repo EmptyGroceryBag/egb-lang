@@ -1,7 +1,9 @@
-uint32 main()
-uint32 with_params(
-    uint32 x1, uint32 x2
-    )
-    uint32 some_var
-    uint32 IQ = 128
-    uint32 doofus = 91
+#TODO:
+#   Make global variables work
+#   Differentiate between function definitions and declarations
+#   Add identifiers to symbol table
+#   Enforce main function
+
+uint32 main(
+
+uint32 main)(void hey)
