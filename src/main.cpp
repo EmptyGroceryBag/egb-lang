@@ -70,9 +70,9 @@ int main(int argc, char* argv[]) {
   Parser p(iterator);
 
   std::vector<ASTNode*>& syntax_tree = ASTGlobalBlock::get_global_block().syntax_tree;
-  ASTNode* current_node;
-  while ((current_node = p.parse_top_level_expr()) != nullptr) 
-    syntax_tree.push_back(current_node);
+  //ASTNode* current_node;
+  while (peek(p.iterator)->token_type != static_cast<int>(Token::tok_eof))
+    syntax_tree.push_back(p.parse_top_level_expr());
   std::cout << "parsed " << syntax_tree.size() << " node(s)" << std::endl;
 
   if (p.error) return 1;
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
   IRBuilder<> builder(context);
 
   for (ASTNode* n : syntax_tree) {
-    if (!n) return 1;
+    if (!n) continue;
 
     ASTFunction* entry_point = dynamic_cast<ASTFunction*>(n);
     if (entry_point) entry_point->code_gen(context, builder, llvm_module);

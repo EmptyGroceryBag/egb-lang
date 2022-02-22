@@ -93,7 +93,7 @@ next_token:
   // Ignore comments
   // @@@Cleanup: New formatting rules for single-line loops and conditionals
   if (*iterator == '#') {
-    while (*iterator != '\n' && *iterator != EOF) iterator++;
+    while (*iterator != '\n' && *iterator != '\0') iterator++;
     if (*iterator == '\n') {
       iterator++;
       goto next_token;
