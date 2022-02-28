@@ -62,6 +62,7 @@ int main(int argc, char* argv[]) {
   char next_char;
   std::string buffer;
   while ((next_char = fgetc(ifs)) != EOF) buffer += next_char;
+  std::cout << "Created buffer" << std::endl;
 
   std::fclose(ifs);
   std::cout << "Closed " << argv[1] << std::endl;
@@ -70,12 +71,21 @@ int main(int argc, char* argv[]) {
   Parser p(iterator);
 
   std::vector<ASTNode*>& syntax_tree = ASTGlobalBlock::get_global_block().syntax_tree;
-  //ASTNode* current_node;
-  while (peek(p.iterator)->token_type != static_cast<int>(Token::tok_eof))
+  //ASTNode* current_node = nullptr;
+  while (peek(p.iterator)->token_type != static_cast<int>(Token::tok_eof)) {
     syntax_tree.push_back(p.parse_top_level_expr());
+  }
   std::cout << "parsed " << syntax_tree.size() << " node(s)" << std::endl;
 
-  if (p.error) return 1;
+  if (!p.found_main) {
+    std::cout << "Error: Could not find entry point \"main\"." << std::endl;
+    p.error = true;
+  }
+
+  if (p.error) {
+    std::cout << "Errors occurred. Exiting" << std::endl;
+    return 1;
+  }
 
   LLVMContext context;
   Module llvm_module("main_mod", context);
