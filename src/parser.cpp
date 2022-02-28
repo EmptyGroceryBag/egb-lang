@@ -156,6 +156,9 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   }
 
   if (token->token_type == ')') {
+    if (prototype->name == "main")
+      found_main = true;
+
     return new ASTFunction(prototype);
   }
 
@@ -311,9 +314,10 @@ parse:
 
     // Number literal
     case static_cast<int>(Token::tok_integer):
-      lhs = parse_primary_expr();  // lhs
+      lhs = parse_primary_expr();
       return lhs;
 
+    // @@@Dead code
     case static_cast<int>(Token::tok_eof):
       std::cout << "EOF reached" << std::endl;
       return nullptr;
