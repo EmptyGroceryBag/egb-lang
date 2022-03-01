@@ -23,8 +23,8 @@ std::unordered_map<int, int> op_prec = {
 std::vector<std::string> function_symbol_table;
 std::vector<std::string> variable_symbol_table;
 
-static TokValPair* token;
-static TokValPair* peeked_token;
+TokValPair token;
+TokValPair peeked_token;
 
 std::vector<std::string>& types = DataTypes::type_strings;
 
@@ -41,6 +41,7 @@ void Parser::UNIMPLEMENTED() {
 }
 
 ASTNode* Parser::parse_primary_expr() {
+  token = get_token(iterator); // The problem seems to be this...
   ASTNode* lhs;
 
   switch (token->token_type) {
@@ -74,7 +75,7 @@ ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs) {
 
     // Okay, we know this is a binop.
     int binop = token->token_type;
-    token = get_token(iterator);  // eat binop
+    //token = get_token(iterator);  // eat binop
 
     // Parse the primary expression after the binary operator.
     auto rhs = parse_primary_expr();
@@ -93,8 +94,9 @@ ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs) {
   }
 }
 
+// @@@Junk: This function is basically useless
 ASTNode* Parser::parse_paren_expr() {
-  token = get_token(iterator);  // eat '('
+  //token = get_token(iterator);
   ASTNode* n = parse_primary_expr();
 
   /*
@@ -119,23 +121,23 @@ ASTNode* Parser::parse_paren_expr() {
 // [type_name, ...] ident(type_name ident, ...) { *body* }
 
 ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
-  token = get_token(iterator);
+  peeked_token = peek(iterator);
   std::vector<ASTNode*> params;
 
-  while (token->token_type == static_cast<int>(Token::tok_identifier)) {
+  while (peeked_token->token_type == static_cast<int>(Token::tok_identifier)) {
     // @@@Duplication
     if (std::find(
       types.begin(), 
       types.end(), 
-      token->token_value->ident_str
+      peeked_token->token_value->ident_str
     ) != types.end()) {
 
       params.push_back(parse_variable_expr());
       peeked_token = peek(iterator);
 
-      if (token->token_type == ',') {
+      if (peeked_token->token_type == ',') {
         get_token(iterator);
-        token = get_token(iterator);
+        peeked_token = peek(iterator);
       }
       else if (peeked_token->token_type == ')') {
         get_token(iterator);
@@ -155,7 +157,7 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
     }
   }
 
-  if (token->token_type == ')') {
+  if (peeked_token->token_type == ')') {
     if (prototype->name == "main")
       found_main = true;
 
@@ -173,7 +175,14 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
 // typename ident;          declaration      
 
 ASTNode* Parser::parse_variable_expr() {
+  token = get_token(iterator);
   std::string type_str = token->token_value->ident_str;
+  if (type_str.size() < 1) {
+    std::cout << "Error: Invalid type name" << std::endl;
+    error = true;
+    return nullptr;
+  }
+  
   bool sign = false;
   if (type_str[0] != 'u') {
     sign = true;
@@ -183,7 +192,7 @@ ASTNode* Parser::parse_variable_expr() {
   // we could also map type strings to the DataType enum and switch DataType
   // values
   int width;
-  if (type_str != "void") {
+  if (type_str != "void" && type_str != "double") {
     std::string raw_width_str;
     int i = type_str.size() - 1;
     while (isdigit(type_str[i])) {
@@ -197,8 +206,12 @@ ASTNode* Parser::parse_variable_expr() {
       width_str[i] = raw_width_str[j];
     }
 
-    width = stoi(width_str);
-  } else if (type_str == "void") width = -1;
+    try {
+      width = stoi(width_str);
+    } catch (std::out_of_range e) {
+      std::cout << e.what() << std::endl;
+    }
+  } else width = -1;
 
   ASTVariable::Attributes attributes{sign, width};
 
@@ -278,17 +291,9 @@ ASTNode* Parser::parse_top_level_expr() {
   ASTNode* lhs = nullptr;
 
 parse:
-  token = get_token(iterator);
-  if (!token) return nullptr; // @@@What is this?
+  peeked_token = peek(iterator);
 
-  switch (token->token_type) {
-    case static_cast<int>(Token::tok_def):
-      UNIMPLEMENTED();
-      return nullptr;
-
-    case static_cast<int>(Token::tok_extern):
-      UNIMPLEMENTED();
-      return nullptr;
+  switch (peeked_token->token_type) {
 
     // Type list for:
     // Function Prototype
@@ -304,18 +309,14 @@ parse:
     case static_cast<int>(Token::tok_identifier):
       if (std::find(DataTypes::type_strings.begin(),
                     DataTypes::type_strings.end(),
-                    token->token_value->ident_str) !=
+                    peeked_token->token_value->ident_str) !=
           std::end(DataTypes::type_strings))
         return parse_variable_expr();
       // @@@Duplication: Make a function out of the following two lines
       std::cout << "Error: Unknown identifier" << std::endl;
+      get_token(iterator);
       error = true;
       return nullptr;
-
-    // Number literal
-    case static_cast<int>(Token::tok_integer):
-      lhs = parse_primary_expr();
-      return lhs;
 
     // @@@Dead code
     case static_cast<int>(Token::tok_eof):
@@ -324,6 +325,7 @@ parse:
     
     default:
       std::cout << "Unexpected token" << std::endl;
+      get_token(iterator);
       error = true;
       goto parse;
   }

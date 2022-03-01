@@ -1,3 +1,5 @@
+// @@@Debug
+#include <iostream>
 #include <string>
 
 #include "ast_node.h"
@@ -27,6 +29,12 @@ class ASTVariable : public ASTNode {
 
   ASTVariable(std::string name, Attributes attributes, ASTNode* value);
   ASTVariable(std::string name, Attributes attributes);
+
+  ~ASTVariable() {
+    // @@@Debug
+    std::cout << "~ASTVariable()" << std::endl;
+    delete value;
+  }
 
   std::string name;
   ASTNode* value = nullptr;

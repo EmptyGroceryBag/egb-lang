@@ -3,9 +3,4 @@
 #   Differentiate between function definitions and declarations
 #   Add identifiers to symbol table
 #   Enforce main function
-
-uint32 main()
-    uint32 tesp
-
-uint32 not_main()
-    uint32 tesp
+22..

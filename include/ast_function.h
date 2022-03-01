@@ -1,3 +1,5 @@
+// @@@Debug
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -19,6 +21,14 @@ class ASTFunction : public ASTNode {
 
   ASTFunction(ASTVariable* prototype, std::vector<ASTNode*> params);
   ASTFunction(ASTVariable* prototype);
+
+  ~ASTFunction() {
+    // @@@Debug
+    std::cout << "~ASTFunction()" << std::endl;
+    for (ASTNode* n : params) {
+      delete n;
+    }
+  }
 
   Value* code_gen(LLVMContext&, IRBuilder<>&);
   Value* code_gen(LLVMContext&, IRBuilder<>&, Module&);

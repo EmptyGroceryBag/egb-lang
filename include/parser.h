@@ -8,14 +8,20 @@
 class Parser {
  public:
   const char* iterator;
-  bool error = false;
-  bool found_main = false;
+  bool error;
+  bool found_main;
+
+  Parser() {
+    iterator = "";
+    error = false;
+    found_main = false;
+  }
 
   Parser(const char* iterator) : iterator(iterator) {
     // @@@Incomplete: An enum with different error types would be more helpful
     error = false;
     found_main = false;
-  };
+  }
 
   ASTNode* parse_binop_rhs(int, ASTNode*);
   ASTNode* parse_primary_expr();
