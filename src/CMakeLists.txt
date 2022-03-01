@@ -28,61 +28,42 @@ include_directories(${LLVM_INCLUDE_DIRS})
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
-set(BUILD_TEST 0 CACHE BOOL "Build test executable")
-if(BUILD_TEST)
-  add_library(
-    el
-    lexer.cpp
-    main.cpp
-    parser.cpp
-    ast_integer.cpp
-    ast_double.cpp
-    ast_bin_expr.cpp
-    ast_variable.cpp
-    ast_function.cpp
+#set(BUILD_TEST 0 CACHE BOOL "Build test executable")
+#set(ENABLE_FUZZING 0 CACHE BOOL "Enable fuzz testing")
 
-    ${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_double.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_integer.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_node.h
-    ${PROJECT_SOURCE_DIR}/../include/lexer.h
-    ${PROJECT_SOURCE_DIR}/../include/parser.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_function.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_global_block.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_variable.h
-    ${PROJECT_SOURCE_DIR}/../include/data_type.h
-  )
+add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
 
-  add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
-else()
-  add_executable(
-    el
-    lexer.cpp
-    main.cpp
-    parser.cpp
-    ast_integer.cpp
-    ast_double.cpp
-    ast_bin_expr.cpp
-    ast_variable.cpp
-    ast_function.cpp
+# Fuzz Testing
+add_subdirectory(${PROJECT_SOURCE_DIR}/../fuzz fuzz)
 
-    ${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_double.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_integer.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_node.h
-    ${PROJECT_SOURCE_DIR}/../include/lexer.h
-    ${PROJECT_SOURCE_DIR}/../include/parser.h
-    ${PROJECT_SOURCE_DIR}/../include/t_vals.h
-    ${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_function.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_global_block.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_variable.h
-    ${PROJECT_SOURCE_DIR}/../include/data_type.h
-  )
+# Main executable
+add_executable(
+  el
+  lexer.cpp
+  main.cpp
+  parser.cpp
+  ast_integer.cpp
+  ast_double.cpp
+  ast_bin_expr.cpp
+  ast_variable.cpp
+  ast_function.cpp
 
-  llvm_map_components_to_libnames(llvm_libs support core irreader)
-  target_link_libraries(el ${llvm_libs})
-endif()
+  ${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
+  ${PROJECT_SOURCE_DIR}/../include/ast_double.h
+  ${PROJECT_SOURCE_DIR}/../include/ast_integer.h
+  ${PROJECT_SOURCE_DIR}/../include/ast_node.h
+  ${PROJECT_SOURCE_DIR}/../include/lexer.h
+  ${PROJECT_SOURCE_DIR}/../include/parser.h
+  ${PROJECT_SOURCE_DIR}/../include/t_vals.h
+  ${PROJECT_SOURCE_DIR}/../include/tok_val_pair.h
+  ${PROJECT_SOURCE_DIR}/../include/ast_function.h
+  ${PROJECT_SOURCE_DIR}/../include/ast_global_block.h
+  ${PROJECT_SOURCE_DIR}/../include/ast_variable.h
+  ${PROJECT_SOURCE_DIR}/../include/data_type.h
+)
+
+llvm_map_components_to_libnames(llvm_libs support core irreader)
+target_link_libraries(el ${llvm_libs})
 
 set(MSVC_STATIC_CRT 1 CACHE BOOL "Windows executable with CRT baked in")
 
@@ -90,12 +71,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   if(MSVC_STATIC_CRT)
     set(CMAKE_CXX_FLAGS "/O2 /EHsc /MT /wd4624") # statically link CRT
   else()
-    set(CMAKE_CXX_FLAGS "/O2 /EHsc")
+    set(CMAKE_CXX_FLAGS "/O2 /EHsc /wd4624")
   endif()
 else()
-  if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_CXX_FLAGS "-O2 -Werror")
-  endif()
+  set(CMAKE_CXX_FLAGS "-O2 -Werror")
 endif()
 
 # needs to come after set()'s
@@ -103,3 +82,4 @@ configure_file(${PROJECT_SOURCE_DIR}/../include/cmake_config.h.in
   ${PROJECT_SOURCE_DIR}/../include/cmake_config.h)
     
 target_include_directories(el PUBLIC ${PROJECT_SOURCE_DIR}/../include)
+target_include_directories(fuzzer PUBLIC ${PROJECT_SOURCE_DIR}/../include)

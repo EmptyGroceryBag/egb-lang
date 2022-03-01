@@ -25,15 +25,9 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "t_vals.h"
 #include "tok_val_pair.h"
 
-TokValPair* get_token(const char*& iterator) {
-  //@@@ do I need heap allocation here?
-  TVals* vals = new TVals();
-  vals->ident_str = "";
-  vals->num_str = "";
-
-  //@@@ do I need heap allocation here?
-  TokValPair* pair = new TokValPair;
-  pair->token_value = vals;
+TokValPair get_token(const char*& iterator) {
+  TVals vals("", "", 0, 0);
+  TokValPair pair(0, vals);
 
 next_token:
   // Whitespace
@@ -46,13 +40,14 @@ next_token:
   if (isdigit(*iterator) || *iterator == '.') {
     vals->num_str += *(iterator++);
 
-    while (isdigit(*iterator) || *iterator == '.') {
+    while (isdigit(*iterator) || *iterator == '.')
       vals->num_str += *(iterator++);
-    }
 
     if (string_to_int(vals->num_str, vals->int_num_val)) {
       if (string_to_double(vals->num_str, vals->double_num_val)) {
-        return nullptr;
+        vals->ident_str = vals->num_str;
+        pair->token_type = static_cast<int>(Token::tok_identifier);
+        return pair;
       } else {
         pair->token_type = static_cast<int>(Token::tok_floating_point);
         return pair;
@@ -70,21 +65,8 @@ next_token:
     */
     vals->ident_str += *(iterator++);
 
-    while (isalnum(*iterator) || *iterator == '_') {
+    while (isalnum(*iterator) || *iterator == '_')
       vals->ident_str += *(iterator++);
-    }
-
-    // @@@Dead
-    if (vals->ident_str == "def") {
-      pair->token_type = static_cast<int>(Token::tok_def);
-      return pair;
-    }
-
-    // @@@Dead
-    if (vals->ident_str == "extern") {
-      pair->token_type = static_cast<int>(Token::tok_extern);
-      return pair;
-    }
 
     pair->token_type = static_cast<int>(Token::tok_identifier);
     return pair;
@@ -113,11 +95,14 @@ next_token:
 int string_to_int(const std::string input_num, long& output_num) {
   int decimal_point = input_num.find('.');
 
-  if (decimal_point != -1) {
+  if (decimal_point != -1)
     return decimal_point;
-  }
 
-  output_num = stoi(input_num);
+  try {
+    output_num = stoi(input_num);
+  } catch (std::out_of_range e) {
+    std::cout << e.what() << std::endl;
+  }
   return 0;
 }
 
@@ -134,7 +119,6 @@ int string_to_double(const std::string input_num, double& output_num) {
   return 0;
 }
 
-TokValPair* peek(const char* iterator) {
-  const char* base_ptr = iterator;
-  return get_token(base_ptr);
+TokValPair peek(const char* iterator) {
+  return get_token(iterator);
 }

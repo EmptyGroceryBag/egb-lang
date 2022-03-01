@@ -21,24 +21,31 @@ T* check_node_type(std::string buffer) {
   return node;
 }
 
-template <class T, typename N>
-void check_node_type_and_value(std::string buffer, N value) {
+template <class T>
+T* check_primary_expr(std::string buffer) {
   parser.iterator = &buffer[0];
-  T* node = dynamic_cast<T*>(parser.parse_top_level_expr());
+  T* node = dynamic_cast<T*>(parser.parse_primary_expr());
+  return node;
+}
+
+template <class T, typename N>
+void check_primary_expr_value(std::string buffer, N value) {
+  parser.iterator = &buffer[0];
+  T* node = dynamic_cast<T*>(parser.parse_primary_expr());
   ASSERT_TRUE(node);
   EXPECT_EQ(node->value, value);
 }
 
 TEST(test_parse_expression, test_unsigned_integer) {
-  check_node_type_and_value<ASTInteger>("1234", 1234);
+  check_primary_expr_value<ASTInteger>("1234", 1234);
 }
 
 TEST(test_parse_expression, test_unsigned_floating_point) {
-  check_node_type_and_value<ASTDouble>("12.34", 12.34);
+  check_primary_expr_value<ASTDouble>("12.34", 12.34);
 }
 
 TEST(test_parse_expression, test_bin_expr_addition_two_operands) {
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("2+4");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '+');
 
@@ -56,7 +63,7 @@ TEST(test_parse_expression, test_bin_expr_addition_two_operands) {
 }
 
 TEST(test_parse_expression, test_bin_expr_multiplication_two_operands) {
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("2*4");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("2*4");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '*');
 
@@ -74,7 +81,7 @@ TEST(test_parse_expression, test_bin_expr_multiplication_two_operands) {
 }
 
 TEST(test_parse_expression, test_bin_expr_addition_three_operands) {
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4+5");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("2+4+5");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '+');
 
@@ -100,7 +107,7 @@ TEST(test_parse_expression, test_bin_expr_addition_three_operands) {
 }
 
 TEST(test_parse_expression, test_bin_expr_left_multiplication_three_operands) {
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("2*4+5");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("2*4+5");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '*');
 
@@ -127,7 +134,7 @@ TEST(test_parse_expression, test_bin_expr_left_multiplication_three_operands) {
 
 // this already parses with the correct precedence 2+(4*5)
 TEST(test_parse_expression, test_bin_expr_right_multiplication_three_operands) {
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4*5");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("2+4*5");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '+');
 
@@ -154,7 +161,7 @@ TEST(test_parse_expression, test_bin_expr_right_multiplication_three_operands) {
 
 TEST(test_parse_expression, test_bin_expr_three_operands_left_parens) {
   // this should parse the same as no parenthesis
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("(2+4)+5");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("(2+4)+5");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '+');
 
@@ -180,7 +187,7 @@ TEST(test_parse_expression, test_bin_expr_three_operands_left_parens) {
 }
 
 TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("2+(4+5)");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("2+(4+5)");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '+');
 
@@ -206,7 +213,7 @@ TEST(test_parse_expression, test_bin_expr_three_operands_right_parens) {
 
 // @@@ too lazy to fill the following two tests out properly
 TEST(test_parse_expression, test_bin_expr_nested) {
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("2+4+5+6");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("2+4+5+6");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '+');
 
@@ -217,7 +224,7 @@ TEST(test_parse_expression, test_bin_expr_nested) {
 
 TEST(test_parse_expression, test_bin_expr_nested_with_parens) {
   // should parse the same as "2+4+5+6"
-  ASTBinExpr* check = check_node_type<ASTBinExpr>("2+(4+5)+6");
+  ASTBinExpr* check = check_primary_expr<ASTBinExpr>("2+(4+5)+6");
   ASSERT_TRUE(check);
   EXPECT_EQ(check->op, '+');
 

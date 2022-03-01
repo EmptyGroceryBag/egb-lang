@@ -27,7 +27,7 @@ static raw_os_ostream output_stream(test_output);
 
 TEST(test_ir_codegen, test_unsigned_integer_value) {
   parser.iterator = "1234";
-  ASTInteger* node = dynamic_cast<ASTInteger*>(parser.parse_top_level_expr());
+  ASTInteger* node = dynamic_cast<ASTInteger*>(parser.parse_primary_expr());
   ASSERT_TRUE(node);
 
   Value* codegen_integer = node->code_gen(context, builder);
@@ -42,7 +42,7 @@ TEST(test_ir_codegen, test_unsigned_integer_value) {
 
 TEST(test_ir_codegen, test_unsigned_double_value) {
   parser.iterator = "1234.4572542";
-  ASTDouble* node = dynamic_cast<ASTDouble*>(parser.parse_top_level_expr());
+  ASTDouble* node = dynamic_cast<ASTDouble*>(parser.parse_primary_expr());
   ASSERT_TRUE(node);
 
   Value* codegen_double = node->code_gen(context, builder);
@@ -57,7 +57,7 @@ TEST(test_ir_codegen, test_unsigned_double_value) {
 
 TEST(test_ir_codegen, test_bin_expr_value) {
   parser.iterator = "2+4";
-  ASTBinExpr* node = dynamic_cast<ASTBinExpr*>(parser.parse_top_level_expr());
+  ASTBinExpr* node = dynamic_cast<ASTBinExpr*>(parser.parse_primary_expr());
   ASSERT_TRUE(node);
 
   Value* bin_expr_value = node->code_gen(context, builder);

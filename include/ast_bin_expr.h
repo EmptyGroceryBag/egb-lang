@@ -1,3 +1,6 @@
+// @@@Debug
+#include <iostream>
+
 #include "ast_node.h"
 #include "lexer.h"
 #include "llvm/IR/IRBuilder.h"
@@ -15,6 +18,13 @@ class ASTBinExpr : public ASTNode {
   int op;
 
   ASTBinExpr(int op, ASTNode* lhs, ASTNode* rhs);
+
+  ~ASTBinExpr() {
+    // @@@Debug
+    std::cout << "~ASTBinExpr()" << std::endl;
+    delete lhs;
+    delete rhs;
+  }
 
   Value* code_gen(LLVMContext&, IRBuilder<>&);
 
