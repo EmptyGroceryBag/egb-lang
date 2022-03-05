@@ -28,12 +28,12 @@ TokValPair peeked_token;
 
 std::vector<std::string>& types = DataTypes::type_strings;
 
-int get_token_prec(const TokValPair* token) {
-  if (op_prec[token->token_type] == 0) {
+int get_token_prec(const TokValPair token) {
+  if (op_prec[token.token_type] == 0) {
     return -1;
   }
 
-  return op_prec[token->token_type];
+  return op_prec[token.token_type];
 }
 
 void Parser::UNIMPLEMENTED() {
@@ -44,14 +44,14 @@ ASTNode* Parser::parse_primary_expr() {
   token = get_token(iterator); // The problem seems to be this...
   ASTNode* lhs;
 
-  switch (token->token_type) {
+  switch (token.token_type) {
     case static_cast<int>(Token::tok_integer):
-      lhs = new ASTInteger(token->token_value->int_num_val);
+      lhs = new ASTInteger(token.token_value.int_num_val);
       if (!lhs) return nullptr;
       return parse_binop_rhs(0, lhs);
 
     case static_cast<int>(Token::tok_floating_point):
-      lhs = new ASTDouble(token->token_value->double_num_val);
+      lhs = new ASTDouble(token.token_value.double_num_val);
       if (!lhs) return nullptr;
       return parse_binop_rhs(0, lhs);
 
@@ -74,7 +74,7 @@ ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs) {
     if (token_prec < expr_prec) return lhs;
 
     // Okay, we know this is a binop.
-    int binop = token->token_type;
+    int binop = token.token_type;
     //token = get_token(iterator);  // eat binop
 
     // Parse the primary expression after the binary operator.
@@ -124,22 +124,22 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   peeked_token = peek(iterator);
   std::vector<ASTNode*> params;
 
-  while (peeked_token->token_type == static_cast<int>(Token::tok_identifier)) {
+  while (peeked_token.token_type == static_cast<int>(Token::tok_identifier)) {
     // @@@Duplication
     if (std::find(
       types.begin(), 
       types.end(), 
-      peeked_token->token_value->ident_str
+      peeked_token.token_value.ident_str
     ) != types.end()) {
 
       params.push_back(parse_variable_expr());
       peeked_token = peek(iterator);
 
-      if (peeked_token->token_type == ',') {
+      if (peeked_token.token_type == ',') {
         get_token(iterator);
         peeked_token = peek(iterator);
       }
-      else if (peeked_token->token_type == ')') {
+      else if (peeked_token.token_type == ')') {
         get_token(iterator);
         return new ASTFunction(prototype, params);
       }
@@ -157,7 +157,8 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
     }
   }
 
-  if (peeked_token->token_type == ')') {
+  if (peeked_token.token_type == ')') {
+    get_token(iterator);
     if (prototype->name == "main")
       found_main = true;
 
@@ -176,7 +177,7 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
 
 ASTNode* Parser::parse_variable_expr() {
   token = get_token(iterator);
-  std::string type_str = token->token_value->ident_str;
+  std::string type_str = token.token_value.ident_str;
   if (type_str.size() < 1) {
     std::cout << "Error: Invalid type name" << std::endl;
     error = true;
@@ -192,7 +193,7 @@ ASTNode* Parser::parse_variable_expr() {
   // we could also map type strings to the DataType enum and switch DataType
   // values
   int width;
-  if (type_str != "void" && type_str != "double") {
+  if (type_str != "void" && type_str != "double" && type_str != "bool") {
     std::string raw_width_str;
     int i = type_str.size() - 1;
     while (isdigit(type_str[i])) {
@@ -219,11 +220,11 @@ ASTNode* Parser::parse_variable_expr() {
   std::string name;
   peeked_token = peek(iterator);
 
-  if (peeked_token->token_type == static_cast<int>(Token::tok_identifier)) {
+  if (peeked_token.token_type == static_cast<int>(Token::tok_identifier)) {
     if (std::find(
       types.begin(),
       types.end(),
-      peeked_token->token_value->ident_str
+      peeked_token.token_value.ident_str
     ) != types.end()) {
       std::cerr << "Error: Names of variables cannot be a type name"
         << std::endl;
@@ -232,7 +233,7 @@ ASTNode* Parser::parse_variable_expr() {
     }
 
     token = get_token(iterator);
-    name = token->token_value->ident_str;
+    name = token.token_value.ident_str;
   } else {
     std::cerr << "Error: Expected identifier for variable name" << std::endl;
     error = true;
@@ -242,28 +243,28 @@ ASTNode* Parser::parse_variable_expr() {
   peeked_token = peek(iterator);
 
   // function prototype
-  if (peeked_token->token_type == '(') {
+  if (peeked_token.token_type == '(') {
     get_token(iterator);
     return parse_function_prototype(new ASTVariable(name, attributes));
   }
 
   // variable assignment, probably going to be an alloca
-  if (peeked_token->token_type == '=') {
+  if (peeked_token.token_type == '=') {
     // number literal
     ASTNode* value;
     get_token(iterator);
     token = get_token(iterator);
-    switch (token->token_type) {
+    switch (token.token_type) {
       // @@@Incomplete: Eventually we'll want to detect and throw a
       // warning for type narrowing
       case static_cast<int>(Token::tok_integer):
         // @@@ This assignment might not be needed
-        value = new ASTInteger(token->token_value->int_num_val);
+        value = new ASTInteger(token.token_value.int_num_val);
         return new ASTVariable(name, attributes, value);
 
       // @@@ Research FP number precision
       case static_cast<int>(Token::tok_floating_point):
-        value = new ASTInteger(token->token_value->int_num_val);
+        value = new ASTInteger(token.token_value.int_num_val);
         return new ASTVariable(name, attributes, value);
 
       default:
@@ -293,7 +294,7 @@ ASTNode* Parser::parse_top_level_expr() {
 parse:
   peeked_token = peek(iterator);
 
-  switch (peeked_token->token_type) {
+  switch (peeked_token.token_type) {
 
     // Type list for:
     // Function Prototype
@@ -309,7 +310,7 @@ parse:
     case static_cast<int>(Token::tok_identifier):
       if (std::find(DataTypes::type_strings.begin(),
                     DataTypes::type_strings.end(),
-                    peeked_token->token_value->ident_str) !=
+                    peeked_token.token_value.ident_str) !=
           std::end(DataTypes::type_strings))
         return parse_variable_expr();
       // @@@Duplication: Make a function out of the following two lines

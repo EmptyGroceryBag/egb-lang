@@ -45,5 +45,7 @@ target_link_libraries(
     el_test_lib
     ${llvm_libs})
 
+set(CMAKE_CXX_FLAGS "-g -Og -Werror")
+
 target_include_directories(el_test PUBLIC ${PROJECT_SOURCE_DIR}/../include)
 target_include_directories(el_test_lib PUBLIC ${PROJECT_SOURCE_DIR}/../include)

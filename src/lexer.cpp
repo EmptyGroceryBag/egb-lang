@@ -26,8 +26,8 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "tok_val_pair.h"
 
 TokValPair get_token(const char*& iterator) {
-  TVals vals("", "", 0, 0);
-  TokValPair pair(0, vals);
+  TVals vals;
+  TokValPair pair;
 
 next_token:
   // Whitespace
@@ -38,22 +38,22 @@ next_token:
   // Numbers
   // @@@ Differentiate between unary (negate) and binary '-' (subtract) operator
   if (isdigit(*iterator) || *iterator == '.') {
-    vals->num_str += *(iterator++);
+    pair.token_value.num_str += *(iterator++);
 
     while (isdigit(*iterator) || *iterator == '.')
-      vals->num_str += *(iterator++);
+      pair.token_value.num_str += *(iterator++);
 
-    if (string_to_int(vals->num_str, vals->int_num_val)) {
-      if (string_to_double(vals->num_str, vals->double_num_val)) {
-        vals->ident_str = vals->num_str;
-        pair->token_type = static_cast<int>(Token::tok_identifier);
+    if (string_to_int(pair.token_value.num_str, pair.token_value.int_num_val)) {
+      if (string_to_double(pair.token_value.num_str, pair.token_value.double_num_val)) {
+        pair.token_value.ident_str = pair.token_value.num_str;
+        pair.token_type = static_cast<int>(Token::tok_identifier);
         return pair;
       } else {
-        pair->token_type = static_cast<int>(Token::tok_floating_point);
+        pair.token_type = static_cast<int>(Token::tok_floating_point);
         return pair;
       }
     }
-    pair->token_type = static_cast<int>(Token::tok_integer);
+    pair.token_type = static_cast<int>(Token::tok_integer);
     return pair;
   }
 
@@ -63,12 +63,12 @@ next_token:
     identifiers must begin with a letter and can end with any combinations of
     letters and numbers
     */
-    vals->ident_str += *(iterator++);
+    pair.token_value.ident_str += *(iterator++);
 
     while (isalnum(*iterator) || *iterator == '_')
-      vals->ident_str += *(iterator++);
+      pair.token_value.ident_str += *(iterator++);
 
-    pair->token_type = static_cast<int>(Token::tok_identifier);
+    pair.token_type = static_cast<int>(Token::tok_identifier);
     return pair;
   }
 
@@ -83,11 +83,11 @@ next_token:
   }
 
   if (*iterator == '\0') {
-    pair->token_type = static_cast<int>(Token::tok_eof);
+    pair.token_type = static_cast<int>(Token::tok_eof);
     return pair;
   }
 
-  pair->token_type = (*iterator);
+  pair.token_type = (*iterator);
   iterator++;
   return pair;
 }

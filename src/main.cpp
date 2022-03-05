@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
 
   std::vector<ASTNode*>& syntax_tree = ASTGlobalBlock::get_global_block().syntax_tree;
   //ASTNode* current_node = nullptr;
-  while (peek(p.iterator)->token_type != static_cast<int>(Token::tok_eof)) {
+  while (peek(p.iterator).token_type != static_cast<int>(Token::tok_eof)) {
     syntax_tree.push_back(p.parse_top_level_expr());
   }
   std::cout << "parsed " << syntax_tree.size() << " node(s)" << std::endl;
