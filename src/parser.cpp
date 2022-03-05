@@ -132,7 +132,7 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
       peeked_token.token_value.ident_str
     ) != types.end()) {
 
-      params.push_back(parse_variable_expr());
+      params.push_back(parse_variable_statement(false));
       peeked_token = peek(iterator);
 
       if (peeked_token.token_type == ',') {
@@ -171,6 +171,20 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   return nullptr;
 }
 
+ASTNode* Parser::parse_variable_statement(bool is_decl) {
+  ASTNode* node = parse_variable_expr();
+
+  if (is_decl) {
+    if (get_token(iterator).token_type != ';') {
+      std::cerr << "Error: Expected semicolon to end statement" << std::endl;
+      error = true;
+      return nullptr;
+    }
+  }
+
+  return node;
+}
+
 // Variable:
 // typename ident = value;  definition
 // typename ident;          declaration      
@@ -179,7 +193,7 @@ ASTNode* Parser::parse_variable_expr() {
   token = get_token(iterator);
   std::string type_str = token.token_value.ident_str;
   if (type_str.size() < 1) {
-    std::cout << "Error: Invalid type name" << std::endl;
+    std::cerr << "Error: Invalid type name" << std::endl;
     error = true;
     return nullptr;
   }
@@ -248,9 +262,9 @@ ASTNode* Parser::parse_variable_expr() {
     return parse_function_prototype(new ASTVariable(name, attributes));
   }
 
-  // variable assignment, probably going to be an alloca
+  // Variable assignment
   if (peeked_token.token_type == '=') {
-    // number literal
+    // Number literal
     ASTNode* value;
     get_token(iterator);
     token = get_token(iterator);
@@ -312,7 +326,7 @@ parse:
                     DataTypes::type_strings.end(),
                     peeked_token.token_value.ident_str) !=
           std::end(DataTypes::type_strings))
-        return parse_variable_expr();
+        return parse_variable_statement(true);
       // @@@Duplication: Make a function out of the following two lines
       std::cout << "Error: Unknown identifier" << std::endl;
       get_token(iterator);

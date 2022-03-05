@@ -69,7 +69,7 @@ TEST(test_ir_codegen, test_bin_expr_value) {
 }
 
 TEST(test_ir_codegen, test_function_dump) {
-  parser.iterator = "uint32 funcy()";
+  parser.iterator = "uint32 funcy();";
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);
@@ -84,7 +84,7 @@ TEST(test_ir_codegen, test_function_dump) {
 }
 
 TEST(test_ir_codegen, test_function_dump_single_parameter) {
-  parser.iterator = "uint32 doofus(uint32 param)";
+  parser.iterator = "uint32 doofus(uint32 param);";
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);
@@ -100,7 +100,7 @@ TEST(test_ir_codegen, test_function_dump_single_parameter) {
 }
 
 TEST(test_ir_codegen, test_function_dump_mulitple_parameters) {
-  parser.iterator = "uint32 monke(uint32 x1, uint32 x2, uint32 y1, uint32 y2)";
+  parser.iterator = "uint32 monke(uint32 x1, uint32 x2, uint32 y1, uint32 y2);";
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);
