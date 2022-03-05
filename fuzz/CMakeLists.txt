@@ -26,8 +26,8 @@ add_executable(
 )
 
 set(CMAKE_CXX_FLAGS "-g -Og -fsanitize=fuzzer")
-set(CMAKE_CXX_COMPILER "/opt/homebrew/opt/llvm/bin/clang++")
-set(CMAKE_C_COMPILER "/opt/homebrew/opt/llvm/bin/clang")
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_C_COMPILER "clang")
 
 llvm_map_components_to_libnames(llvm_libs support core irreader fuzzmutate)
 target_link_libraries(fuzzer ${llvm_libs})
