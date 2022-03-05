@@ -26,12 +26,13 @@ Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder,
   std::vector<Type*> generated_params;
   if (params.size() != 0) {
     for (int i = 0; i < params.size(); i++) {
-      generated_params.push_back(Type::getInt32Ty(context));
+      ASTVariable* param = dynamic_cast<ASTVariable*>(params[i]);
+      generated_params.push_back(Type::getIntNTy(context, param->attributes.width));
     }
   }
 
   Function* entry_point = Function::Create(
-      FunctionType::get(Type::getInt32Ty(context), generated_params, false),
+      FunctionType::get(Type::getIntNTy(context, prototype->attributes.width), generated_params, false),
       GlobalValue::LinkageTypes::ExternalLinkage, prototype->name, llvm_module);
 
   std::vector<Value*> args;

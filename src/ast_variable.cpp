@@ -19,9 +19,9 @@ ASTVariable::ASTVariable(std::string name, Attributes attributes)
 
 Value* ASTVariable::code_gen(LLVMContext& context, IRBuilder<>& builder) {
   if (!value) {
-    return builder.CreateAlloca(Type::getInt32Ty(context), nullptr, name);
+    return builder.CreateAlloca(Type::getIntNTy(context, attributes.width), nullptr, name);
   }
-  return builder.CreateAlloca(Type::getInt32Ty(context),
+  return builder.CreateAlloca(Type::getIntNTy(context, attributes.width),
                               value->code_gen(context, builder), 
                               name);
 }
