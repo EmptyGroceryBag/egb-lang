@@ -1,0 +1,5 @@
+uint32 main()
+  uint32 lol
+
+uint32 add(uint32 x, uint32 y)
+  uint32 tesp
