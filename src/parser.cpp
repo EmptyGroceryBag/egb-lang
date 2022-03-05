@@ -226,6 +226,9 @@ ASTNode* Parser::parse_variable_expr() {
     } catch (std::out_of_range e) {
       std::cout << e.what() << std::endl;
     }
+  }
+  else if (type_str == "bool") {
+    width = 1;
   } else width = -1;
 
   ASTVariable::Attributes attributes{sign, width};

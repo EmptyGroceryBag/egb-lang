@@ -68,8 +68,25 @@ TEST(test_ir_codegen, test_bin_expr_value) {
   test_output.str("");
 }
 
-TEST(test_ir_codegen, test_function_dump) {
-  parser.iterator = "uint32 funcy();";
+/* @@@For when we do proper scoping
+TEST(test_ir_codegen, test_generate_variable_declaration) {
+  parser.iterator = "uint64 x;";
+  ASTVariable* decl_expr =
+    dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
+  ASSERT_TRUE(decl_expr);
+
+  Value* check_function =
+    decl_expr->code_gen(context, builder);
+
+  check_function->print(output_stream);
+  std::cout << test_output.str() << std::endl;
+  EXPECT_EQ(test_output.str(), "");
+  test_output.str("");
+}
+*/
+
+TEST(test_ir_codegen, test_generate_function_dump) {
+  parser.iterator = "uint8 funcy();";
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);
@@ -79,12 +96,12 @@ TEST(test_ir_codegen, test_function_dump) {
 
   check_function->print(output_stream);
   std::cout << test_output.str() << std::endl;
-  EXPECT_EQ(test_output.str(), "define i32 @funcy() {\nentry:\n}\n");
+  EXPECT_EQ(test_output.str(), "define i8 @funcy() {\nentry:\n}\n");
   test_output.str("");
 }
 
-TEST(test_ir_codegen, test_function_dump_single_parameter) {
-  parser.iterator = "uint32 doofus(uint32 param);";
+TEST(test_ir_codegen, test_generate_function_dump_single_parameter) {
+  parser.iterator = "uint16 doofus(uint64 param);";
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);
@@ -95,12 +112,12 @@ TEST(test_ir_codegen, test_function_dump_single_parameter) {
   check_function->print(output_stream);
   std::cout << test_output.str() << std::endl;
   EXPECT_EQ(test_output.str(),
-            "define i32 @doofus(i32 \%param) {\nentry:\n}\n");
+            "define i16 @doofus(i64 \%param) {\nentry:\n}\n");
   test_output.str("");
 }
 
-TEST(test_ir_codegen, test_function_dump_mulitple_parameters) {
-  parser.iterator = "uint32 monke(uint32 x1, uint32 x2, uint32 y1, uint32 y2);";
+TEST(test_ir_codegen, test_generate_function_dump_mulitple_parameters) {
+  parser.iterator = "uint64 monke(bool x1, uint8 x2, uint16 y1, uint32 y2);";
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);
@@ -111,7 +128,7 @@ TEST(test_ir_codegen, test_function_dump_mulitple_parameters) {
   check_function->print(output_stream);
   std::cout << test_output.str() << std::endl;
   EXPECT_EQ(test_output.str(),
-            "define i32 @monke(i32 \%x1, i32 \%x2, i32 \%y1, i32 \%y2) "
+            "define i64 @monke(i1 \%x1, i8 \%x2, i16 \%y1, i32 \%y2) "
             "{\nentry:\n}\n");
   test_output.str("");
 }

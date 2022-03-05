@@ -1,6 +1,5 @@
-// @@@Debug
-#include <iostream>
 #include <string>
+#include <map>
 
 #include "ast_node.h"
 //#include "data_type.h"
@@ -27,19 +26,19 @@ class ASTVariable : public ASTNode {
     }
   } attributes;
 
+  std::string name;
+  ASTNode* value = nullptr;
+
   ASTVariable(std::string name, Attributes attributes, ASTNode* value);
   ASTVariable(std::string name, Attributes attributes);
 
   ~ASTVariable() {
-    // @@@Debug
-    std::cout << "~ASTVariable()" << std::endl;
     delete value;
   }
 
-  std::string name;
-  ASTNode* value = nullptr;
-
   Value* code_gen(LLVMContext&, IRBuilder<>&);
+
+  Type* get_type_from_width(int);
 
   // @@@ This is just to satiate the base class
   std::string to_string() { return to_string(0); }
