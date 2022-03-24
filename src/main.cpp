@@ -62,7 +62,6 @@ int main(int argc, char* argv[]) {
   char next_char;
   std::string buffer;
   while ((next_char = fgetc(ifs)) != EOF) buffer += next_char;
-  std::cout << "Created buffer" << std::endl;
 
   std::fclose(ifs);
   std::cout << "Closed " << argv[1] << std::endl;
@@ -70,12 +69,13 @@ int main(int argc, char* argv[]) {
   const char* iterator = &buffer[0];
   Parser p(iterator);
 
-  std::vector<ASTNode*>& syntax_tree = ASTGlobalBlock::get_global_block().syntax_tree;
-  //ASTNode* current_node = nullptr;
+  std::vector<ASTNode*>& global_scope = ASTGlobalBlock::get_global_block().global_scope;
+  p.insertion_stack.push(global_scope);
+
   while (peek(p.iterator).token_type != static_cast<int>(Token::tok_eof)) {
-    syntax_tree.push_back(p.parse_top_level_expr());
+    p.parse_top_level_expr();
   }
-  std::cout << "parsed " << syntax_tree.size() << " node(s)" << std::endl;
+  std::cout << "parsed " << global_scope.size() << " top level node(s)" << std::endl;
 
   if (!p.found_main) {
     std::cout << "Error: Could not find entry point \"main\"." << std::endl;
@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
   Module llvm_module("main_mod", context);
   IRBuilder<> builder(context);
 
-  for (ASTNode* n : syntax_tree) {
+  for (ASTNode* n : global_scope) {
     if (!n) continue;
 
     ASTFunction* entry_point = dynamic_cast<ASTFunction*>(n);

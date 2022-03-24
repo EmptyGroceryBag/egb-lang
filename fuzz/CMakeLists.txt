@@ -1,5 +1,3 @@
-message("fuzzy")
-
 add_executable(
   fuzzer
   ${PROJECT_SOURCE_DIR}/lexer.cpp

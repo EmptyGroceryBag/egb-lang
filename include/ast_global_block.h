@@ -15,9 +15,8 @@ class ASTGlobalBlock {
     static ASTGlobalBlock GLOBAL_BLOCK;
     return GLOBAL_BLOCK;
   }
-
-  std::vector<std::string> symbols;
-  std::vector<ASTNode*> syntax_tree;
+  
+  std::vector<ASTNode*> global_scope;
 
   ASTGlobalBlock(const ASTGlobalBlock& rhs) = delete;
   ASTGlobalBlock operator=(const ASTGlobalBlock& rhs) = delete;

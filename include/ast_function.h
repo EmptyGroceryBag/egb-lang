@@ -18,6 +18,7 @@ class ASTFunction : public ASTNode {
  public:
   ASTVariable* prototype = nullptr;
   std::vector<ASTNode*> params;
+  std::vector<ASTNode*> scope;
 
   ASTFunction(ASTVariable* prototype, std::vector<ASTNode*> params);
   ASTFunction(ASTVariable* prototype);

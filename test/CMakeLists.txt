@@ -12,7 +12,6 @@ enable_testing()
 add_library(
     el_test_lib
     ${PROJECT_SOURCE_DIR}/lexer.cpp
-    ${PROJECT_SOURCE_DIR}/main.cpp
     ${PROJECT_SOURCE_DIR}/parser.cpp
     ${PROJECT_SOURCE_DIR}/ast_integer.cpp
     ${PROJECT_SOURCE_DIR}/ast_double.cpp
