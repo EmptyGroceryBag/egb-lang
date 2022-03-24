@@ -2,6 +2,9 @@
 #include "ast_variable.h"
 #include "lexer.h"
 
+#include <stack>
+#include <vector>
+
 #ifndef PARSER_H
 #define PARSER_H
 
@@ -10,6 +13,8 @@ class Parser {
   const char* iterator;
   bool error;
   bool found_main;
+
+  std::stack<std::vector<ASTNode*>> insertion_stack;
 
   Parser() {
     iterator = "";

@@ -1,5 +1,6 @@
 #include <string>
 #include <map>
+#include <vector>
 
 #include "ast_node.h"
 //#include "data_type.h"
@@ -29,8 +30,10 @@ class ASTVariable : public ASTNode {
   std::string name;
   ASTNode* value = nullptr;
 
-  ASTVariable(std::string name, Attributes attributes, ASTNode* value);
-  ASTVariable(std::string name, Attributes attributes);
+  ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*> insertion_point , ASTNode* value);
+  ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*> insertion_point);
+
+  std::vector<ASTNode*>& enclosing_scope;
 
   ~ASTVariable() {
     delete value;

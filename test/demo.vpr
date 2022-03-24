@@ -1,6 +1,4 @@
-#TODO:
-#   Make global variables work
-#   Differentiate between function definitions and declarations
-#   Add identifiers to symbol table
-#   Enforce main function
-22..
+uint32 main(uint8 param) {
+  uint32 test0;
+  uint32 test1;
+}
