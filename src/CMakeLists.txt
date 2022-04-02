@@ -3,8 +3,23 @@ project(el VERSION 0.1)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-if(WIN32)
+set(MSVC_STATIC_CRT 1 CACHE BOOL "Statically link Microsoft CRT")
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   add_compile_definitions(NOMINMAX)
+  add_link_options("/ignore:4099")
+  if(MSVC_STATIC_CRT)
+    set(CMAKE_CXX_FLAGS "/O2 /EHsc /Z7 /MT /wd4624 /wd4267 /wd4244 /wd4099 /wd4715 /wd4129")
+  else()
+    set(CMAKE_CXX_FLAGS "/O2 /EHsc /Z7 /wd4624 /wd4267 /wd4244 /wd4715 /wd4129")
+  endif()
+elseif(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+  message("not debug")
+  set(CMAKE_CXX_FLAGS "-O2 -Werror")
+else()
+  message("debug")
+  set(CMAKE_CXX_FLAGS "-Werror")
+  message(${CMAKE_CXX_FLAGS})
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
@@ -28,19 +43,16 @@ include_directories(${LLVM_INCLUDE_DIRS})
 separate_arguments(LLVM_DEFINITIONS_LIST NATIVE_COMMAND ${LLVM_DEFINITIONS})
 add_definitions(${LLVM_DEFINITIONS_LIST})
 
-#set(BUILD_TEST 0 CACHE BOOL "Build test executable")
-#set(ENABLE_FUZZING 0 CACHE BOOL "Enable fuzz testing")
-
-add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
-
-# Fuzz Testing
-add_subdirectory(${PROJECT_SOURCE_DIR}/../fuzz fuzz)
-
 # Main executable
 add_executable(
   el
-  lexer.cpp
   main.cpp
+)
+
+add_library(
+  el_lib
+
+  lexer.cpp
   parser.cpp
   ast_integer.cpp
   ast_double.cpp
@@ -63,28 +75,23 @@ add_executable(
 )
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
-target_link_libraries(el ${llvm_libs})
+target_link_libraries(
+  el 
+  el_lib
+  ${llvm_libs}
+)
 
-set(MSVC_STATIC_CRT 1 CACHE BOOL "Windows executable with CRT baked in")
+#set(BUILD_TEST 0 CACHE BOOL "Build test executable")
+#set(ENABLE_FUZZING 0 CACHE BOOL "Enable fuzz testing")
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  if(MSVC_STATIC_CRT)
-    set(CMAKE_CXX_FLAGS "/O2 /EHsc /MT /wd4624") # statically link CRT
-  else()
-    set(CMAKE_CXX_FLAGS "/O2 /EHsc /wd4624")
-  endif()
-elseif(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-  message("not debug")
-  set(CMAKE_CXX_FLAGS "-O2 -Werror")
-else()
-  message("debug")
-  set(CMAKE_CXX_FLAGS "-Werror")
-  message(${CMAKE_CXX_FLAGS})
-endif()
+add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
+
+# Fuzz Testing
+add_subdirectory(${PROJECT_SOURCE_DIR}/../fuzz fuzz)
 
 # needs to come after set()'s
 configure_file(${PROJECT_SOURCE_DIR}/../include/cmake_config.h.in 
   ${PROJECT_SOURCE_DIR}/../include/cmake_config.h)
     
 target_include_directories(el PUBLIC ${PROJECT_SOURCE_DIR}/../include)
-target_include_directories(fuzzer PUBLIC ${PROJECT_SOURCE_DIR}/../include)
+target_include_directories(el_lib PUBLIC ${PROJECT_SOURCE_DIR}/../include)

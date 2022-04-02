@@ -21,6 +21,12 @@ Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder) {
   return nullptr;
 }
 
+// @@@TODO: Detect if the function has a body. If so, generate a llvm::BasicBlock,
+// and visit each node in p.insertion_stack.top(). To do this, we need to find a
+// good way to pass the Parser object to each node. Maybe we should make the Parser
+// a singleton class. Alternatively, we can make the insertion_stack a global in
+// main.cpp
+
 Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder,
                              Module& llvm_module) {
   std::vector<Type*> generated_params;

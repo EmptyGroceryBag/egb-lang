@@ -145,6 +145,7 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
           insertion_stack.push(this_function->scope);
           get_token(iterator);
           peeked_token = peek(iterator);
+
           while (peeked_token.token_type == static_cast<int>(Token::tok_identifier)) {
             insertion_stack.top().push_back(parse_variable_statement(true));
             //get_token(iterator);
@@ -155,6 +156,7 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
           std::cout << "# of statements in function block = " << insertion_stack.top().size() << std::endl;
 
           if (peeked_token.token_type == '}') {
+            insertion_stack.pop();
             return this_function;
           } else {
             std::cerr << "Error: Expected closing brace to end function block" << std::endl;
