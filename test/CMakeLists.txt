@@ -9,28 +9,6 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_library(
-    el_test_lib
-    ${PROJECT_SOURCE_DIR}/lexer.cpp
-    ${PROJECT_SOURCE_DIR}/parser.cpp
-    ${PROJECT_SOURCE_DIR}/ast_integer.cpp
-    ${PROJECT_SOURCE_DIR}/ast_double.cpp
-    ${PROJECT_SOURCE_DIR}/ast_bin_expr.cpp
-    ${PROJECT_SOURCE_DIR}/ast_variable.cpp
-    ${PROJECT_SOURCE_DIR}/ast_function.cpp
-
-    ${PROJECT_SOURCE_DIR}/../include/ast_bin_expr.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_double.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_integer.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_node.h
-    ${PROJECT_SOURCE_DIR}/../include/lexer.h
-    ${PROJECT_SOURCE_DIR}/../include/parser.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_function.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_global_block.h
-    ${PROJECT_SOURCE_DIR}/../include/ast_variable.h
-    ${PROJECT_SOURCE_DIR}/../include/data_type.h
-)
-
 add_executable(
     el_test
     test_parse_expression.cpp
@@ -40,8 +18,8 @@ add_executable(
 llvm_map_components_to_libnames(llvm_libs support core irreader)
 target_link_libraries(
     el_test
+    el_lib
     gtest_main
-    el_test_lib
     ${llvm_libs})
 
 if(UNIX)
@@ -49,4 +27,3 @@ if(UNIX)
 endif()
 
 target_include_directories(el_test PUBLIC ${PROJECT_SOURCE_DIR}/../include)
-target_include_directories(el_test_lib PUBLIC ${PROJECT_SOURCE_DIR}/../include)
