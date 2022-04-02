@@ -14,7 +14,7 @@ class Parser {
   bool error;
   bool found_main;
 
-  std::stack<std::vector<ASTNode*>> insertion_stack;
+  std::stack<std::vector<ASTNode*>*> insertion_stack;
 
   Parser() {
     iterator = "";
@@ -32,9 +32,8 @@ class Parser {
   ASTNode* parse_primary_expr();
   ASTNode* parse_top_level_expr();
   ASTNode* parse_paren_expr();
-  ASTNode* parse_variable_expr();
+  ASTNode* parse_variable_expr(bool);
   ASTNode* parse_function_prototype(ASTVariable* prototype);
-  ASTNode* parse_variable_statement(bool);
 
   void UNIMPLEMENTED();
 };

@@ -82,12 +82,13 @@ target_link_libraries(
 )
 
 #set(BUILD_TEST 0 CACHE BOOL "Build test executable")
-#set(ENABLE_FUZZING 0 CACHE BOOL "Enable fuzz testing")
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
 
 # Fuzz Testing
-add_subdirectory(${PROJECT_SOURCE_DIR}/../fuzz fuzz)
+if(NOT WIN32)
+  add_subdirectory(${PROJECT_SOURCE_DIR}/../fuzz fuzz)
+endif()
 
 # needs to come after set()'s
 configure_file(${PROJECT_SOURCE_DIR}/../include/cmake_config.h.in 

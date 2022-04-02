@@ -13,10 +13,10 @@
 using namespace llvm;
 
 ASTVariable::ASTVariable(std::string name, Attributes attributes,
-                         std::vector<ASTNode*> enclosing_scope, ASTNode* value)
+                         std::vector<ASTNode*>* enclosing_scope, ASTNode* value)
     : name(name), attributes(attributes), enclosing_scope(enclosing_scope), value(value) {}
 
-ASTVariable::ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*> enclosing_scope)
+ASTVariable::ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*>* enclosing_scope)
     : name(name), attributes(attributes), enclosing_scope(enclosing_scope) {}
 
 Value* ASTVariable::code_gen(LLVMContext& context, IRBuilder<>& builder) {

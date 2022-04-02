@@ -30,10 +30,10 @@ class ASTVariable : public ASTNode {
   std::string name;
   ASTNode* value = nullptr;
 
-  ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*> insertion_point , ASTNode* value);
-  ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*> insertion_point);
+  ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*>* insertion_point , ASTNode* value);
+  ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*>* insertion_point);
 
-  std::vector<ASTNode*>& enclosing_scope;
+  std::vector<ASTNode*>* enclosing_scope;
 
   ~ASTVariable() {
     delete value;
@@ -41,7 +41,7 @@ class ASTVariable : public ASTNode {
 
   Value* code_gen(LLVMContext&, IRBuilder<>&);
 
-  Type* get_type_from_width(int);
+  Type* get_type_from_width(int); // @@@What is this?
 
   // @@@ This is just to satiate the base class
   std::string to_string() { return to_string(0); }
