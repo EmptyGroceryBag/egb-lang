@@ -69,13 +69,14 @@ int main(int argc, char* argv[]) {
   const char* iterator = &buffer[0];
   Parser p(iterator);
 
-  std::vector<ASTNode*>& global_scope = ASTGlobalBlock::get_global_block().global_scope;
-  p.insertion_stack.push(global_scope);
+  p.insertion_stack.push(&ASTGlobalBlock::get_global_block().global_scope);
+  std::cout << "address of `test_scope` = " << &ASTGlobalBlock::get_global_block() << std::endl;
+  std::cout << "address of `p.insertion_stack.top()` = " << p.insertion_stack.top() << std::endl;
 
   while (peek(p.iterator).token_type != static_cast<int>(Token::tok_eof)) {
     p.parse_top_level_expr();
   }
-  std::cout << "parsed " << global_scope.size() << " top level node(s)" << std::endl;
+  std::cout << "parsed " << (*p.insertion_stack.top()).size() << " top level node(s)" << std::endl;
 
   if (!p.found_main) {
     std::cout << "Error: Could not find entry point \"main\"." << std::endl;
@@ -91,7 +92,7 @@ int main(int argc, char* argv[]) {
   Module llvm_module("main_mod", context);
   IRBuilder<> builder(context);
 
-  for (ASTNode* n : global_scope) {
+  for (ASTNode* n : (*p.insertion_stack.top())) {
     if (!n) continue;
 
     ASTFunction* entry_point = dynamic_cast<ASTFunction*>(n);

@@ -129,7 +129,7 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
       peeked_token.token_value.ident_str
     ) != types.end()) {
 
-      params.push_back(parse_variable_statement(false));
+      params.push_back(parse_variable_expr(true));
       peeked_token = peek(iterator);
 
       if (peeked_token.token_type == ',') {
@@ -139,24 +139,35 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
       if (peeked_token.token_type == ')') {
         get_token(iterator);
         ASTFunction* this_function = new ASTFunction(prototype);
-          peeked_token = peek(iterator);
+        peeked_token = peek(iterator);
 
         if (peeked_token.token_type == '{') {
-          insertion_stack.push(this_function->scope);
+          insertion_stack.push(&this_function->scope);
           get_token(iterator);
           peeked_token = peek(iterator);
 
           while (peeked_token.token_type == static_cast<int>(Token::tok_identifier)) {
-            insertion_stack.top().push_back(parse_variable_statement(true));
-            //get_token(iterator);
+            parse_variable_expr(false);
             peeked_token = peek(iterator);
           }
 
           // @@@Debug
-          std::cout << "# of statements in function block = " << insertion_stack.top().size() << std::endl;
+          std::cout << "# of statements in function block = " << (*insertion_stack.top()).size() << std::endl;
 
           if (peeked_token.token_type == '}') {
+            get_token(iterator);
+
+            // @@@Debug
+            for(ASTNode* n : *insertion_stack.top()) {
+              ASTVariable* v = dynamic_cast<ASTVariable*>(n);
+              if (v) {
+                std::cout << v->name << std::endl;
+              }
+            }
+
             insertion_stack.pop();
+            (*insertion_stack.top()).push_back(this_function);
+
             return this_function;
           } else {
             std::cerr << "Error: Expected closing brace to end function block" << std::endl;
@@ -196,25 +207,13 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   return nullptr;
 }
 
-ASTNode* Parser::parse_variable_statement(bool is_decl) {
-  ASTNode* node = parse_variable_expr();
-
-  if (is_decl) {
-    if (get_token(iterator).token_type != ';') {
-      std::cerr << "Error: Expected semicolon to end statement" << std::endl;
-      error = true;
-      return nullptr;
-    }
-  }
-
-  return node;
-}
-
 // Variable:
 // typename ident = value;  definition
 // typename ident;          declaration      
 
-ASTNode* Parser::parse_variable_expr() {
+ASTNode* Parser::parse_variable_expr(bool comma_separated) {
+  ASTVariable* this_variable; // Won't be returned in the case of a syntax error.
+
   token = get_token(iterator);
   std::string type_str = token.token_value.ident_str;
   if (type_str.size() < 1) {
@@ -284,10 +283,11 @@ ASTNode* Parser::parse_variable_expr() {
 
   peeked_token = peek(iterator);
 
-  // function prototype
+  // Function prototype
   if (peeked_token.token_type == '(') {
     get_token(iterator);
-    return parse_function_prototype(new ASTVariable(name, attributes, insertion_stack.top()));
+    this_variable = new ASTVariable(name, attributes, insertion_stack.top());
+    return parse_function_prototype(this_variable);
   }
 
   // Variable assignment
@@ -302,17 +302,39 @@ ASTNode* Parser::parse_variable_expr() {
       case static_cast<int>(Token::tok_integer):
         // @@@ This assignment might not be needed
         value = new ASTInteger(token.token_value.int_num_val);
-        return new ASTVariable(name, attributes, insertion_stack.top(), value);
+        this_variable = new ASTVariable(name, attributes, insertion_stack.top(), value);
 
       // @@@ Research FP number precision
       case static_cast<int>(Token::tok_floating_point):
         value = new ASTInteger(token.token_value.int_num_val);
-        return new ASTVariable(name, attributes, insertion_stack.top(), value);
+        this_variable = new ASTVariable(name, attributes, insertion_stack.top(), value);
 
       default:
         std::cout << "Error: Invalid number literal" << std::endl;
         error = true;
         return nullptr;
+    }
+    if (peeked_token.token_type == ';') {
+      get_token(iterator);
+      (*insertion_stack.top()).push_back(this_variable);
+      return this_variable;
+    } else {
+      std::cerr << "Error: Expected semicolon to end statement" << std::endl;
+      error = true;
+      return nullptr;
+    }
+  }
+
+  if(!comma_separated) {  
+    if (peeked_token.token_type == ';') {
+      get_token(iterator);
+      this_variable = new ASTVariable(name, attributes, insertion_stack.top());
+      (*insertion_stack.top()).push_back(this_variable);
+      return this_variable;
+    } else {
+      std::cerr << "Error: Expected semicolon to end statement" << std::endl;
+      error = true;
+      return nullptr;
     }
   }
 }
@@ -329,7 +351,7 @@ parse:
     // Function Prototype
     // Function Signature
     case '[':
-      return parse_variable_expr();
+      return parse_variable_expr(false);
 
     // Variable declaration
     // type_name ident;
@@ -341,7 +363,7 @@ parse:
                     DataTypes::type_strings.end(),
                     peeked_token.token_value.ident_str) !=
           std::end(DataTypes::type_strings)) {
-        ASTNode* variable = parse_variable_statement(true);
+        ASTNode* variable = parse_variable_expr(false);
         return variable;
       }
       // @@@Duplication: Make a function out of the following two lines
