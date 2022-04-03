@@ -70,8 +70,6 @@ int main(int argc, char* argv[]) {
   Parser p(iterator);
 
   p.insertion_stack.push(&ASTGlobalBlock::get_global_block().global_scope);
-  std::cout << "address of `test_scope` = " << &ASTGlobalBlock::get_global_block() << std::endl;
-  std::cout << "address of `p.insertion_stack.top()` = " << p.insertion_stack.top() << std::endl;
 
   while (peek(p.iterator).token_type != static_cast<int>(Token::tok_eof)) {
     p.parse_top_level_expr();
@@ -95,8 +93,8 @@ int main(int argc, char* argv[]) {
   for (ASTNode* n : (*p.insertion_stack.top())) {
     if (!n) continue;
 
-    ASTFunction* entry_point = dynamic_cast<ASTFunction*>(n);
-    if (entry_point) entry_point->code_gen(context, builder, llvm_module);
+    ASTFunction* function = dynamic_cast<ASTFunction*>(n);
+    if (function) function->code_gen(context, builder, llvm_module);
     else n->code_gen(context, builder);
   }
 

@@ -5,6 +5,7 @@
 #include "ast_bin_expr.h"
 #include "ast_double.h"
 #include "ast_function.h"
+#include "ast_global_block.h"
 #include "ast_integer.h"
 #include "ast_variable.h"
 #include "lexer.h"
@@ -12,25 +13,23 @@
 
 #define DIAGRAM_DEBUG 1
 
-static Parser parser;
-
 template <class T>
 T* check_node_type(std::string buffer) {
-  parser.iterator = &buffer[0];
+  Parser parser(&buffer[0]);
   T* node = dynamic_cast<T*>(parser.parse_top_level_expr());
   return node;
 }
 
 template <class T>
 T* check_primary_expr(std::string buffer) {
-  parser.iterator = &buffer[0];
+  Parser parser(&buffer[0]);
   T* node = dynamic_cast<T*>(parser.parse_primary_expr());
   return node;
 }
 
 template <class T, typename N>
 void check_primary_expr_value(std::string buffer, N value) {
-  parser.iterator = &buffer[0];
+  Parser parser(&buffer[0]);
   T* node = dynamic_cast<T*>(parser.parse_primary_expr());
   ASSERT_TRUE(node);
   EXPECT_EQ(node->value, value);
@@ -234,7 +233,7 @@ TEST(test_parse_expression, test_bin_expr_nested_with_parens) {
 }
 
 TEST(test_parse_expression, test_parse_variable_declaration) {
-  parser.iterator = "uint32 x;";
+  Parser parser("u32 x;");
   ASTVariable* variable_expr =
     dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
 
@@ -243,27 +242,27 @@ TEST(test_parse_expression, test_parse_variable_declaration) {
 }
 
 TEST(test_parse_expression, test_parse_variable_assignment) {
-  parser.iterator = "uint32 x = 8;";
+  Parser parser("u32 x = 8;");
   ASTVariable* variable_expr =
-      dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
+    dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
 
   ASSERT_TRUE(variable_expr);
   EXPECT_EQ(variable_expr->name, "x");
-  ASTVariable::Attributes test_attributes{false, 32};
+  ASTVariable::Attributes test_attributes{ false, 32 };
   bool check_attributes = (test_attributes == variable_expr->attributes);
   EXPECT_TRUE(check_attributes);
 }
 
 ASTFunction* check_function_prototype(std::string buffer) {
-  parser.iterator = &buffer[0];
+  Parser parser(&buffer[0]);
 
   ASTFunction* prototype_expr =
-      dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
+    dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   return prototype_expr;
 }
 
 TEST(test_parse_expression, test_parse_function_prototype) {
-  ASTFunction* prototype_expr = check_function_prototype("uint32 funcy();");
+  ASTFunction* prototype_expr = check_function_prototype("u32 funcy() {}");
   ASSERT_TRUE(prototype_expr);
 
   EXPECT_EQ(prototype_expr->params.size(), 0);
@@ -275,32 +274,32 @@ TEST(test_parse_expression, test_parse_function_prototype) {
 
 TEST(test_parse_expression, test_parse_function_prototype_single_parameter) {
   ASTFunction* prototype_expr =
-      check_function_prototype("uint32 doofus(uint32 y);");
+    check_function_prototype("u32 doofus(u32 y) {}");
   ASSERT_TRUE(prototype_expr);
 
   EXPECT_EQ(prototype_expr->params.size(), 1);
   ASSERT_TRUE(prototype_expr->prototype);
   EXPECT_EQ(prototype_expr->prototype->name, "doofus");
-  ASTVariable::Attributes prototype_attributes{false, 32};
+  ASTVariable::Attributes prototype_attributes{ false, 32 };
   EXPECT_TRUE(prototype_attributes == prototype_expr->prototype->attributes);
 
   ASTVariable* param = dynamic_cast<ASTVariable*>(prototype_expr->params.at(0));
   ASSERT_TRUE(param);
   EXPECT_EQ(param->name, "y");
-  ASTVariable::Attributes test_attributes{false, 32};
+  ASTVariable::Attributes test_attributes{ false, 32 };
   EXPECT_TRUE(test_attributes == param->attributes);
   EXPECT_FALSE(param->value);
 }
 
 TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
   ASTFunction* prototype_expr =
-      check_function_prototype("uint32 sum(uint32 x1, uint32 x2);");
+    check_function_prototype("u32 sum(u32 x1, u32 x2) {}");
   ASSERT_TRUE(prototype_expr);
 
   ASSERT_TRUE(prototype_expr->prototype);
   EXPECT_EQ(prototype_expr->params.size(), 2);
   EXPECT_EQ(prototype_expr->prototype->name, "sum");
-  ASTVariable::Attributes prototype_attributes{false, 32};
+  ASTVariable::Attributes prototype_attributes{ false, 32 };
   EXPECT_TRUE(prototype_attributes == prototype_expr->prototype->attributes);
 
   int i = 0;
@@ -308,7 +307,7 @@ TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
     ASTVariable* param_expr = dynamic_cast<ASTVariable*>(param);
     ASSERT_TRUE(param_expr);
 
-    ASTVariable::Attributes test_attributes{false, 32};
+    ASTVariable::Attributes test_attributes{ false, 32 };
     EXPECT_TRUE(test_attributes == param_expr->attributes);
 
     std::string param_name = "x";

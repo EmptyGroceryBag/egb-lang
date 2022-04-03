@@ -5,10 +5,10 @@
 
 namespace DataTypes {
   std::vector<std::string> type_strings = {
-    "bool", "uint8", "uint16", "uint32",
-    "uint64",
+    "bool", "u8", "u16", "u32",
+    "u64",
     // Signed integers
-    "int8", "int16", "int32", "int64",
+    "i8", "i16", "i32", "i64",
     "double",
     "void"
   };

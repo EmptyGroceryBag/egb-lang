@@ -30,26 +30,40 @@ Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder) {
 Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder,
                              Module& llvm_module) {
   std::vector<Type*> generated_params;
-  if (params.size() != 0) {
+  if (params.size() > 0) {
     for (int i = 0; i < params.size(); i++) {
       ASTVariable* param = dynamic_cast<ASTVariable*>(params[i]);
       generated_params.push_back(Type::getIntNTy(context, param->attributes.width));
     }
   }
 
-  Function* entry_point = Function::Create(
-      FunctionType::get(Type::getIntNTy(context, prototype->attributes.width), generated_params, false),
+  Type* type;
+  if (prototype->attributes.width == -1)
+    type = Type::getVoidTy(context);
+  else if (prototype->attributes.width == 1)
+    type = Type::getInt1Ty(context);
+  else
+    type = Type::getIntNTy(context, prototype->attributes.width);
+
+  Function* this_function = Function::Create(
+      FunctionType::get(type, generated_params, false),
       GlobalValue::LinkageTypes::ExternalLinkage, prototype->name, llvm_module);
 
   std::vector<Value*> args;
   for (int i = 0; i < params.size(); i++) {
-    args.push_back(entry_point->getArg(i));
+    args.push_back(this_function->getArg(i));
     args.at(i)->setName(dynamic_cast<ASTVariable*>(params.at(i))->name);
   }
 
-  BasicBlock* entry_point_block =
-      BasicBlock::Create(context, "entry", entry_point);
-  builder.SetInsertPoint(entry_point_block);
+  BasicBlock* main_block =
+      BasicBlock::Create(context, "entry", this_function);
+  builder.SetInsertPoint(main_block);
 
-  return entry_point;
+  if (scope.size() > 0) {
+    for (ASTNode* n : scope) {
+      n->code_gen(context, builder);
+    }
+  }
+
+  return this_function;
 }
