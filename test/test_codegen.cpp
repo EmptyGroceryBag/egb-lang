@@ -17,7 +17,6 @@
 using namespace llvm;
 
 static std::string buffer;
-static Parser parser(&buffer[0]);
 static LLVMContext context;
 static Module llvm_module("main_mod", context);
 static IRBuilder<> builder(context);
@@ -26,7 +25,7 @@ static std::ostringstream test_output;
 static raw_os_ostream output_stream(test_output);
 
 TEST(test_ir_codegen, test_unsigned_integer_value) {
-  parser.iterator = "1234";
+  Parser parser("1234");
   ASTInteger* node = dynamic_cast<ASTInteger*>(parser.parse_primary_expr());
   ASSERT_TRUE(node);
 
@@ -41,7 +40,7 @@ TEST(test_ir_codegen, test_unsigned_integer_value) {
 }
 
 TEST(test_ir_codegen, test_unsigned_double_value) {
-  parser.iterator = "1234.4572542";
+  Parser parser("1234.4572542");
   ASTDouble* node = dynamic_cast<ASTDouble*>(parser.parse_primary_expr());
   ASSERT_TRUE(node);
 
@@ -56,7 +55,7 @@ TEST(test_ir_codegen, test_unsigned_double_value) {
 }
 
 TEST(test_ir_codegen, test_bin_expr_value) {
-  parser.iterator = "2+4";
+  Parser parser("2+4");
   ASTBinExpr* node = dynamic_cast<ASTBinExpr*>(parser.parse_primary_expr());
   ASSERT_TRUE(node);
 
@@ -70,7 +69,7 @@ TEST(test_ir_codegen, test_bin_expr_value) {
 
 /* @@@For when we do proper scoping
 TEST(test_ir_codegen, test_generate_variable_declaration) {
-  parser.iterator = "uint64 x;";
+  Parser parser("u64 x;");
   ASTVariable* decl_expr =
     dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
   ASSERT_TRUE(decl_expr);
@@ -86,7 +85,7 @@ TEST(test_ir_codegen, test_generate_variable_declaration) {
 */
 
 TEST(test_ir_codegen, test_generate_function_dump) {
-  parser.iterator = "uint8 funcy();";
+  Parser parser("u8 funcy() {}");
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);
@@ -101,7 +100,7 @@ TEST(test_ir_codegen, test_generate_function_dump) {
 }
 
 TEST(test_ir_codegen, test_generate_function_dump_single_parameter) {
-  parser.iterator = "uint16 doofus(uint64 param);";
+  Parser parser("u16 doofus(u64 param) {}");
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);
@@ -117,7 +116,7 @@ TEST(test_ir_codegen, test_generate_function_dump_single_parameter) {
 }
 
 TEST(test_ir_codegen, test_generate_function_dump_mulitple_parameters) {
-  parser.iterator = "uint64 monke(bool x1, uint8 x2, uint16 y1, uint32 y2);";
+  Parser parser("u64 monke(bool x1, u8 x2, u16 y1, u32 y2) {}");
   ASTFunction* prototype_expr =
       dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   ASSERT_TRUE(prototype_expr);

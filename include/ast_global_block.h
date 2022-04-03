@@ -15,7 +15,7 @@ class ASTGlobalBlock {
     static ASTGlobalBlock GLOBAL_BLOCK;
     return GLOBAL_BLOCK;
   }
-  
+
   std::vector<ASTNode*> global_scope;
 
   ASTGlobalBlock(const ASTGlobalBlock& rhs) = delete;

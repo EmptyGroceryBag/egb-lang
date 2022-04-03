@@ -1,3 +1,4 @@
+#include "ast_global_block.h"
 #include "ast_node.h"
 #include "ast_variable.h"
 #include "lexer.h"
@@ -17,13 +18,12 @@ class Parser {
   std::stack<std::vector<ASTNode*>*> insertion_stack;
 
   Parser() {
-    iterator = "";
-    error = false;
-    found_main = false;
+    Parser("");
   }
 
   Parser(const char* iterator) : iterator(iterator) {
     // @@@Incomplete: An enum with different error types would be more helpful
+    insertion_stack.push(&ASTGlobalBlock::get_global_block().global_scope);
     error = false;
     found_main = false;
   }
@@ -33,7 +33,8 @@ class Parser {
   ASTNode* parse_top_level_expr();
   ASTNode* parse_paren_expr();
   ASTNode* parse_variable_expr(bool);
-  ASTNode* parse_function_prototype(ASTVariable* prototype);
+  ASTNode* parse_function_prototype(ASTVariable*);
+  void Parser::parse_block_scope(ASTFunction*);
 
   void UNIMPLEMENTED();
 };
