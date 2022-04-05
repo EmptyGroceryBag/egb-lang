@@ -22,8 +22,12 @@ class Parser {
   }
 
   Parser(const char* iterator) : iterator(iterator) {
-    // @@@Incomplete: An enum with different error types would be more helpful
+    // Because the global scope vector is global, we must clear it 
+    // before attempting to use it again
+    ASTGlobalBlock::get_global_block().global_scope.clear();
     insertion_stack.push(&ASTGlobalBlock::get_global_block().global_scope);
+
+    // @@@Incomplete: An enum with different error types would be more helpful
     error = false;
     found_main = false;
   }
@@ -34,6 +38,8 @@ class Parser {
   ASTNode* parse_paren_expr();
   ASTNode* parse_variable_expr(bool);
   ASTNode* parse_function_prototype(ASTVariable*);
+  ASTNode* report_error(std::string error);
+  ASTVariable* check_for_redeclaration(ASTVariable*, bool);
   void Parser::parse_block_scope(ASTFunction*);
 
   void UNIMPLEMENTED();

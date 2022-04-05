@@ -37,6 +37,13 @@ void Parser::UNIMPLEMENTED() {
   std::cout << "Not implemented yet" << std::endl;
 }
 
+ASTNode* Parser::report_error(std::string error_string) {
+  std::cerr << "Error: " << error_string
+            << std::endl;
+  error = true;
+  return nullptr;
+}
+
 ASTNode* Parser::parse_primary_expr() {
   token = get_token(iterator); // The problem seems to be this...
   ASTNode* lhs;
@@ -117,26 +124,30 @@ void Parser::parse_block_scope(ASTFunction* this_function) {
     peeked_token = peek(iterator);
   }
 
+
   // @@@Debug
-  std::cout << "# of statements in function block = "
+  /*
+  std::cout << "# of statements in " << this_function->prototype->name << " function block = "
             << (*insertion_stack.top()).size() << std::endl;
+  */
 
   if (peeked_token.token_type == '}') {
     get_token(iterator);
 
     // @@@Debug
+    /*
     for (ASTNode* n : *insertion_stack.top()) {
       ASTVariable* v = dynamic_cast<ASTVariable*>(n);
       if (v) {
         std::cout << v->name << std::endl;
       }
     }
+    */
 
     insertion_stack.pop();
     (*insertion_stack.top()).push_back(this_function);
   } else {
-    std::cerr << "Error: Expected closing brace to end function block" << std::endl;
-    error = true;
+    report_error("Expected closing brace to end function block");
   }
 }
 
@@ -158,7 +169,6 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   std::vector<ASTNode*> params; // We pass a copy of params, but not the scope
 
   while (peeked_token.token_type == static_cast<int>(Token::tok_identifier)) {
-    // @@@Duplication
     if (std::find(
       types.begin(), 
       types.end(), 
@@ -174,24 +184,15 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
         this_function->params = params;
         break;
       } else {
-        std::cerr << "Error: Expected closing parenthesis to end parameter list"
-          << std::endl;
-        error = true;
-        return nullptr;
+        return report_error("Expected closing parenthesis to close parameter list");
       }
     } else {
-      std::cerr << "Error: Expected type name to begin parameter list"
-        << std::endl;
-      error = true;
-      return nullptr;
+      return report_error("Expected type name to begin parameter list");
     }
   }
 
   if (peek(iterator).token_type != ')') {
-    std::cerr << "Error: Expected closing parenthesis to end parameter list"
-      << std::endl;
-    error = true;
-    return nullptr;
+    return report_error("Expected closing parenthesis to end parameter list");
   }
 
   get_token(iterator);
@@ -202,11 +203,28 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
     else
       return this_function;
   } else {
-    std::cerr << "Error: Expected opening brace to begin function block"
-      << std::endl;
-    error = true;
-    return nullptr;
+    return report_error("Expected opening brace to begin function block");
   }
+}
+
+ASTVariable* Parser::check_for_redeclaration(ASTVariable* this_variable, bool is_function_prototype) {
+  for (ASTNode* node : *insertion_stack.top()) {
+    //Debug
+    std::cout << insertion_stack.top() << std::endl;
+    ASTFunction* function = dynamic_cast<ASTFunction*>(node);
+    ASTVariable* variable = dynamic_cast<ASTVariable*>(node);
+    if (is_function_prototype) {
+      if (function) {
+        if (function->prototype->name == this_variable->name)
+          return nullptr;
+      }
+    } else if (variable) {
+      if (variable->name == this_variable->name) 
+        return nullptr;
+    }
+  }
+
+  return this_variable;
 }
 
 // Variable:
@@ -219,9 +237,7 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
   token = get_token(iterator);
   std::string type_str = token.token_value.ident_str;
   if (type_str.size() < 1) {
-    std::cerr << "Error: Invalid type name" << std::endl;
-    error = true;
-    return nullptr;
+    return report_error("Error: Invalid type name");
   }
   
   bool sign = false;
@@ -269,18 +285,13 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
       types.end(),
       peeked_token.token_value.ident_str
     ) != types.end()) {
-      std::cerr << "Error: Names of variables cannot be a type name"
-        << std::endl;
-      error = true;
-      return nullptr;
+      return report_error("Names of variables cannot be a type name");
     }
 
     token = get_token(iterator);
     name = token.token_value.ident_str;
   } else {
-    std::cerr << "Error: Expected identifier for variable name" << std::endl;
-    error = true;
-    return nullptr;
+    return report_error("Expected identifier for variable name");
   }
 
   peeked_token = peek(iterator);
@@ -289,8 +300,19 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
   if (peeked_token.token_type == '(') {
     get_token(iterator);
     if (name == "main") found_main = true;
-    this_variable = new ASTVariable(name, attributes, insertion_stack.top());
-    return parse_function_prototype(this_variable);
+
+    this_variable = check_for_redeclaration(
+      new ASTVariable(name, attributes, insertion_stack.top()), true);
+
+    if (!this_variable)
+      report_error("Redeclaration of function \"" + name + "\"");
+
+    ASTNode* this_function = parse_function_prototype(this_variable);
+
+    if(error) 
+      return nullptr;
+    
+    return this_function;
   }
 
   // Variable assignment
@@ -305,41 +327,47 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
       case static_cast<int>(Token::tok_integer):
         // @@@ This assignment might not be needed
         value = new ASTInteger(token.token_value.int_num_val);
-        this_variable = new ASTVariable(name, attributes, insertion_stack.top(), value);
+        this_variable = check_for_redeclaration(
+          new ASTVariable(name, attributes, insertion_stack.top(), value), false);
         break;
 
       // @@@ Research FP number precision
       case static_cast<int>(Token::tok_floating_point):
         value = new ASTInteger(token.token_value.int_num_val);
-        this_variable = new ASTVariable(name, attributes, insertion_stack.top(), value);
+        this_variable = check_for_redeclaration(
+          new ASTVariable(name, attributes, insertion_stack.top(), value), false);
         break;
 
       default:
-        std::cout << "Error: Invalid number literal" << std::endl;
-        error = true;
-        return nullptr;
+        return report_error("Invalid number literal");
     }
     if (peek(iterator).token_type == ';') {
       get_token(iterator);
+
+      if (!this_variable)
+        return report_error("Redeclaration of variable \"" + name + "\"");
+
       (*insertion_stack.top()).push_back(this_variable);
       return this_variable;
     } else {
-      std::cerr << "Error: Expected semicolon to end statement" << std::endl;
-      error = true;
-      return nullptr;
+      return report_error("Expected semicolon to end statement");
     }
   }
 
+  // Variable declaration
   if(!comma_separated) {  
     if (peeked_token.token_type == ';') {
       get_token(iterator);
-      this_variable = new ASTVariable(name, attributes, insertion_stack.top());
+
+      this_variable = check_for_redeclaration(
+          new ASTVariable(name, attributes, insertion_stack.top()), false);
+      if (!this_variable)
+        return report_error("Redeclaration of variable \"" + name + "\"");
+
       (*insertion_stack.top()).push_back(this_variable);
       return this_variable;
     } else {
-      std::cerr << "Error: Expected semicolon to end statement" << std::endl;
-      error = true;
-      return nullptr;
+      return report_error("Expected semicolon to end statement");
     }
   }
 
@@ -373,11 +401,8 @@ parse:
         ASTNode* variable = parse_variable_expr(false);
         return variable;
       }
-      // @@@Duplication: Make a function out of the following two lines
-      std::cout << "Error: Unknown identifier" << std::endl;
       get_token(iterator);
-      error = true;
-      return nullptr;
+      return report_error("Unknown identifier");
 
     // @@@I suspect this is dead code
     case static_cast<int>(Token::tok_eof):
@@ -385,9 +410,7 @@ parse:
       return nullptr;
     
     default:
-      std::cout << "Unexpected token" << std::endl;
       get_token(iterator);
-      error = true;
-      goto parse;
+      return report_error("Unexpected token");
   }
 }
