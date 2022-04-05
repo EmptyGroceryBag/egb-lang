@@ -249,8 +249,7 @@ TEST(test_parse_expression, test_parse_variable_assignment) {
   ASSERT_TRUE(variable_expr);
   EXPECT_EQ(variable_expr->name, "x");
   ASTVariable::Attributes test_attributes{ false, 32 };
-  bool check_attributes = (test_attributes == variable_expr->attributes);
-  EXPECT_TRUE(check_attributes);
+  EXPECT_TRUE(test_attributes == variable_expr->attributes);
 }
 
 ASTFunction* check_function_prototype(std::string buffer) {
