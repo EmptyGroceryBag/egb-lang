@@ -40,7 +40,7 @@ class Parser {
   ASTNode* parse_function_prototype(ASTVariable*);
   ASTNode* report_error(std::string error);
   ASTVariable* check_for_redeclaration(ASTVariable*, bool);
-  void Parser::parse_block_scope(ASTFunction*);
+  void parse_block_scope(ASTFunction*);
 
   void UNIMPLEMENTED();
 };
