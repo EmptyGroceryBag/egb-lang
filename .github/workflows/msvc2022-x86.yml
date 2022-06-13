@@ -1,0 +1,23 @@
+name: msvc2022-x86
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  msvc2022-x86:
+    runs-on: win2022
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Configure CMake
+      run: cmake -G "Visual Studio 17 2022" -B ${{github.workspace}}\build -S ${{github.workspace}}\src -DCMAKE_BUILD_TYPE=Debug -DLLVM_DIR="C:\llvm\lib\cmake\llvm"
+
+    - name: Build
+      run: cmake --build ${{github.workspace}}\build
+
+    - name: Test
+      run: ${{github.workspace}}\build\test\Debug\el_test.exe
