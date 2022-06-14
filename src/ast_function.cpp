@@ -14,18 +14,17 @@ using namespace llvm;
 ASTFunction::ASTFunction(ASTVariable* prototype, std::vector<ASTNode*> params)
     : prototype(prototype), params(params) {}
 
-ASTFunction::ASTFunction(ASTVariable* prototype)
-    : prototype(prototype) {}
+ASTFunction::ASTFunction(ASTVariable* prototype) : prototype(prototype) {}
 
 Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder) {
   return nullptr;
 }
 
-// @@@TODO: Detect if the function has a body. If so, generate a llvm::BasicBlock,
-// and visit each node in p.insertion_stack.top(). To do this, we need to find a
-// good way to pass the Parser object to each node. Maybe we should make the Parser
-// a singleton class. Alternatively, we can make the insertion_stack a global in
-// main.cpp
+// @@@TODO: Detect if the function has a body. If so, generate a
+// llvm::BasicBlock, and visit each node in p.insertion_stack.top(). To do this,
+// we need to find a good way to pass the Parser object to each node. Maybe we
+// should make the Parser a singleton class. Alternatively, we can make the
+// insertion_stack a global in main.cpp
 
 Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder,
                              Module& llvm_module) {
@@ -33,7 +32,8 @@ Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder,
   if (params.size() > 0) {
     for (int i = 0; i < params.size(); i++) {
       ASTVariable* param = dynamic_cast<ASTVariable*>(params[i]);
-      generated_params.push_back(Type::getIntNTy(context, param->attributes.width));
+      generated_params.push_back(
+          Type::getIntNTy(context, param->attributes.width));
     }
   }
 
@@ -55,8 +55,7 @@ Value* ASTFunction::code_gen(LLVMContext& context, IRBuilder<>& builder,
     args.at(i)->setName(dynamic_cast<ASTVariable*>(params.at(i))->name);
   }
 
-  BasicBlock* main_block =
-      BasicBlock::Create(context, "entry", this_function);
+  BasicBlock* main_block = BasicBlock::Create(context, "entry", this_function);
   builder.SetInsertPoint(main_block);
 
   if (scope.size() > 0) {

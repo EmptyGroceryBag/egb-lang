@@ -1,4 +1,5 @@
 #include <memory>
+
 #include "t_vals.h"
 
 #ifndef TOK_VAL_PAIR_H
@@ -20,7 +21,7 @@ struct TokValPair {
     TokValPair new_pair;
     new_pair.token_type = rhs.token_type;
     new_pair.token_value = rhs.token_value;
-    
+
     return new_pair;
   }
   */

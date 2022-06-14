@@ -1,10 +1,10 @@
+#include <stack>
+#include <vector>
+
 #include "ast_global_block.h"
 #include "ast_node.h"
 #include "ast_variable.h"
 #include "lexer.h"
-
-#include <stack>
-#include <vector>
 
 #ifndef PARSER_H
 #define PARSER_H
@@ -17,12 +17,10 @@ class Parser {
 
   std::stack<std::vector<ASTNode*>*> insertion_stack;
 
-  Parser() {
-    Parser("");
-  }
+  Parser() { Parser(""); }
 
   Parser(const char* iterator) : iterator(iterator) {
-    // Because the global scope vector is global, we must clear it 
+    // Because the global scope vector is global, we must clear it
     // before attempting to use it again
     ASTGlobalBlock::get_global_block().global_scope.clear();
     insertion_stack.push(&ASTGlobalBlock::get_global_block().global_scope);

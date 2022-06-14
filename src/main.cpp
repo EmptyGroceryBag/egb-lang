@@ -24,17 +24,16 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "ast_function.h"
-#include "ast_node.h"
 #include "ast_global_block.h"
+#include "ast_node.h"
 #include "cmake_config.h"
-#include "parser.h"
-
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Type.h"
 #include "llvm/Support/raw_os_ostream.h"
+#include "parser.h"
 
 using namespace llvm;
 
@@ -53,7 +52,8 @@ int main(int argc, char* argv[]) {
 
   ifs = std::fopen(argv[1], "r");
   if (!ifs) {
-    std::cout << "Error: Could not open file \"" << argv[1] << "\"" << std::endl;
+    std::cout << "Error: Could not open file \"" << argv[1] << "\""
+              << std::endl;
     return errno;
   }
 
@@ -74,7 +74,8 @@ int main(int argc, char* argv[]) {
   while (peek(p.iterator).token_type != static_cast<int>(Token::tok_eof)) {
     p.parse_top_level_expr();
   }
-  std::cout << "parsed " << (*p.insertion_stack.top()).size() << " top level node(s)" << std::endl;
+  std::cout << "parsed " << (*p.insertion_stack.top()).size()
+            << " top level node(s)" << std::endl;
 
   if (!p.found_main) {
     std::cout << "Error: Could not find entry point \"main\"." << std::endl;
@@ -94,18 +95,20 @@ int main(int argc, char* argv[]) {
     if (!n) continue;
 
     ASTFunction* function = dynamic_cast<ASTFunction*>(n);
-    if (function) function->code_gen(context, builder, llvm_module);
-    else n->code_gen(context, builder);
+    if (function)
+      function->code_gen(context, builder, llvm_module);
+    else
+      n->code_gen(context, builder);
   }
 
-//#define DEBUG_PRINT_IR
-//#ifdef DEBUG_PRINT_IR
-    std::ostringstream test_output;
-    raw_os_ostream output_stream(test_output);
+  //#define DEBUG_PRINT_IR
+  //#ifdef DEBUG_PRINT_IR
+  std::ostringstream test_output;
+  raw_os_ostream output_stream(test_output);
 
-    llvm_module.print(output_stream, nullptr);
-    std::cout << test_output.str() << std::endl;
-//#endif
+  llvm_module.print(output_stream, nullptr);
+  std::cout << test_output.str() << std::endl;
+  //#endif
 
   return 0;
 }

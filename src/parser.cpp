@@ -38,14 +38,13 @@ void Parser::UNIMPLEMENTED() {
 }
 
 ASTNode* Parser::report_error(std::string error_string) {
-  std::cerr << "Error: " << error_string
-            << std::endl;
+  std::cerr << "Error: " << error_string << std::endl;
   error = true;
   return nullptr;
 }
 
 ASTNode* Parser::parse_primary_expr() {
-  token = get_token(iterator); // The problem seems to be this...
+  token = get_token(iterator);  // The problem seems to be this...
   ASTNode* lhs;
 
   switch (token.token_type) {
@@ -79,7 +78,7 @@ ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs) {
 
     // Okay, we know this is a binop.
     int binop = token.token_type;
-    //token = get_token(iterator);  // eat binop
+    // token = get_token(iterator);  // eat binop
 
     // Parse the primary expression after the binary operator.
     auto rhs = parse_primary_expr();
@@ -100,7 +99,7 @@ ASTNode* Parser::parse_binop_rhs(int expr_prec, ASTNode* lhs) {
 
 // @@@Junk: This function is basically useless
 ASTNode* Parser::parse_paren_expr() {
-  //token = get_token(iterator);
+  // token = get_token(iterator);
   ASTNode* n = parse_primary_expr();
 
   /*
@@ -124,10 +123,10 @@ void Parser::parse_block_scope(ASTFunction* this_function) {
     peeked_token = peek(iterator);
   }
 
-
   // @@@Debug
   /*
-  std::cout << "# of statements in " << this_function->prototype->name << " function block = "
+  std::cout << "# of statements in " << this_function->prototype->name << "
+  function block = "
             << (*insertion_stack.top()).size() << std::endl;
   */
 
@@ -166,15 +165,11 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   ASTFunction* this_function = new ASTFunction(prototype);
 
   peeked_token = peek(iterator);
-  std::vector<ASTNode*> params; // We pass a copy of params, but not the scope
+  std::vector<ASTNode*> params;  // We pass a copy of params, but not the scope
 
   while (peeked_token.token_type == static_cast<int>(Token::tok_identifier)) {
-    if (std::find(
-      types.begin(), 
-      types.end(), 
-      peeked_token.token_value.ident_str
-    ) != types.end()) {
-
+    if (std::find(types.begin(), types.end(),
+                  peeked_token.token_value.ident_str) != types.end()) {
       params.push_back(parse_variable_expr(true));
 
       if (peek(iterator).token_type == ',') {
@@ -184,7 +179,8 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
         this_function->params = params;
         break;
       } else {
-        return report_error("Expected closing parenthesis to close parameter list");
+        return report_error(
+            "Expected closing parenthesis to close parameter list");
       }
     } else {
       return report_error("Expected type name to begin parameter list");
@@ -207,20 +203,19 @@ ASTNode* Parser::parse_function_prototype(ASTVariable* prototype) {
   }
 }
 
-ASTVariable* Parser::check_for_redeclaration(ASTVariable* this_variable, bool is_function_prototype) {
+ASTVariable* Parser::check_for_redeclaration(ASTVariable* this_variable,
+                                             bool is_function_prototype) {
   for (ASTNode* node : *insertion_stack.top()) {
-    //Debug
+    // Debug
     std::cout << insertion_stack.top() << std::endl;
     ASTFunction* function = dynamic_cast<ASTFunction*>(node);
     ASTVariable* variable = dynamic_cast<ASTVariable*>(node);
     if (is_function_prototype) {
       if (function) {
-        if (function->prototype->name == this_variable->name)
-          return nullptr;
+        if (function->prototype->name == this_variable->name) return nullptr;
       }
     } else if (variable) {
-      if (variable->name == this_variable->name) 
-        return nullptr;
+      if (variable->name == this_variable->name) return nullptr;
     }
   }
 
@@ -229,17 +224,18 @@ ASTVariable* Parser::check_for_redeclaration(ASTVariable* this_variable, bool is
 
 // Variable:
 // typename ident = value;  definition
-// typename ident;          declaration      
+// typename ident;          declaration
 
 ASTNode* Parser::parse_variable_expr(bool comma_separated) {
-  ASTVariable* this_variable; // Won't be returned in the case of a syntax error.
+  ASTVariable*
+      this_variable;  // Won't be returned in the case of a syntax error.
 
   token = get_token(iterator);
   std::string type_str = token.token_value.ident_str;
   if (type_str.size() < 1) {
     return report_error("Error: Invalid type name");
   }
-  
+
   bool sign = false;
   if (type_str[0] != 'u') {
     sign = true;
@@ -268,10 +264,10 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
     } catch (std::out_of_range e) {
       std::cout << e.what() << std::endl;
     }
-  }
-  else if (type_str == "bool") {
+  } else if (type_str == "bool") {
     width = 1;
-  } else width = -1;
+  } else
+    width = -1;
 
   ASTVariable::Attributes attributes{sign, width};
 
@@ -280,11 +276,8 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
   peeked_token = peek(iterator);
 
   if (peeked_token.token_type == static_cast<int>(Token::tok_identifier)) {
-    if (std::find(
-      types.begin(),
-      types.end(),
-      peeked_token.token_value.ident_str
-    ) != types.end()) {
+    if (std::find(types.begin(), types.end(),
+                  peeked_token.token_value.ident_str) != types.end()) {
       return report_error("Names of variables cannot be a type name");
     }
 
@@ -302,16 +295,15 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
     if (name == "main") found_main = true;
 
     this_variable = check_for_redeclaration(
-      new ASTVariable(name, attributes, insertion_stack.top()), true);
+        new ASTVariable(name, attributes, insertion_stack.top()), true);
 
     if (!this_variable)
       report_error("Redeclaration of function \"" + name + "\"");
 
     ASTNode* this_function = parse_function_prototype(this_variable);
 
-    if(error) 
-      return nullptr;
-    
+    if (error) return nullptr;
+
     return this_function;
   }
 
@@ -328,14 +320,16 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
         // @@@ This assignment might not be needed
         value = new ASTInteger(token.token_value.int_num_val);
         this_variable = check_for_redeclaration(
-          new ASTVariable(name, attributes, insertion_stack.top(), value), false);
+            new ASTVariable(name, attributes, insertion_stack.top(), value),
+            false);
         break;
 
       // @@@ Research FP number precision
       case static_cast<int>(Token::tok_floating_point):
         value = new ASTInteger(token.token_value.int_num_val);
         this_variable = check_for_redeclaration(
-          new ASTVariable(name, attributes, insertion_stack.top(), value), false);
+            new ASTVariable(name, attributes, insertion_stack.top(), value),
+            false);
         break;
 
       default:
@@ -355,7 +349,7 @@ ASTNode* Parser::parse_variable_expr(bool comma_separated) {
   }
 
   // Variable declaration
-  if(!comma_separated) {  
+  if (!comma_separated) {
     if (peeked_token.token_type == ';') {
       get_token(iterator);
 
@@ -381,7 +375,6 @@ parse:
   peeked_token = peek(iterator);
 
   switch (peeked_token.token_type) {
-
     // Type list for:
     // Function Prototype
     // Function Signature
@@ -408,7 +401,7 @@ parse:
     case static_cast<int>(Token::tok_eof):
       std::cout << "EOF reached" << std::endl;
       return nullptr;
-    
+
     default:
       get_token(iterator);
       return report_error("Unexpected token");

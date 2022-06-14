@@ -12,8 +12,7 @@
 - Clang 13.0.x or GCC 12.1 or newer (Linux)
 
 ### Windows
-The prebuilt LLVM binary for Windows doesn't support [CMake configuration](https://stackoverflow.com/questions/48947973/use-llvm-in-a-cmake-build). In
-order to build `egb-lang` on Windows, you must [download and build LLVM from
+The prebuilt LLVM binary for Windows doesn't support [CMake configuration](https://stackoverflow.com/questions/48947973/use-llvm-in-a-cmake-build). In order to build `egb-lang` on Windows, you must [download and build LLVM from
 source.](https://github.com/llvm/llvm-project/releases/tag/llvmorg-13.0.1)
 
 ```bash
@@ -28,6 +27,9 @@ On *nix systems, `egb-lang` can be built with either GNU Make or Ninja:
 $ cmake -S src -B build -G Ninja
 $ cmake --build build
 ```
+
+## Fuzz testing
+`libfuzzer` fuzz testing is available when using `-DBUILD_FUZZER`. Additionally, Apple Clang does not support `libfuzzer`.
 
 ## Usage
 If you wish, you can run the test suite located in

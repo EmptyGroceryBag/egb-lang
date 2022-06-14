@@ -44,7 +44,8 @@ next_token:
       pair.token_value.num_str += *(iterator++);
 
     if (string_to_int(pair.token_value.num_str, pair.token_value.int_num_val)) {
-      if (string_to_double(pair.token_value.num_str, pair.token_value.double_num_val)) {
+      if (string_to_double(pair.token_value.num_str,
+                           pair.token_value.double_num_val)) {
         pair.token_value.ident_str = pair.token_value.num_str;
         pair.token_type = static_cast<int>(Token::tok_identifier);
         return pair;
@@ -95,8 +96,7 @@ next_token:
 int string_to_int(const std::string input_num, long& output_num) {
   int decimal_point = input_num.find('.');
 
-  if (decimal_point != -1)
-    return decimal_point;
+  if (decimal_point != -1) return decimal_point;
 
   try {
     output_num = stoi(input_num);
@@ -119,6 +119,4 @@ int string_to_double(const std::string input_num, double& output_num) {
   return 0;
 }
 
-TokValPair peek(const char* iterator) {
-  return get_token(iterator);
-}
+TokValPair peek(const char* iterator) { return get_token(iterator); }

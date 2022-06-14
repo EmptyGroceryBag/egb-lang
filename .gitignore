@@ -49,10 +49,8 @@ include/divisible/*
 
 build/
 build_release/
-parser.cpp.old
-
 include/cmake_config.h
 lib/*
 bin/*
 test/test_runner
-Testing/*
+*.code-workspace

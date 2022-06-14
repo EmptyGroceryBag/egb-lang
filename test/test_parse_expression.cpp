@@ -235,7 +235,7 @@ TEST(test_parse_expression, test_bin_expr_nested_with_parens) {
 TEST(test_parse_expression, test_parse_variable_declaration) {
   Parser parser("u32 x;");
   ASTVariable* variable_expr =
-    dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
+      dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
 
   ASSERT_TRUE(variable_expr);
   EXPECT_EQ(variable_expr->name, "x");
@@ -244,11 +244,11 @@ TEST(test_parse_expression, test_parse_variable_declaration) {
 TEST(test_parse_expression, test_parse_variable_assignment) {
   Parser parser("u32 x = 8;");
   ASTVariable* variable_expr =
-    dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
+      dynamic_cast<ASTVariable*>(parser.parse_top_level_expr());
 
   ASSERT_TRUE(variable_expr);
   EXPECT_EQ(variable_expr->name, "x");
-  ASTVariable::Attributes test_attributes{ false, 32 };
+  ASTVariable::Attributes test_attributes{false, 32};
   EXPECT_TRUE(test_attributes == variable_expr->attributes);
 }
 
@@ -256,7 +256,7 @@ ASTFunction* check_function_prototype(std::string buffer) {
   Parser parser(&buffer[0]);
 
   ASTFunction* prototype_expr =
-    dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
+      dynamic_cast<ASTFunction*>(parser.parse_top_level_expr());
   return prototype_expr;
 }
 
@@ -273,32 +273,32 @@ TEST(test_parse_expression, test_parse_function_prototype) {
 
 TEST(test_parse_expression, test_parse_function_prototype_single_parameter) {
   ASTFunction* prototype_expr =
-    check_function_prototype("u32 doofus(u32 y) {}");
+      check_function_prototype("u32 doofus(u32 y) {}");
   ASSERT_TRUE(prototype_expr);
 
   EXPECT_EQ(prototype_expr->params.size(), 1);
   ASSERT_TRUE(prototype_expr->prototype);
   EXPECT_EQ(prototype_expr->prototype->name, "doofus");
-  ASTVariable::Attributes prototype_attributes{ false, 32 };
+  ASTVariable::Attributes prototype_attributes{false, 32};
   EXPECT_TRUE(prototype_attributes == prototype_expr->prototype->attributes);
 
   ASTVariable* param = dynamic_cast<ASTVariable*>(prototype_expr->params.at(0));
   ASSERT_TRUE(param);
   EXPECT_EQ(param->name, "y");
-  ASTVariable::Attributes test_attributes{ false, 32 };
+  ASTVariable::Attributes test_attributes{false, 32};
   EXPECT_TRUE(test_attributes == param->attributes);
   EXPECT_FALSE(param->value);
 }
 
 TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
   ASTFunction* prototype_expr =
-    check_function_prototype("u32 sum(u32 x1, u32 x2) {}");
+      check_function_prototype("u32 sum(u32 x1, u32 x2) {}");
   ASSERT_TRUE(prototype_expr);
 
   ASSERT_TRUE(prototype_expr->prototype);
   EXPECT_EQ(prototype_expr->params.size(), 2);
   EXPECT_EQ(prototype_expr->prototype->name, "sum");
-  ASTVariable::Attributes prototype_attributes{ false, 32 };
+  ASTVariable::Attributes prototype_attributes{false, 32};
   EXPECT_TRUE(prototype_attributes == prototype_expr->prototype->attributes);
 
   int i = 0;
@@ -306,7 +306,7 @@ TEST(test_parse_expression, test_parse_function_prototype_two_parameters) {
     ASTVariable* param_expr = dynamic_cast<ASTVariable*>(param);
     ASSERT_TRUE(param_expr);
 
-    ASTVariable::Attributes test_attributes{ false, 32 };
+    ASTVariable::Attributes test_attributes{false, 32};
     EXPECT_TRUE(test_attributes == param_expr->attributes);
 
     std::string param_name = "x";

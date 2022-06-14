@@ -85,8 +85,10 @@ target_link_libraries(
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/../test test)
 
+set(BUILD_FUZZER OFF CACHE BOOL "Build fuzzer")
 # Fuzz Testing
-if(NOT WIN32)
+if(NOT WIN32 AND BUILD_FUZZER)
+  message(STATUS "Building fuzzer")
   add_subdirectory(${PROJECT_SOURCE_DIR}/../fuzz fuzz)
 endif()
 

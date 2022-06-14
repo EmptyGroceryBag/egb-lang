@@ -1,5 +1,5 @@
-#include <string>
 #include <map>
+#include <string>
 #include <vector>
 
 #include "ast_node.h"
@@ -30,18 +30,18 @@ class ASTVariable : public ASTNode {
   std::string name;
   ASTNode* value = nullptr;
 
-  ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*>* insertion_point , ASTNode* value);
-  ASTVariable(std::string name, Attributes attributes, std::vector<ASTNode*>* insertion_point);
+  ASTVariable(std::string name, Attributes attributes,
+              std::vector<ASTNode*>* insertion_point, ASTNode* value);
+  ASTVariable(std::string name, Attributes attributes,
+              std::vector<ASTNode*>* insertion_point);
 
   std::vector<ASTNode*>* enclosing_scope;
 
-  ~ASTVariable() {
-    delete value;
-  }
+  ~ASTVariable() { delete value; }
 
   Value* code_gen(LLVMContext&, IRBuilder<>&);
 
-  Type* get_type_from_width(int); // @@@What is this?
+  Type* get_type_from_width(int);  // @@@What is this?
 
   // @@@ This is just to satiate the base class
   std::string to_string() { return to_string(0); }
