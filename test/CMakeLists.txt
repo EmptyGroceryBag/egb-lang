@@ -22,8 +22,4 @@ target_link_libraries(
     gtest_main
     ${llvm_libs})
 
-if(UNIX)
-    set(CMAKE_CXX_FLAGS "-g -Og -Werror")
-endif()
-
 target_include_directories(el_test PUBLIC ${PROJECT_SOURCE_DIR}/../include)
