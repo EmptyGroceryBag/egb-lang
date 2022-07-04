@@ -18,6 +18,7 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <cstdio>
+#include <cstring>
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -37,34 +38,78 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace llvm;
 
+// Validate input file extension
+int arg_validate_file_ext(const char* str, std::string valid_ext) {
+  std::string raw_ext;
+  for (int i = strlen(str) - 1; i >= 0; i--) {
+    if (str[i] == '.')
+      break;
+    raw_ext += str[i];
+  }
+
+  std::string ext;
+  for (int i = 0, j = strlen(raw_ext.c_str()) - 1; i < strlen(raw_ext.c_str()); i++, j--)
+    ext += raw_ext[j];
+
+  if ((ext == valid_ext) == false)
+    return 1;
+
+  return 0;
+}
+
 int main(int argc, char* argv[]) {
   std::cout << "egb-lang " << el_VERSION_MAJOR << "." << el_VERSION_MINOR
             << std::endl;
 
-  std::FILE* ifs;
-
   if (argc < 2) {
-    printf("\n\n");
-    std::cerr << "Error: No input files specified" << std::endl;
+    printf("\n");
     std::cout << "Usage: el FILE [FILE ...]" << std::endl;
     return 1;
   }
 
-  ifs = std::fopen(argv[1], "r");
+  // Parse cmdline arguments
+  std::string input_file;
+  std::string output_file;
+  if (argc > 2) {
+    for (int i = 1; i < argc; i++) {
+    if (argv[i][0] == '-' && argv[i][1] == 'o') {
+        if (!argv[i+1]) {
+          std::cout << "Error: File name expected after command line switch \'-o\'" << std::endl;
+          return 1;
+        }
+
+        if (arg_validate_file_ext(argv[i + 1], "ll")) 
+          continue;
+          //return 1;
+        output_file = argv[i + 1];
+        std::cout << "output_file = " << output_file << std::endl;
+        continue;
+      } else if (isalpha(argv[i][0])) {
+        if (arg_validate_file_ext(argv[i], "el"))
+            continue;
+        input_file = argv[i];
+        std::cout << "input_file = " << input_file << std::endl;
+      }
+    }
+  }
+
+  std::FILE* ifs;
+  ifs = std::fopen(input_file.c_str(), "r+");
   if (!ifs) {
-    std::cout << "Error: Could not open file \"" << argv[1] << "\""
+    std::cout << "Error: Could not open file \"" << input_file << "\""
               << std::endl;
     return errno;
   }
 
-  std::cout << "Opened " << argv[1] << std::endl;
+  std::cout << "Opened " << input_file << std::endl;
 
   char next_char;
   std::string buffer;
   while ((next_char = fgetc(ifs)) != EOF) buffer += next_char;
 
   std::fclose(ifs);
-  std::cout << "Closed " << argv[1] << std::endl;
+
+  std::cout << "Closed " << input_file << std::endl;
 
   const char* iterator = &buffer[0];
   Parser p(iterator);
@@ -103,11 +148,35 @@ int main(int argc, char* argv[]) {
 
   //#define DEBUG_PRINT_IR
   //#ifdef DEBUG_PRINT_IR
-  std::ostringstream test_output;
-  raw_os_ostream output_stream(test_output);
+  std::ostringstream term_output;
+  raw_os_ostream output_stream(term_output);
 
   llvm_module.print(output_stream, nullptr);
-  std::cout << test_output.str() << std::endl;
+  // Debug
+  //std::cout << term_output.str() << std::endl;
+
+  if (output_file.empty()) {
+    output_file = "a.ll";
+  }
+
+  std::FILE* ofs = std::fopen(output_file.c_str(), "w+");
+  if (!ofs) {
+    std::cout << "Could not open " << output_file << " for writing" << std::endl;
+    return errno;
+  }
+  
+  int write_result = std::fwrite (
+    term_output.str().data(),
+    sizeof(term_output.str().data()[0]),
+    term_output.str().size(),
+    ofs
+  );
+  std::fclose(ofs);
+
+  if (!write_result) {
+    std::cout << "Error writing to " << output_file << std::endl;
+    return errno;
+  }
   //#endif
 
   return 0;
