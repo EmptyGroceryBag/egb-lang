@@ -1,0 +1,5 @@
+u32 main() {}
+
+u32 dummy(u32 a) {
+  return a; #segfault 
+}
