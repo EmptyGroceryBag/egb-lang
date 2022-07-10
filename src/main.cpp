@@ -27,6 +27,7 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "ast_function.h"
 #include "ast_global_block.h"
 #include "ast_node.h"
+#include "cmd_options.h"
 #include "cmake_config.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
@@ -38,26 +39,40 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace llvm;
 
-// Validate input file extension
-int arg_validate_file_ext(const char* file_str, const std::string valid_ext) {
-  std::string raw_ext;
-  for (int i = strlen(file_str) - 1; i >= 0; i--) {
-    if (file_str[i] == '.')
-      break;
-    raw_ext += file_str[i];
+std::string input_file;
+std::string output_file;
+
+int write_ir(std::string& output_file, const Module& llvm_module){
+  std::ostringstream term_output;
+  raw_os_ostream output_stream(term_output);
+
+  llvm_module.print(output_stream, nullptr);
+
+  if (output_file.empty()) {
+    output_file = "a.ll";
   }
 
-  std::string ext;
-  for (int i = 0, j = strlen(raw_ext.c_str()) - 1; i < strlen(raw_ext.c_str()); i++, j--)
-    ext += raw_ext[j];
+  std::FILE* ofs = std::fopen(output_file.c_str(), "w+");
+  if (!ofs) {
+    std::cout << "Could not open " << "\"" << output_file << "\" for writing" << std::endl;
+    return errno;
+  }
+  
+  int write_result = std::fwrite (
+    term_output.str().data(),
+    sizeof(term_output.str().data()[0]),
+    term_output.str().size(),
+    ofs
+  );
+  std::fclose(ofs);
 
-  if ((ext == valid_ext) == false)
-    return 1;
-
-  return 0;
+  if (!write_result) {
+    std::cout << "Error writing to " << output_file << std::endl;
+    return errno;
+  }
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
   std::cout << "egb-lang " << el_VERSION_MAJOR << "." << el_VERSION_MINOR
             << std::endl;
 
@@ -65,40 +80,29 @@ int main(int argc, char* argv[]) {
     printf("\n");
     std::cout << "Usage: el FILE [FILE ...]" << std::endl;
     return 1;
-  }
+  }  
 
-  // Parse cmdline arguments
-  std::string input_file;
-  std::string output_file;
-  if (argc >= 2) {
-    for (int i = 1; i < argc; i++) {
-    if (argv[i][0] == '-' && argv[i][1] == 'o') {
-        if (!argv[i+1]) {
-          std::cout << "Error: File name expected after command line switch \'-o\'" << std::endl;
-          return 1;
-        }
+  CmdOptions options;
+  std::vector<CmdOptions::Option>* option_list = options.parse_options(argc, argv);
 
-        output_file = argv[i + 1];
-        std::cout << "output_file = " << output_file << std::endl;
-        continue;
-      } else if (isalpha(argv[i][0]) && input_file.empty()) {
-        input_file = argv[i];
-        std::cout << "input_file = " << input_file << std::endl;
-      }
-    }
-  }
+  //write_ir(options.output_file);
+
+  // @@@ Temporary
+  input_file = argv[1];
 
   std::FILE* ifs;
   bool file_err = false;
-  ifs = std::fopen(input_file.c_str(), "r+");
+  ifs = std::fopen(input_file .c_str(), "r+");
   if (!ifs) {
     std::cout << "Error: Could not open file \"" << input_file << "\"" << std::endl;
     file_err = true;
   }
-  if (arg_validate_file_ext(input_file.c_str(), "el")) {
-    std::cout << "\"" << input_file << "\"" ": Unrecognized file format" << std::endl;
+  /*
+  if (arg_validate_file_ext(input_file .c_str(), "el")) {
+    std::cout << "\"" << input_file  << "\": Unrecognized file format" << std::endl;
     file_err = true;
   }
+  */
   
   if (file_err)
     return 1;
@@ -147,39 +151,6 @@ int main(int argc, char* argv[]) {
     else
       n->code_gen(context, builder);
   }
-
-  //#define DEBUG_PRINT_IR
-  //#ifdef DEBUG_PRINT_IR
-  std::ostringstream term_output;
-  raw_os_ostream output_stream(term_output);
-
-  llvm_module.print(output_stream, nullptr);
-  // Debug
-  //std::cout << term_output.str() << std::endl;
-
-  if (output_file.empty()) {
-    output_file = "a.ll";
-  }
-
-  std::FILE* ofs = std::fopen(output_file.c_str(), "w+");
-  if (!ofs) {
-    std::cout << "Could not open " << output_file << " for writing" << std::endl;
-    return errno;
-  }
-  
-  int write_result = std::fwrite (
-    term_output.str().data(),
-    sizeof(term_output.str().data()[0]),
-    term_output.str().size(),
-    ofs
-  );
-  std::fclose(ofs);
-
-  if (!write_result) {
-    std::cout << "Error writing to " << output_file << std::endl;
-    return errno;
-  }
-  //#endif
 
   return 0;
 }

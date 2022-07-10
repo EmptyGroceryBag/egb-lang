@@ -54,6 +54,7 @@ add_library(
 
   lexer.cpp
   parser.cpp
+  cmd_options.cpp
   ast_integer.cpp
   ast_double.cpp
   ast_bin_expr.cpp
@@ -64,6 +65,7 @@ add_library(
   ${PROJECT_SOURCE_DIR}/../include/ast_double.h
   ${PROJECT_SOURCE_DIR}/../include/ast_integer.h
   ${PROJECT_SOURCE_DIR}/../include/ast_node.h
+  ${PROJECT_SOURCE_DIR}/../include/cmd_options.h
   ${PROJECT_SOURCE_DIR}/../include/lexer.h
   ${PROJECT_SOURCE_DIR}/../include/parser.h
   ${PROJECT_SOURCE_DIR}/../include/t_vals.h

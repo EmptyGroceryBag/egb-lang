@@ -11,8 +11,9 @@ enable_testing()
 
 add_executable(
     el_test
-    test_parse_expression.cpp
+    test_cmd_options.cpp
     test_codegen.cpp
+    test_parse_expression.cpp
 )
 
 llvm_map_components_to_libnames(llvm_libs support core irreader)
