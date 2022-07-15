@@ -29,6 +29,8 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include "ast_node.h"
 #include "cmd_options.h"
 #include "cmake_config.h"
+// @@@ TODO: Don't include windows.h
+#include "windows.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instructions.h"
 #include "llvm/IR/LLVMContext.h"
@@ -39,75 +41,134 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 
 using namespace llvm;
 
-std::string input_file;
-std::string output_file;
-
-int write_ir(std::string& output_file, const Module& llvm_module){
-  std::ostringstream term_output;
-  raw_os_ostream output_stream(term_output);
-
-  llvm_module.print(output_stream, nullptr);
-
-  if (output_file.empty()) {
-    output_file = "a.ll";
-  }
-
-  std::FILE* ofs = std::fopen(output_file.c_str(), "w+");
-  if (!ofs) {
-    std::cout << "Could not open " << "\"" << output_file << "\" for writing" << std::endl;
-    return errno;
-  }
+int spawn_clang(const char* input) {
   
-  int write_result = std::fwrite (
-    term_output.str().data(),
-    sizeof(term_output.str().data()[0]),
-    term_output.str().size(),
-    ofs
-  );
-  std::fclose(ofs);
-
-  if (!write_result) {
-    std::cout << "Error writing to " << output_file << std::endl;
-    return errno;
+#ifdef CMAKE_WIN32
+  HANDLE stdin_read = NULL;
+  HANDLE stdin_write = NULL;
+  SECURITY_ATTRIBUTES sa;
+  memset(&sa, 0, sizeof(SECURITY_ATTRIBUTES));
+  sa.bInheritHandle = TRUE;
+  if (!CreatePipe(&stdin_read, &stdin_write, &sa, 0)) {
+    std::cout << "Error " << GetLastError() << ": failed to create pipe" << std::endl;
+    return GetLastError();
   }
+
+  HANDLE std_err = GetStdHandle(STD_ERROR_HANDLE);
+  HANDLE std_out = GetStdHandle(STD_OUTPUT_HANDLE);
+
+  STARTUPINFO startup_info;
+  memset(&startup_info, 0, sizeof(STARTUPINFO));
+  startup_info.cb = sizeof(STARTUPINFOEX);
+  startup_info.hStdInput = stdin_read;
+  startup_info.hStdError = std_err;
+  startup_info.hStdOutput = std_out;
+  startup_info.dwFlags |= STARTF_USESTDHANDLES;
+  PROCESS_INFORMATION proc_info;
+  memset(&proc_info, 0, sizeof(PROCESS_INFORMATION));
+
+  // @@@ Too lazy to check for an error here
+  SIZE_T attr_list_size;
+  InitializeProcThreadAttributeList(NULL, 1, 0, &attr_list_size);
+
+  STARTUPINFOEX startup_info_ex;
+  memset(&startup_info_ex, 0, sizeof(STARTUPINFOEX));
+  startup_info_ex.lpAttributeList = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(
+    GetProcessHeap(),
+    0,
+    attr_list_size
+  );
+
+  startup_info_ex.StartupInfo = startup_info;
+
+  // @@@ Too lazy to check for an error here
+  InitializeProcThreadAttributeList(
+    startup_info_ex.lpAttributeList,
+    1,
+    0,
+    &attr_list_size
+  );
+
+  HANDLE handle_list[3];
+  handle_list[0] = stdin_read;
+  handle_list[1] = std_out;
+  handle_list[2] = std_err;
+  bool update_handle_list = UpdateProcThreadAttribute(
+    startup_info_ex.lpAttributeList,
+    0,
+    PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+    handle_list,
+    sizeof(handle_list),
+    NULL,
+    NULL
+  );
+
+  if (!update_handle_list) {
+    std::cout << "Error " << GetLastError() << ": failed to update handle list" << std::endl;
+    return GetLastError();
+  }
+
+  DWORD bytes_written = 0;
+  int input_length = strlen(input);
+  if (!WriteFile(stdin_write, input, input_length, &bytes_written, NULL)) {
+    std::cout << "Error " << GetLastError() << ": WriteFile()" << std::endl;
+    return GetLastError();
+  }
+
+  // CreateProcessW segfaults if lpApplicationName is NULL
+  bool result = CreateProcessA(
+    NULL,
+    const_cast<char*>("C:\\llvm-release\\bin\\clang.exe -xir -"),
+    NULL,
+    NULL,
+    TRUE,
+    EXTENDED_STARTUPINFO_PRESENT,
+    NULL,
+    NULL,
+    (LPSTARTUPINFOA)&startup_info_ex,
+    &proc_info
+  );
+
+  if (!result) {
+    std::cout << "Error " << GetLastError() << ": failed to start clang" << std::endl;
+    return GetLastError();
+  }
+
+  CloseHandle(stdin_write);
+  CloseHandle(stdin_read);
+  WaitForSingleObject(proc_info.hProcess, INFINITE);
+
+  CloseHandle(proc_info.hProcess);
+  CloseHandle(proc_info.hThread);
+
+  return 0;
+#endif
 }
 
 int main(int argc, char** argv) {
   std::cout << "egb-lang " << el_VERSION_MAJOR << "." << el_VERSION_MINOR
             << std::endl;
 
+  CmdOptions options;
   if (argc < 2) {
     printf("\n");
+    std::cout << "Error: No input files provided" << std::endl;
     std::cout << "Usage: el FILE [FILE ...]" << std::endl;
     return 1;
-  }  
-
-  CmdOptions options;
-  std::vector<CmdOptions::Option>* option_list = options.parse_options(argc, argv);
-
-  //write_ir(options.output_file);
-
-  // @@@ Temporary
-  input_file = argv[1];
+  } else {
+    std::vector<CmdOptions::Option>* option_list = options.parse_options(argc, argv);
+    if (options.parse_option_list(option_list))
+      return 1;
+  }
 
   std::FILE* ifs;
-  bool file_err = false;
-  ifs = std::fopen(input_file .c_str(), "r+");
+  ifs = std::fopen(options.input_file_name .c_str(), "r+");
   if (!ifs) {
-    std::cout << "Error: Could not open file \"" << input_file << "\"" << std::endl;
-    file_err = true;
-  }
-  /*
-  if (arg_validate_file_ext(input_file .c_str(), "el")) {
-    std::cout << "\"" << input_file  << "\": Unrecognized file format" << std::endl;
-    file_err = true;
-  }
-  */
-  
-  if (file_err)
+    std::cout << "Error: Could not open file \"" << options.input_file_name << "\"" << std::endl;
     return 1;
+  }
 
-  std::cout << "Opened " << input_file << std::endl;
+  std::cout << "Opened " << options.input_file_name << std::endl;
 
   char next_char;
   std::string buffer;
@@ -115,7 +176,7 @@ int main(int argc, char** argv) {
 
   std::fclose(ifs);
 
-  std::cout << "Closed " << input_file << std::endl;
+  std::cout << "Closed " << options.input_file_name << std::endl;
 
   const char* iterator = &buffer[0];
   Parser p(iterator);
@@ -152,5 +213,27 @@ int main(int argc, char** argv) {
       n->code_gen(context, builder);
   }
 
-  return 0;
+  std::ostringstream ir_ostream;
+  raw_os_ostream the_ir_ostream(ir_ostream);
+  llvm_module.print(the_ir_ostream, nullptr);
+
+  if (options.should_emit_ir) {
+    if (options.output_file_name.empty())
+      options.output_file_name = "a.ll";
+
+    if (options.validate_file_ext(options.output_file_name, "ll")) {
+      std::cout << "Error: Invalid file extension for LLVM IR file \"" << options.output_file_name << "\"" << std::endl;
+      return 1;
+    }
+
+    FILE* ir_file = fopen(options.output_file_name.c_str(), "w+");
+    if (!ir_file){
+      std::cout << "Error: Could not open file \"" << options.output_file_name << "\"" << std::endl;
+      return 1;
+    }
+    fputs(ir_ostream.str().c_str(), ir_file);
+  } else {
+    return spawn_clang(ir_ostream.str().c_str());
+  }
+
 }

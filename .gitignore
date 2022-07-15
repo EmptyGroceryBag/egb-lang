@@ -48,7 +48,10 @@ include/divisible/*
 
 .idea/*.xml
 
+.vs/
+
 build/
+build_vs/
 build_release/
 include/cmake_config.h
 lib/*

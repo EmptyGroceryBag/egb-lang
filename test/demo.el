@@ -1,3 +1,3 @@
-i32 main(i32 n) { 
-  i32 x = 10;
+i16 main() {
+  i16 test = 5;
 }

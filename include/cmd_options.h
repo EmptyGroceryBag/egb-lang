@@ -7,17 +7,25 @@
 
 struct CmdOptions {
 
+  std::string input_file_name;
+  std::string output_file_name;
+  bool should_emit_ir = false;
+
+  bool given_input_file = false;
+
   enum OptionKind {
     output_file,
+    input_file,
     emit_ir
   };
 
   struct Option {
     OptionKind kind;
-    std::vector<std::string> option_args;
+    std::string arg;
   };
 
-  int arg_validate_file_ext(const char*, const std::string);
+  int validate_file_ext(const std::string, const std::string);
+  int parse_option_list(const std::vector<CmdOptions::Option>*);
   std::vector<Option>* parse_options(const int, char**);
 };
 

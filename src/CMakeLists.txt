@@ -23,6 +23,7 @@ else()
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+  add_compile_definitions(CMAKE_MACOS)
   if(NOT LLVM_DIR)
     execute_process(
       # on homebrew, "llvm" points to 13 (or whatever the latest version is),
@@ -33,6 +34,12 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
     string(STRIP ${raw_prefix} prefix)
     set(LLVM_DIR ${prefix}/lib/cmake/llvm/)
   endif()
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+endif()
+
+if(WIN32)
+  message(STATUS "Winders!")
+  add_compile_definitions(CMAKE_WIN32)
 endif()
 
 # LLVM
