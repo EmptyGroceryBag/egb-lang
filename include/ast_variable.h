@@ -2,11 +2,12 @@
 #include <string>
 #include <vector>
 
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+
 #include "ast_node.h"
 //#include "data_type.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
 
 #ifndef AST_VARIABLE_H
 #define AST_VARIABLE_H

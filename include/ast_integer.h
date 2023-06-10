@@ -1,7 +1,8 @@
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+
 #include "ast_node.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
 
 #ifndef AST_INTEGER_H
 #define AST_INTEGER_H

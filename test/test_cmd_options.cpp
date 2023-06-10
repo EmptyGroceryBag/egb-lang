@@ -1,9 +1,9 @@
-#include <gtest/gtest.h>
-
 #include <string>
 #include <vector>
 
-#include <cmd_options.h>
+#include <gtest/gtest.h>
+
+#include "cmd_options.h"
 
 TEST(test_cmd_options, test_output_file) {
   const int argc = 3;

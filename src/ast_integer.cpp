@@ -1,10 +1,11 @@
-#include "ast_integer.h"
 #include <string>
 
-#include "llvm/IR/Constants.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
+#include <llvm/IR/Constants.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+
+#include "ast_integer.h"
 
 ASTInteger::ASTInteger(int value) : value(value) {}
 

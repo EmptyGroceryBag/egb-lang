@@ -1,11 +1,12 @@
 #include <iostream>
 #include <string>
 
-#include "ast_bin_expr.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Instruction.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+
+#include "ast_bin_expr.h"
 
 ASTBinExpr::ASTBinExpr(int op, ASTNode* lhs, ASTNode* rhs)
     : op(op), lhs(lhs), rhs(rhs){};

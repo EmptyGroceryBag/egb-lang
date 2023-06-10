@@ -17,11 +17,11 @@ You should have received a copy of the GNU General Public License along
 with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "lexer.h"
 #include <cstdio>
 #include <iostream>
 #include <string>
 
+#include "lexer.h"
 #include "t_vals.h"
 #include "tok_val_pair.h"
 

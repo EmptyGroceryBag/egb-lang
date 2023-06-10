@@ -2,6 +2,7 @@
 #include <vector>
 
 #include "ast_global_block.h"
+#include "ast_function.h"
 #include "ast_node.h"
 #include "ast_variable.h"
 #include "lexer.h"

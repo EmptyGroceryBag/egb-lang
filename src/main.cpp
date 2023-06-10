@@ -24,20 +24,21 @@ with egb-lang.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+// @@@ TODO: Don't include windows.h
+#include <Windows.h>
+#include <llvm/IR/IRBuilder.h>
+#include <llvm/IR/Instructions.h>
+#include <llvm/IR/LLVMContext.h>
+#include <llvm/IR/Module.h>
+#include <llvm/IR/Type.h>
+#include <llvm/Support/raw_os_ostream.h>
+#include <parser.h>
+
 #include "ast_function.h"
 #include "ast_global_block.h"
 #include "ast_node.h"
 #include "cmd_options.h"
 #include "cmake_config.h"
-// @@@ TODO: Don't include windows.h
-#include "windows.h"
-#include "llvm/IR/IRBuilder.h"
-#include "llvm/IR/Instructions.h"
-#include "llvm/IR/LLVMContext.h"
-#include "llvm/IR/Module.h"
-#include "llvm/IR/Type.h"
-#include "llvm/Support/raw_os_ostream.h"
-#include "parser.h"
 
 using namespace llvm;
 

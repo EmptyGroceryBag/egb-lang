@@ -1,7 +1,8 @@
-#include <cmd_options.h>
 #include <iostream>
 #include <string>
 #include <vector>
+
+#include "cmd_options.h"
 
 int CmdOptions::validate_file_ext(const std::string file_str, const std::string valid_ext) {
   std::string raw_ext;
