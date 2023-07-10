@@ -11,6 +11,7 @@ enable_testing()
 
 add_executable(
     el_test
+    
     test_cmd_options.cpp
     test_codegen.cpp
     test_parse_expression.cpp
@@ -22,5 +23,4 @@ target_link_libraries(
     el_lib
     gtest_main
     ${llvm_libs})
-
 target_include_directories(el_test PUBLIC ${PROJECT_SOURCE_DIR}/../include)

@@ -1,5 +1,6 @@
 add_executable(
   fuzzer
+  
   ${PROJECT_SOURCE_DIR}/../fuzz/fuzz_main.cpp
 )
 
