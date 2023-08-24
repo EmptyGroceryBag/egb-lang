@@ -44,7 +44,8 @@ using namespace llvm;
 
 int spawn_clang(const char* input) {
   
-#ifdef CMAKE_WIN32
+// @@@ Will this macro work for MinGW?
+#ifdef WIN32
   HANDLE stdin_read = NULL;
   HANDLE stdin_write = NULL;
   SECURITY_ATTRIBUTES sa;
@@ -153,7 +154,7 @@ int main(int argc, char** argv) {
   CmdOptions options;
   if (argc < 2) {
     printf("\n");
-    std::cout << "Error: No input files provided" << std::endl;
+    std::cout << "No input files provided" << std::endl;
     std::cout << "Usage: el FILE [FILE ...]" << std::endl;
     return 1;
   } else {
@@ -162,8 +163,7 @@ int main(int argc, char** argv) {
       return 1;
   }
 
-  std::FILE* ifs;
-  ifs = std::fopen(options.input_file_name .c_str(), "r+");
+  std::FILE* ifs = fopen(options.input_file_name.c_str(), "r+");
   if (!ifs) {
     std::cout << "Error: Could not open file \"" << options.input_file_name << "\"" << std::endl;
     return 1;
